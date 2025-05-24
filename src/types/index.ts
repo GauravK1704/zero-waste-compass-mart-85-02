@@ -12,6 +12,8 @@ export interface User {
   profilePicture?: string;
   gstin?: string;
   businessAddress?: string;
+  businessName?: string;
+  businessType?: string;
   createdAt: Date;
   updatedAt: Date;
   // AI Trust Score fields
@@ -24,6 +26,7 @@ export interface User {
     confidence: number;
     status: 'verified' | 'rejected';
   }[];
+  verified?: boolean;
 }
 
 export interface Product {
