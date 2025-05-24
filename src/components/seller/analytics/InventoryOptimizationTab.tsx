@@ -1,316 +1,467 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Package2, TrendingDown, TrendingUp, AlertTriangle, Bot, Zap } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { AlertTriangle, Package, Plus, Truck, Calendar, DollarSign, Bot } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+
+interface UrgentReorderItem {
+  id: string;
+  name: string;
+  currentStock: number;
+  reorderPoint: number;
+  suggestedOrderQuantity: number;
+  supplier: string;
+  unitCost: number;
+  estimatedDeliveryTime: string;
+  urgencyLevel: 'critical' | 'high' | 'medium';
+  category: string;
+  lastOrderDate: string;
+  averageDailySales: number;
+  daysUntilStockout: number;
+}
+
+interface CreateOrderFormData {
+  supplierId: string;
+  supplierName: string;
+  orderQuantity: number;
+  unitCost: number;
+  expectedDelivery: string;
+  notes: string;
+  priority: 'urgent' | 'standard' | 'low';
+}
 
 const InventoryOptimizationTab: React.FC = () => {
-  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [urgentItems, setUrgentItems] = useState<UrgentReorderItem[]>([]);
+  const [selectedItem, setSelectedItem] = useState<UrgentReorderItem | null>(null);
+  const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [orderForm, setOrderForm] = useState<CreateOrderFormData>({
+    supplierId: '',
+    supplierName: '',
+    orderQuantity: 0,
+    unitCost: 0,
+    expectedDelivery: '',
+    notes: '',
+    priority: 'urgent'
+  });
+  const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
 
-  // Mock inventory data
-  const inventoryHealth = [
-    { category: 'Fruits & Vegetables', stock: 85, optimal: 90, trend: 'up', turnover: 12 },
-    { category: 'Dairy Products', stock: 45, optimal: 80, trend: 'down', turnover: 8 },
-    { category: 'Grains & Cereals', stock: 120, optimal: 100, trend: 'stable', turnover: 15 },
-    { category: 'Snacks & Beverages', stock: 65, optimal: 75, trend: 'up', turnover: 18 },
-    { category: 'Personal Care', stock: 30, optimal: 60, trend: 'down', turnover: 6 }
-  ];
+  useEffect(() => {
+    generateUrgentReorderData();
+  }, []);
 
-  const reorderAlerts = [
-    { 
-      item: 'Organic Milk 1L', 
-      currentStock: 12, 
-      reorderPoint: 20, 
-      leadTime: '2 days',
-      supplier: 'Fresh Dairy Co.',
-      priority: 'high'
-    },
-    { 
-      item: 'Basmati Rice 5kg', 
-      currentStock: 8, 
-      reorderPoint: 15, 
-      leadTime: '1 week',
-      supplier: 'Golden Grains Ltd.',
-      priority: 'medium'
-    },
-    { 
-      item: 'Cooking Oil 1L', 
-      currentStock: 5, 
-      reorderPoint: 12, 
-      leadTime: '3 days',
-      supplier: 'Pure Oil Industries',
-      priority: 'high'
+  const generateUrgentReorderData = () => {
+    const mockItems: UrgentReorderItem[] = [
+      {
+        id: '1',
+        name: 'Organic Milk 1L',
+        currentStock: 15,
+        reorderPoint: 50,
+        suggestedOrderQuantity: 200,
+        supplier: 'Fresh Dairy Co.',
+        unitCost: 45,
+        estimatedDeliveryTime: '2-3 days',
+        urgencyLevel: 'critical',
+        category: 'Dairy',
+        lastOrderDate: '2024-05-20',
+        averageDailySales: 25,
+        daysUntilStockout: 1
+      },
+      {
+        id: '2',
+        name: 'Fresh Bread Loaves',
+        currentStock: 8,
+        reorderPoint: 30,
+        suggestedOrderQuantity: 100,
+        supplier: 'Artisan Bakery',
+        unitCost: 35,
+        estimatedDeliveryTime: '1-2 days',
+        urgencyLevel: 'critical',
+        category: 'Bakery',
+        lastOrderDate: '2024-05-22',
+        averageDailySales: 18,
+        daysUntilStockout: 0
+      },
+      {
+        id: '3',
+        name: 'Yogurt Cups (12 pack)',
+        currentStock: 45,
+        reorderPoint: 75,
+        suggestedOrderQuantity: 150,
+        supplier: 'Fresh Dairy Co.',
+        unitCost: 180,
+        estimatedDeliveryTime: '2-3 days',
+        urgencyLevel: 'high',
+        category: 'Dairy',
+        lastOrderDate: '2024-05-18',
+        averageDailySales: 12,
+        daysUntilStockout: 4
+      },
+      {
+        id: '4',
+        name: 'Seasonal Fruit Mix',
+        currentStock: 20,
+        reorderPoint: 40,
+        suggestedOrderQuantity: 80,
+        supplier: 'Local Farms Network',
+        unitCost: 120,
+        estimatedDeliveryTime: '1 day',
+        urgencyLevel: 'high',
+        category: 'Fresh Produce',
+        lastOrderDate: '2024-05-21',
+        averageDailySales: 8,
+        daysUntilStockout: 3
+      },
+      {
+        id: '5',
+        name: 'Eco-Friendly Cleaning Supplies',
+        currentStock: 25,
+        reorderPoint: 35,
+        suggestedOrderQuantity: 60,
+        supplier: 'Green Clean Co.',
+        unitCost: 85,
+        estimatedDeliveryTime: '3-5 days',
+        urgencyLevel: 'medium',
+        category: 'Household',
+        lastOrderDate: '2024-05-15',
+        averageDailySales: 4,
+        daysUntilStockout: 6
+      }
+    ];
+
+    setUrgentItems(mockItems.sort((a, b) => {
+      const urgencyOrder = { critical: 0, high: 1, medium: 2 };
+      return urgencyOrder[a.urgencyLevel] - urgencyOrder[b.urgencyLevel];
+    }));
+  };
+
+  const getUrgencyColor = (level: string) => {
+    switch (level) {
+      case 'critical': return 'bg-red-100 text-red-800 border-red-300';
+      case 'high': return 'bg-orange-100 text-orange-800 border-orange-300';
+      case 'medium': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
     }
-  ];
+  };
 
-  const optimizationSuggestions = [
-    {
-      category: 'Overstocked Items',
-      items: ['Canned Tomatoes', 'Pasta Sauce', 'Frozen Peas'],
-      action: 'Consider promotional offers to clear excess stock',
-      impact: 'Reduce holding costs by ₹8,500',
-      confidence: 92
-    },
-    {
-      category: 'Fast Moving Items',
-      items: ['Fresh Bread', 'Milk', 'Eggs'],
-      action: 'Increase order frequency to prevent stockouts',
-      impact: 'Increase revenue by ₹12,000/month',
-      confidence: 88
-    },
-    {
-      category: 'Seasonal Optimization',
-      items: ['Ice Cream', 'Cold Drinks', 'Fresh Fruits'],
-      action: 'Prepare for summer demand surge',
-      impact: 'Capture additional ₹25,000 in seasonal sales',
-      confidence: 85
-    }
-  ];
-
-  const stockMovement = [
-    { week: 'Week 1', inflow: 2500, outflow: 2200, netChange: 300 },
-    { week: 'Week 2', inflow: 2800, outflow: 2400, netChange: 400 },
-    { week: 'Week 3', inflow: 2200, outflow: 2600, netChange: -400 },
-    { week: 'Week 4', inflow: 3200, outflow: 2800, netChange: 400 }
-  ];
-
-  const handleOptimization = async () => {
-    setIsOptimizing(true);
-    
-    // Simulate AI optimization
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    toast.success("Inventory Optimization Complete", {
-      description: "Generated new reorder recommendations and stock level optimizations"
+  const openCreateOrderDialog = (item: UrgentReorderItem) => {
+    setSelectedItem(item);
+    setOrderForm({
+      supplierId: item.supplier.toLowerCase().replace(/\s+/g, '-'),
+      supplierName: item.supplier,
+      orderQuantity: item.suggestedOrderQuantity,
+      unitCost: item.unitCost,
+      expectedDelivery: new Date(Date.now() + (item.estimatedDeliveryTime.includes('1') ? 2 : 4) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+      notes: `Urgent reorder for ${item.name} - current stock critically low`,
+      priority: item.urgencyLevel === 'critical' ? 'urgent' : 'standard'
     });
+    setIsCreateOrderOpen(true);
+  };
+
+  const handleCreateOrder = async () => {
+    if (!selectedItem) return;
+
+    setIsSubmittingOrder(true);
     
-    setIsOptimizing(false);
+    // Simulate order creation process
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    // Update stock levels optimistically
+    setUrgentItems(prev => prev.map(item => 
+      item.id === selectedItem.id 
+        ? { 
+            ...item, 
+            currentStock: item.currentStock + Math.floor(orderForm.orderQuantity * 0.1), // Simulate partial immediate stock
+            lastOrderDate: new Date().toISOString().split('T')[0]
+          }
+        : item
+    ));
+
+    setIsSubmittingOrder(false);
+    setIsCreateOrderOpen(false);
+    
+    toast.success("Order Created Successfully", {
+      description: `Purchase order for ${orderForm.orderQuantity} units of ${selectedItem.name} has been sent to ${orderForm.supplierName}`
+    });
+
+    // Reset form
+    setSelectedItem(null);
+    setOrderForm({
+      supplierId: '',
+      supplierName: '',
+      orderQuantity: 0,
+      unitCost: 0,
+      expectedDelivery: '',
+      notes: '',
+      priority: 'urgent'
+    });
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      default: return 'default';
-    }
+  const calculateTotalOrderValue = () => {
+    return orderForm.orderQuantity * orderForm.unitCost;
   };
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down': return <TrendingDown className="h-4 w-4 text-red-500" />;
-      default: return <div className="h-4 w-4 bg-gray-400 rounded-full" />;
-    }
-  };
+  const criticalItems = urgentItems.filter(item => item.urgencyLevel === 'critical');
+  const totalValueAtRisk = urgentItems.reduce((total, item) => 
+    total + (item.averageDailySales * item.unitCost * Math.max(0, item.daysUntilStockout)), 0
+  );
 
   return (
     <div className="space-y-6">
-      {/* Inventory Overview Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+      {/* Overview Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-red-200 bg-gradient-to-br from-red-50 to-pink-50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-green-600 font-medium">Total SKUs</p>
-                <p className="text-2xl font-bold text-green-700">1,247</p>
-                <p className="text-xs text-green-500">+15 new this week</p>
+                <p className="text-sm text-red-600 font-medium">Critical Items</p>
+                <p className="text-2xl font-bold text-red-700">{criticalItems.length}</p>
               </div>
-              <Package2 className="h-8 w-8 text-green-500" />
+              <AlertTriangle className="h-8 w-8 text-red-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
+        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-600 font-medium">Avg Turnover</p>
-                <p className="text-2xl font-bold text-blue-700">12.5x</p>
-                <p className="text-xs text-blue-500">Per year</p>
+                <p className="text-sm text-orange-600 font-medium">Total Items to Reorder</p>
+                <p className="text-2xl font-bold text-orange-700">{urgentItems.length}</p>
               </div>
-              <TrendingUp className="h-8 w-8 text-blue-500" />
+              <Package className="h-8 w-8 text-orange-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50">
+        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-orange-600 font-medium">Reorder Alerts</p>
-                <p className="text-2xl font-bold text-orange-700">{reorderAlerts.length}</p>
-                <p className="text-xs text-orange-500">Items need attention</p>
+                <p className="text-sm text-blue-600 font-medium">Value at Risk</p>
+                <p className="text-2xl font-bold text-blue-700">₹{totalValueAtRisk.toLocaleString()}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-violet-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-purple-600 font-medium">Stock Value</p>
-                <p className="text-2xl font-bold text-purple-700">₹2.8L</p>
-                <p className="text-xs text-purple-500">Current inventory</p>
-              </div>
-              <Package2 className="h-8 w-8 text-purple-500" />
+              <DollarSign className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* AI Optimization Controls */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-purple-600" />
-            AI Inventory Optimization Engine
-          </CardTitle>
-          <Button 
-            onClick={handleOptimization}
-            disabled={isOptimizing}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-          >
-            {isOptimizing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Optimizing...
-              </>
-            ) : (
-              <>
-                <Zap className="h-4 w-4 mr-2" />
-                Run AI Optimization
-              </>
-            )}
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {optimizationSuggestions.map((suggestion, index) => (
-              <div key={index} className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-medium text-purple-800">{suggestion.category}</h4>
-                  <Badge variant="outline" className="text-purple-600">
-                    {suggestion.confidence}% confidence
-                  </Badge>
-                </div>
-                <p className="text-sm text-purple-700 mb-2">{suggestion.action}</p>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-xs text-purple-600">Items:</span>
-                  <div className="flex gap-1">
-                    {suggestion.items.map((item, i) => (
-                      <Badge key={i} variant="secondary" className="text-xs">
-                        {item}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-                <p className="text-sm font-medium text-green-700">{suggestion.impact}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Inventory Health and Stock Movement */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Category Health Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {inventoryHealth.map((category, index) => (
-                <div key={index} className="p-3 bg-gradient-to-r from-white to-gray-50 rounded-lg border">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{category.category}</span>
-                    <div className="flex items-center gap-2">
-                      {getTrendIcon(category.trend)}
-                      <span className="text-sm text-gray-600">{category.turnover}x/year</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs text-gray-500">Stock Level:</span>
-                    <Progress 
-                      value={(category.stock / category.optimal) * 100} 
-                      className="h-2 flex-1"
-                    />
-                    <span className="text-xs text-gray-600">{category.stock}/{category.optimal}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Stock Movement Trends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stockMovement}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="week" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="inflow" stroke="#10B981" name="Inflow" strokeWidth={2} />
-                  <Line type="monotone" dataKey="outflow" stroke="#EF4444" name="Outflow" strokeWidth={2} />
-                  <Line type="monotone" dataKey="netChange" stroke="#8B5CF6" name="Net Change" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Reorder Alerts */}
+      {/* Urgent Reorder Alerts */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-orange-500" />
-            Urgent Reorder Alerts
+            <Bot className="h-5 w-5 text-purple-600" />
+            AI-Powered Urgent Reorder Alerts
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {reorderAlerts.map((alert, index) => (
+            {urgentItems.map((item, index) => (
               <motion.div
-                key={index}
+                key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-lg border border-orange-200"
+                className="border rounded-lg p-4 bg-gradient-to-r from-white to-gray-50"
               >
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <h4 className="font-medium text-gray-800">{alert.item}</h4>
-                    <Badge variant={getPriorityColor(alert.priority)}>
-                      {alert.priority} priority
-                    </Badge>
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-medium text-gray-800">{item.name}</h4>
+                      <Badge className={getUrgencyColor(item.urgencyLevel)}>
+                        {item.urgencyLevel}
+                      </Badge>
+                      {item.daysUntilStockout <= 1 && (
+                        <Badge variant="destructive" className="animate-pulse">
+                          STOCKOUT RISK
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div>
+                        <span className="text-gray-500">Current Stock:</span>
+                        <p className="font-medium">{item.currentStock} units</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Reorder Point:</span>
+                        <p className="font-medium">{item.reorderPoint} units</p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Days Until Stockout:</span>
+                        <p className={`font-medium ${item.daysUntilStockout <= 1 ? 'text-red-600' : 'text-orange-600'}`}>
+                          {item.daysUntilStockout} days
+                        </p>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Daily Sales:</span>
+                        <p className="font-medium">{item.averageDailySales} units/day</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-md border border-blue-200 mb-4">
+                      <div className="flex items-start gap-2">
+                        <Bot className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <p className="text-xs font-medium text-blue-700 mb-1">AI Recommendation</p>
+                          <p className="text-sm text-blue-800">
+                            Order {item.suggestedOrderQuantity} units from {item.supplier} immediately. 
+                            Estimated delivery: {item.estimatedDeliveryTime}. 
+                            Cost: ₹{(item.suggestedOrderQuantity * item.unitCost).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm text-gray-600">
-                    <span>Current: {alert.currentStock} units</span>
-                    <span>Reorder at: {alert.reorderPoint} units</span>
-                    <span>Lead time: {alert.leadTime}</span>
+                  
+                  <div className="flex flex-col gap-2 ml-4">
+                    <Button
+                      onClick={() => openCreateOrderDialog(item)}
+                      className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                      size="sm"
+                    >
+                      <Plus className="h-4 w-4 mr-1" />
+                      Create Order
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Calendar className="h-4 w-4 mr-1" />
+                      Schedule
+                    </Button>
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Supplier: {alert.supplier}</p>
                 </div>
-                <Button size="sm" variant="outline" className="ml-4">
-                  Create Order
-                </Button>
               </motion.div>
             ))}
           </div>
         </CardContent>
       </Card>
+
+      {/* Create Order Dialog */}
+      <Dialog open={isCreateOrderOpen} onOpenChange={setIsCreateOrderOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Purchase Order</DialogTitle>
+          </DialogHeader>
+          
+          {selectedItem && (
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-3 rounded-md">
+                <h4 className="font-medium">{selectedItem.name}</h4>
+                <p className="text-sm text-gray-600">Current Stock: {selectedItem.currentStock} units</p>
+                <p className="text-sm text-gray-600">Reorder Point: {selectedItem.reorderPoint} units</p>
+              </div>
+
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="supplier">Supplier</Label>
+                  <Input
+                    id="supplier"
+                    value={orderForm.supplierName}
+                    onChange={(e) => setOrderForm(prev => ({ ...prev, supplierName: e.target.value }))}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="quantity">Order Quantity</Label>
+                    <Input
+                      id="quantity"
+                      type="number"
+                      value={orderForm.orderQuantity}
+                      onChange={(e) => setOrderForm(prev => ({ ...prev, orderQuantity: parseInt(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="unitCost">Unit Cost (₹)</Label>
+                    <Input
+                      id="unitCost"
+                      type="number"
+                      value={orderForm.unitCost}
+                      onChange={(e) => setOrderForm(prev => ({ ...prev, unitCost: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor="delivery">Expected Delivery Date</Label>
+                  <Input
+                    id="delivery"
+                    type="date"
+                    value={orderForm.expectedDelivery}
+                    onChange={(e) => setOrderForm(prev => ({ ...prev, expectedDelivery: e.target.value }))}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="priority">Priority Level</Label>
+                  <Select value={orderForm.priority} onValueChange={(value: 'urgent' | 'standard' | 'low') => 
+                    setOrderForm(prev => ({ ...prev, priority: value }))
+                  }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                      <SelectItem value="standard">Standard</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={orderForm.notes}
+                    onChange={(e) => setOrderForm(prev => ({ ...prev, notes: e.target.value }))}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="bg-blue-50 p-3 rounded-md">
+                  <h5 className="font-medium text-blue-800 mb-1">Order Summary</h5>
+                  <p className="text-sm text-blue-700">
+                    Total Value: ₹{calculateTotalOrderValue().toLocaleString()}
+                  </p>
+                  <p className="text-sm text-blue-700">
+                    Expected Delivery: {orderForm.expectedDelivery}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4">
+                <Button
+                  onClick={handleCreateOrder}
+                  disabled={isSubmittingOrder || !orderForm.orderQuantity}
+                  className="flex-1"
+                >
+                  {isSubmittingOrder ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Creating Order...
+                    </>
+                  ) : (
+                    <>
+                      <Truck className="h-4 w-4 mr-2" />
+                      Create Order
+                    </>
+                  )}
+                </Button>
+                <Button variant="outline" onClick={() => setIsCreateOrderOpen(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

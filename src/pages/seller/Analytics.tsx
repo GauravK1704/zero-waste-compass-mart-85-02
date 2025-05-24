@@ -9,6 +9,7 @@ import ExportAnalyticsButton from '@/components/seller/analytics/ExportAnalytics
 import ExpiryTrackingTab from '@/components/seller/analytics/ExpiryTrackingTab';
 import CustomerInsightsTab from '@/components/seller/analytics/CustomerInsightsTab';
 import InventoryOptimizationTab from '@/components/seller/analytics/InventoryOptimizationTab';
+import AIBusinessAssistant from '@/components/seller/analytics/AIBusinessAssistant';
 import { revenueData, inventoryForecastData } from '@/components/seller/analytics/mockData';
 import { BarChart4, TrendingUp, Calendar, Bot, Users, Package2 } from 'lucide-react';
 
@@ -140,36 +141,7 @@ const Analytics = () => {
 
               <AnimatedTabContent value="ai-insights" currentTab={selectedTab}>
                 <div className="p-4">
-                  <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Bot className="h-5 w-5 text-purple-600" />
-                        AI Business Assistant
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-center py-8">
-                        <Bot className="h-16 w-16 text-purple-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                          Advanced AI Analytics Coming Soon
-                        </h3>
-                        <p className="text-gray-600 mb-4">
-                          Our AI is analyzing your business patterns to provide personalized insights and recommendations.
-                        </p>
-                        <div className="bg-white rounded-lg p-4 border border-purple-200">
-                          <h4 className="font-medium text-purple-800 mb-2">What's Coming:</h4>
-                          <ul className="text-sm text-gray-700 space-y-1 text-left">
-                            <li>• Predictive demand forecasting</li>
-                            <li>• Automated inventory optimization</li>
-                            <li>• Customer behavior analysis</li>
-                            <li>• Market trend predictions</li>
-                            <li>• Dynamic pricing recommendations</li>
-                            <li>• Supply chain optimization</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <AIBusinessAssistant />
                 </div>
               </AnimatedTabContent>
             </Tabs>
