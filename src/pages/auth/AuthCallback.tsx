@@ -81,8 +81,8 @@ const AuthCallback = () => {
           console.log("Redirecting to seller dashboard");
           navigate('/seller/dashboard');
         } else {
-          console.log("Redirecting to buyer dashboard");
-          navigate('/dashboard');
+          console.log("Redirecting to marketplace for buyer");
+          navigate('/marketplace');
         }
       } catch (error: any) {
         console.error('Error handling auth callback:', error);

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { CartItem, CartOperations } from './types';
@@ -21,6 +20,8 @@ export const useCartOperations = (
   // Add item to cart (either by item object or by product ID)
   const addToCart = async (item: CartItem | string, quantity: number = 1) => {
     try {
+      console.log("addToCart called with:", item, "quantity:", quantity);
+      
       if (typeof item === 'string') {
         // Handle as product ID
         const productId = item;
@@ -33,8 +34,8 @@ export const useCartOperations = (
           const newQuantity = existingItem.quantity + quantity;
           
           // Update cart items
-          const updatedItems = cartItems.map(item => 
-            item.product_id === productId ? { ...item, quantity: newQuantity } : item
+          const updatedItems = cartItems.map(cartItem => 
+            cartItem.product_id === productId ? { ...cartItem, quantity: newQuantity } : cartItem
           );
           setCartItems(updatedItems);
           
@@ -44,17 +45,18 @@ export const useCartOperations = (
           const mockProduct = createMockCartProduct(productId, currentUserId);
           mockProduct.quantity = quantity;
           
-          setCartItems([...cartItems, mockProduct]);
+          setCartItems(prev => [...prev, mockProduct]);
           toast.success("Item added to cart");
         }
       } else {
         // Handle as CartItem object
-        const cartItem = { ...item, quantity: quantity || 1 };
+        const cartItem = { ...item };
+        
+        console.log("Processing cart item:", cartItem);
         
         // Check if item already in cart by product_id
         const existingItemIndex = cartItems.findIndex(i => 
-          (i.product_id && cartItem.product_id && i.product_id === cartItem.product_id) || 
-          i.id === cartItem.id
+          i.product_id === cartItem.product_id || i.id === cartItem.id
         );
         
         if (existingItemIndex >= 0) {
@@ -62,16 +64,23 @@ export const useCartOperations = (
           const updatedItems = [...cartItems];
           updatedItems[existingItemIndex].quantity += cartItem.quantity;
           setCartItems(updatedItems);
+          toast.success("Item quantity updated in cart");
         } else {
-          // Add new item with a unique ID
+          // Add new item with a unique ID if not present
           const newItem = {
             ...cartItem,
-            id: cartItem.id || `cart-item-${Date.now()}`
+            id: cartItem.id || `cart-item-${Date.now()}`,
+            user_id: currentUserId
           };
-          setCartItems([...cartItems, newItem]);
+          
+          console.log("Adding new item to cart:", newItem);
+          setCartItems(prev => {
+            const newCart = [...prev, newItem];
+            console.log("New cart state:", newCart);
+            return newCart;
+          });
+          toast.success("Item added to cart");
         }
-        
-        toast.success("Item added to cart");
       }
     } catch (error) {
       console.error("Error adding to cart:", error);

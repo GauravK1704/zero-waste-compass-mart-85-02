@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCart } from '@/hooks/cart';
@@ -60,26 +59,38 @@ const Marketplace: React.FC = () => {
     fetchProducts();
   }, [toast]);
 
-  const handleAddToCart = (product: Product) => {
-    const discountedPrice = product.discountPercentage 
-      ? product.price - (product.price * product.discountPercentage / 100)
-      : product.price;
+  const handleAddToCart = async (product: Product) => {
+    try {
+      const discountedPrice = product.discountPercentage 
+        ? product.price - (product.price * product.discountPercentage / 100)
+        : product.price;
+        
+      const cartItem = {
+        id: `cart-${product.id}-${Date.now()}`,
+        product_id: product.id,
+        name: product.name,
+        price: discountedPrice,
+        image: product.image,
+        expiryDate: product.expiryDate,
+        sellerId: product.sellerId,
+        quantity: 1
+      };
       
-    addToCart({
-      id: `cart-${product.id}`,
-      product_id: product.id,
-      name: product.name,
-      price: discountedPrice,
-      image: product.image,
-      expiryDate: product.expiryDate,
-      sellerId: product.sellerId,
-      quantity: 1
-    });
-    
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`
-    });
+      console.log("Adding item to cart:", cartItem);
+      await addToCart(cartItem);
+      
+      toast({
+        title: "Added to cart",
+        description: `${product.name} has been added to your cart.`
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add item to cart. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   const toggleExpiryAlerts = () => {

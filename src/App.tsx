@@ -9,6 +9,7 @@ import AuthCallback from './pages/auth/AuthCallback';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import AdminPanel from './pages/AdminPanel';
 import AuthLayout from './components/layouts/AuthLayout';
 import DashboardLayout from './components/layouts/DashboardLayout';

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -25,15 +24,25 @@ export const useCart = (): CartHookReturn => {
 
   // Custom implementation of fetchCartItems
   const fetchCartItems = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      // Load from localStorage if not logged in
+      setCartItems(loadCartFromLocalStorage());
+      setLoading(false);
+      return;
+    }
     
     try {
       setLoading(true);
       
-      // Mock cart items for now
-      const mockCartItems = generateMockCartItems(currentUser.id);
-      
-      setCartItems(mockCartItems);
+      // For authenticated users, try to load from localStorage first
+      const localCartItems = loadCartFromLocalStorage();
+      if (localCartItems.length > 0) {
+        setCartItems(localCartItems);
+      } else {
+        // Mock cart items for demo
+        const mockCartItems = generateMockCartItems(currentUser.id);
+        setCartItems(mockCartItems);
+      }
     } catch (error) {
       console.error("Error fetching cart items:", error);
       toast.error("Failed to load your cart");
@@ -44,21 +53,15 @@ export const useCart = (): CartHookReturn => {
 
   // Fetch cart items on mount or user change
   useEffect(() => {
-    if (currentUser) {
-      fetchCartItems();
-    } else {
-      // Load from localStorage if not logged in
-      setCartItems(loadCartFromLocalStorage());
-      setLoading(false);
-    }
+    fetchCartItems();
   }, [currentUser]);
 
   // Update localStorage whenever cart changes
   useEffect(() => {
-    if (!currentUser) {
+    if (!loading) {
       saveCartToLocalStorage(cartItems);
     }
-  }, [cartItems, currentUser]);
+  }, [cartItems, loading]);
 
   return {
     cartItems,
