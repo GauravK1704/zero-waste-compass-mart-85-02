@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useCart } from '@/hooks/cart';
-import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
 
 import { mockProducts } from './data/mockProducts';
 import { calculateDiscount, getAiExpiryAlert } from './utils/productUtils';
@@ -16,40 +17,52 @@ const Marketplace: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
   const [showExpiryAlerts, setShowExpiryAlerts] = useState(true);
 
   // Get all unique categories from products
   const categories = ['all', ...Array.from(new Set(mockProducts.map(p => p.category.toLowerCase())))];
 
-  // Fetch products from Supabase (simulated for now)
+  // Fetch products with better error handling
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
+        // Simulate network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
         // This would be a real Supabase query in production
         // const { data, error } = await supabase
         //   .from('products')
         //   .select('*')
         
-        // For now, we'll use our mock data
-        const data = mockProducts;
+        // For now, we'll use our mock data with validation
+        const data = mockProducts.filter(product => {
+          // Validate required fields
+          return product.id && product.name && product.price >= 0;
+        });
         
         // Apply dynamic pricing algorithm
         const updatedProducts = data.map(product => {
           const discountPercentage = calculateDiscount(product.expiryDate);
           return {
             ...product,
-            discountPercentage
+            discountPercentage,
+            inStock: product.inStock !== false // Default to true if not specified
           };
         });
         
         setProducts(updatedProducts);
       } catch (error) {
         console.error("Error fetching products:", error);
+        setError("Failed to load products. Please try again later.");
         toast({ 
           title: "Error", 
-          description: "Failed to load products. Please try again later." 
+          description: "Failed to load products. Please try again later.",
+          variant: "destructive"
         });
       } finally {
         setLoading(false);
@@ -103,9 +116,64 @@ const Marketplace: React.FC = () => {
     });
   };
 
+  const retryFetch = () => {
+    setError(null);
+    setLoading(true);
+    // Trigger refetch
+    window.location.reload();
+  };
+
   // Show loading state
   if (loading) {
     return <LoadingState />;
+  }
+
+  // Show error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <motion.div 
+          className="text-center py-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="max-w-md mx-auto">
+            <div className="text-red-500 text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
+            <p className="text-gray-600 mb-6">{error}</p>
+            <button 
+              onClick={retryFetch}
+              className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Show empty state
+  if (products.length === 0) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <MarketplaceHeader 
+          showExpiryAlerts={showExpiryAlerts} 
+          toggleExpiryAlerts={toggleExpiryAlerts} 
+        />
+        <motion.div 
+          className="text-center py-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="max-w-md mx-auto">
+            <div className="text-gray-400 text-6xl mb-4">📦</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">No products available</h2>
+            <p className="text-gray-600">Check back later for new products!</p>
+          </div>
+        </motion.div>
+      </div>
+    );
   }
 
   return (

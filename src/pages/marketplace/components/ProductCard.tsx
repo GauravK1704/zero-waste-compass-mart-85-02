@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/hooks/cart';
 import { toast } from 'sonner';
 import { convertMarketplaceProductToCartItem } from '@/hooks/cart/cartUtils';
-import { formatIndianRupees } from '@/utils/invoice/formatUtils';
 
 interface Product {
   id: string;
@@ -38,8 +37,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart();
   const [showAiPricing, setShowAiPricing] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   const calculateDaysToExpiry = (expiryDate: string): number => {
+    if (!expiryDate) return 999;
     const today = new Date();
     const expiry = new Date(expiryDate);
     const diffTime = expiry.getTime() - today.getTime();
@@ -49,7 +50,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   // AI Dynamic Pricing Logic
   const generateAiPricingRecommendation = () => {
     const daysToExpiry = calculateDaysToExpiry(product.expiryDate);
-    const basePrice = product.price;
+    const basePrice = product.price || 0;
     
     // AI factors: demand, expiry, time of day, inventory
     const demandFactor = Math.random() * 0.3 + 0.85; // 0.85-1.15
@@ -57,7 +58,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
     const timeOfDayFactor = new Date().getHours() > 18 ? 0.95 : 1.05; // Evening discount
     
     const aiRecommendedPrice = basePrice * demandFactor * expiryFactor * timeOfDayFactor;
-    const priceChange = ((aiRecommendedPrice - basePrice) / basePrice) * 100;
+    const priceChange = basePrice > 0 ? ((aiRecommendedPrice - basePrice) / basePrice) * 100 : 0;
     
     return {
       recommendedPrice: Math.round(aiRecommendedPrice * 100) / 100,
@@ -70,13 +71,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const aiPricing = generateAiPricingRecommendation();
   const daysToExpiry = product.expiryDate ? calculateDaysToExpiry(product.expiryDate) : null;
-  const showAlert = showExpiryAlerts && daysToExpiry !== null && daysToExpiry <= 7;
+  const showAlert = showExpiryAlerts && daysToExpiry !== null && daysToExpiry <= 7 && daysToExpiry >= 0;
 
   const handleAddToCart = () => {
-    const cartItem = convertMarketplaceProductToCartItem(product);
-    addToCart(cartItem);
-    toast.success(`${product.name} added to cart`);
-    onAddToCart(product);
+    try {
+      const cartItem = convertMarketplaceProductToCartItem(product);
+      addToCart(cartItem);
+      toast.success(`${product.name} added to cart`);
+      onAddToCart(product);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
   };
 
   const getExpiryAlertColor = (): string => {
@@ -89,6 +95,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+  };
+
+  const handleImageError = () => {
+    setImageError(true);
   };
 
   return (
@@ -123,15 +133,25 @@ const ProductCard: React.FC<ProductCardProps> = ({
       )}
 
       {/* Product Image */}
-      <div className="relative w-full h-48 overflow-hidden">
-        <img 
-          src={product.image} 
-          alt={product.name} 
-          className="w-full h-full object-cover"
-        />
+      <div className="relative w-full h-48 overflow-hidden bg-gray-100">
+        {!imageError ? (
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-cover"
+            onError={handleImageError}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">
+            <div className="text-center">
+              <ShoppingCart className="h-12 w-12 mx-auto mb-2" />
+              <span className="text-sm">Image unavailable</span>
+            </div>
+          </div>
+        )}
         
         {/* Discount Tag */}
-        {product.discountPercentage && (
+        {product.discountPercentage && product.discountPercentage > 0 && (
           <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded">
             {product.discountPercentage}% OFF
           </div>
@@ -148,11 +168,15 @@ const ProductCard: React.FC<ProductCardProps> = ({
       
       {/* Product Info */}
       <div className="p-4">
-        <h3 className="font-medium text-gray-900 truncate">{product.name}</h3>
+        <h3 className="font-medium text-gray-900 truncate" title={product.name}>
+          {product.name || 'Unnamed Product'}
+        </h3>
         
         <div className="flex justify-between items-center mt-1">
           <div className="flex flex-col">
-            <span className="text-lg font-semibold">₹{product.price}</span>
+            <span className="text-lg font-semibold">
+              ₹{product.price ? product.price.toFixed(2) : '0.00'}
+            </span>
             {Math.abs(aiPricing.priceChange) > 5 && (
               <span className="text-sm text-purple-600">
                 AI: ₹{aiPricing.recommendedPrice}
@@ -162,11 +186,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
           
           <div className="flex items-center">
             <Star className="h-4 w-4 text-yellow-500 mr-1" />
-            <span className="text-sm text-gray-600">{product.rating.toFixed(1)}</span>
+            <span className="text-sm text-gray-600">
+              {product.rating ? product.rating.toFixed(1) : '0.0'}
+            </span>
           </div>
         </div>
         
-        <p className="text-sm text-gray-500 mt-1">{product.seller}</p>
+        <p className="text-sm text-gray-500 mt-1">{product.seller || 'Unknown Seller'}</p>
         
         {/* Expiry Alert */}
         {showAlert && (
@@ -175,13 +201,13 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <span>
               {daysToExpiry === 0 ? "Expires today!" : 
                daysToExpiry === 1 ? "Expires tomorrow!" :
-               `Expires in ${daysToExpiry} days`}
+               daysToExpiry && daysToExpiry > 0 ? `Expires in ${daysToExpiry} days` : "Expired"}
             </span>
           </div>
         )}
         
         {/* AI-generated expiry insight */}
-        {showAlert && daysToExpiry !== null && (
+        {showAlert && daysToExpiry !== null && daysToExpiry > 0 && (
           <p className="text-xs italic text-gray-500 mt-1">
             {getAiExpiryAlert(daysToExpiry)}
           </p>

@@ -1,3 +1,4 @@
+
 import { jsPDF } from 'jspdf';
 
 /**
@@ -74,62 +75,74 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add Zero Waste Certified circular stamp - smaller design with white background and single green border
+ * Add Zero Waste Certified circular stamp - positioned next to GST info with realistic design
  */
 export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number) => {
-  const centerX = pageWidth - 40; // Moved closer to edge
-  const centerY = finalY + 45; // Moved higher
-  const radius = 20; // Made smaller
+  const centerX = 135; // Position next to GST info box
+  const centerY = finalY + 57; // Center vertically with GST info
+  const radius = 22; // Slightly larger for better visibility
+  
+  // Outer decorative ring
+  doc.setFillColor(34, 197, 94, 0.1);
+  doc.circle(centerX, centerY, radius + 2, 'F');
   
   // White background fill
   doc.setFillColor(255, 255, 255);
-  doc.circle(centerX, centerY, radius - 1, 'F');
+  doc.circle(centerX, centerY, radius, 'F');
   
-  // Single green border ring
+  // Main green border ring
   doc.setDrawColor(34, 197, 94);
-  doc.setLineWidth(2);
-  doc.circle(centerX, centerY, radius - 2, 'S');
+  doc.setLineWidth(2.5);
+  doc.circle(centerX, centerY, radius - 1, 'S');
   
   // Inner decorative ring
-  doc.setLineWidth(0.5);
-  doc.circle(centerX, centerY, radius - 8, 'S');
+  doc.setLineWidth(0.8);
+  doc.circle(centerX, centerY, radius - 10, 'S');
   
-  // Green text for "ZERO WASTE"
+  // Top text "ZERO WASTE"
   doc.setTextColor(34, 197, 94);
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('ZERO WASTE', centerX, centerY - 5, { align: 'center' });
+  doc.text('ZERO WASTE', centerX, centerY - 6, { align: 'center' });
   
-  // Center checkmark symbol
-  doc.setFontSize(10);
-  doc.setTextColor(34, 197, 94);
+  // Center verification symbol (checkmark in circle)
+  doc.setFillColor(34, 197, 94);
+  doc.circle(centerX, centerY, 4, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
   doc.text('✓', centerX, centerY + 1, { align: 'center' });
   
   // Bottom text "CERTIFIED"
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CERTIFIED', centerX, centerY + 8, { align: 'center' });
-  
-  // Add decorative stars around the stamp (using proper star symbol)
-  doc.setFontSize(6);
   doc.setTextColor(34, 197, 94);
-  doc.text('✦', centerX - 15, centerY - 5, { align: 'center' });
-  doc.text('✦', centerX + 15, centerY - 5, { align: 'center' });
-  doc.text('✦', centerX - 15, centerY + 5, { align: 'center' });
-  doc.text('✦', centerX + 15, centerY + 5, { align: 'center' });
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CERTIFIED', centerX, centerY + 10, { align: 'center' });
   
-  // Add smaller stars for decoration
-  doc.setFontSize(4);
-  doc.text('✦', centerX - 12, centerY - 12, { align: 'center' });
-  doc.text('✦', centerX + 12, centerY - 12, { align: 'center' });
-  doc.text('✦', centerX - 12, centerY + 12, { align: 'center' });
-  doc.text('✦', centerX + 12, centerY + 12, { align: 'center' });
+  // Add realistic decorative stars around the stamp
+  doc.setFontSize(8);
+  doc.setTextColor(34, 197, 94);
+  // Using actual star symbols (★) for better appearance
+  doc.text('★', centerX - 18, centerY - 8, { align: 'center' });
+  doc.text('★', centerX + 18, centerY - 8, { align: 'center' });
+  doc.text('★', centerX - 18, centerY + 8, { align: 'center' });
+  doc.text('★', centerX + 18, centerY + 8, { align: 'center' });
   
-  // Add date stamp in smaller text
-  doc.setFontSize(4);
+  // Add smaller accent stars
+  doc.setFontSize(5);
+  doc.text('★', centerX - 14, centerY - 15, { align: 'center' });
+  doc.text('★', centerX + 14, centerY - 15, { align: 'center' });
+  doc.text('★', centerX - 14, centerY + 15, { align: 'center' });
+  doc.text('★', centerX + 14, centerY + 15, { align: 'center' });
+  
+  // Add certification date in smaller text
+  doc.setFontSize(5);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  doc.text(new Date().toLocaleDateString('en-IN'), centerX, centerY + 15, { align: 'center' });
+  const certDate = new Date().toLocaleDateString('en-IN');
+  doc.text(`Certified: ${certDate}`, centerX, centerY + 18, { align: 'center' });
+  
+  // Add certification number
+  doc.text('Cert. #ZWC-2024-001', centerX, centerY + 21, { align: 'center' });
 };
 
 /**
@@ -139,7 +152,7 @@ export const addFooterText = (doc: jsPDF, finalY: number, pageWidth: number) => 
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  doc.text('Thank you for your business! Your contribution helps reduce waste.', pageWidth / 2, finalY + 85, { align: 'center' });
-  doc.text('Payment made in India - All prices are inclusive of GST', pageWidth / 2, finalY + 90, { align: 'center' });
-  doc.text('For any queries related to this invoice, please contact support@zerowastemart.com', pageWidth / 2, finalY + 95, { align: 'center' });
+  doc.text('Thank you for your business! Your contribution helps reduce waste.', pageWidth / 2, finalY + 95, { align: 'center' });
+  doc.text('Payment made in India - All prices are inclusive of GST', pageWidth / 2, finalY + 100, { align: 'center' });
+  doc.text('For any queries related to this invoice, please contact support@zerowastemart.com', pageWidth / 2, finalY + 105, { align: 'center' });
 };
