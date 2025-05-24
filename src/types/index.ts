@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   firstName: string;
@@ -9,6 +10,8 @@ export interface User {
   country?: string;
   phoneNumber?: string;
   profilePicture?: string;
+  gstin?: string;
+  businessAddress?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -52,3 +55,24 @@ export interface Order {
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
 export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'out-for-delivery' | 'delivered' | 'cancelled';
+
+export type ItemCategory = 'electronics' | 'clothing' | 'books' | 'home' | 'food' | 'health' | 'sports' | 'toys' | 'automotive' | 'garden' | 'beauty' | 'music' | 'office' | 'pet' | 'baby' | 'jewelry';
+
+export interface CountryCodeOption {
+  name: string;
+  code: string;
+  dialCode: string;
+}
+
+export interface Task {
+  id: string;
+  name: string;
+  task_type: string;
+  schedule: string;
+  enabled: boolean;
+  last_run: string;
+  next_run: string;
+  parameters: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
