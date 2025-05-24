@@ -9,6 +9,5 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
 
-  // Directly return the actual context with real 2FA implementations
   return context;
 };

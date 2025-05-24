@@ -27,6 +27,34 @@ export const authService = {
     }
   },
 
+  signIn: async (email: string, password: string): Promise<User> => {
+    return await authService.login(email, password);
+  },
+
+  signUp: async (data: any): Promise<User> => {
+    try {
+      // Simulate signup for now
+      const mockUser = {
+        id: "user" + Math.random().toString(36).substring(2, 9),
+        email: data.email,
+        displayName: data.firstName + " " + data.lastName,
+        photoURL: null,
+        isAdmin: false,
+        isSeller: data.businessName ? true : false,
+        businessName: data.businessName || undefined,
+        businessType: data.businessType || undefined,
+        trustScore: data.businessName ? 4.0 : undefined,
+        verified: false,
+      };
+      
+      localStorage.setItem("zwm_user", JSON.stringify(mockUser));
+      return mockUser;
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
+  },
+
   googleLogin: async (accountType: 'buyer' | 'seller' = 'buyer'): Promise<User> => {
     try {
       console.log("Initiating Google login as", accountType);
