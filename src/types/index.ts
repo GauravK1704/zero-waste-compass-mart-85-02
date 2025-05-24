@@ -109,4 +109,5 @@ export interface Order {
   shippingAddress?: string;
   estimatedDelivery?: string;
   trackingNumber?: string;
+  paymentMethod?: string;
 }

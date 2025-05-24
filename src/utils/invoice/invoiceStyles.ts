@@ -75,53 +75,66 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add Zero Waste Certified circular stamp - realistic design
+ * Add Zero Waste Certified circular stamp - light design with white background and green border
  */
 export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number) => {
   const centerX = pageWidth - 55;
   const centerY = finalY + 57;
   const radius = 30;
   
-  // Outer circle - stamp border (double border for authentic look)
-  doc.setDrawColor(75, 181, 67);
-  doc.setLineWidth(2);
+  // White background fill
+  doc.setFillColor(255, 255, 255);
+  doc.circle(centerX, centerY, radius - 1, 'F');
+  
+  // Outer green border ring (thick)
+  doc.setDrawColor(34, 197, 94);
+  doc.setLineWidth(3);
   doc.circle(centerX, centerY, radius, 'S');
+  
+  // Inner green border ring (thin)
   doc.setLineWidth(1);
-  doc.circle(centerX, centerY, radius - 2, 'S');
+  doc.circle(centerX, centerY, radius - 6, 'S');
   
-  // Inner decorative circle
+  // Middle decorative ring
   doc.setLineWidth(0.5);
-  doc.circle(centerX, centerY, radius - 8, 'S');
+  doc.circle(centerX, centerY, radius - 12, 'S');
   
-  // Fill background with light green
-  doc.setFillColor(75, 181, 67, 0.1);
-  doc.circle(centerX, centerY, radius - 2, 'F');
-  
-  // Top curved text "ZERO WASTE"
-  doc.setTextColor(75, 181, 67);
-  doc.setFontSize(8);
+  // Green text for "ZERO WASTE"
+  doc.setTextColor(34, 197, 94);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('ZERO WASTE', centerX, centerY - 8, { align: 'center' });
   
-  // Center star/checkmark symbol
-  doc.setFontSize(12);
+  // Center checkmark symbol
+  doc.setFontSize(14);
+  doc.setTextColor(34, 197, 94);
   doc.text('✓', centerX, centerY + 2, { align: 'center' });
   
-  // Bottom curved text "CERTIFIED"
-  doc.setFontSize(8);
+  // Bottom text "CERTIFIED"
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
   doc.text('CERTIFIED', centerX, centerY + 12, { align: 'center' });
   
-  // Add small decorative elements around the stamp
-  doc.setFontSize(6);
-  doc.text('★', centerX - 20, centerY - 5, { align: 'center' });
-  doc.text('★', centerX + 20, centerY - 5, { align: 'center' });
-  doc.text('★', centerX - 20, centerY + 5, { align: 'center' });
-  doc.text('★', centerX + 20, centerY + 5, { align: 'center' });
+  // Add decorative stars around the stamp (green color)
+  doc.setFontSize(8);
+  doc.setTextColor(34, 197, 94);
+  doc.text('★', centerX - 22, centerY - 8, { align: 'center' });
+  doc.text('★', centerX + 22, centerY - 8, { align: 'center' });
+  doc.text('★', centerX - 22, centerY + 8, { align: 'center' });
+  doc.text('★', centerX + 22, centerY + 8, { align: 'center' });
   
-  // Add date stamp effect
+  // Add smaller stars for decoration
+  doc.setFontSize(6);
+  doc.text('★', centerX - 18, centerY - 18, { align: 'center' });
+  doc.text('★', centerX + 18, centerY - 18, { align: 'center' });
+  doc.text('★', centerX - 18, centerY + 18, { align: 'center' });
+  doc.text('★', centerX + 18, centerY + 18, { align: 'center' });
+  
+  // Add date stamp in smaller text
   doc.setFontSize(5);
   doc.setFont('helvetica', 'normal');
-  doc.text(new Date().toLocaleDateString('en-IN'), centerX, centerY + 20, { align: 'center' });
+  doc.setTextColor(100, 100, 100);
+  doc.text(new Date().toLocaleDateString('en-IN'), centerX, centerY + 22, { align: 'center' });
 };
 
 /**
