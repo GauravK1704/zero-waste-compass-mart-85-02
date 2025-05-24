@@ -23,17 +23,10 @@ interface AuthContextProps {
   verifyTwoFactor: (code: string) => Promise<boolean>;
   disableTwoFactor: () => Promise<void>;
   isTwoFactorEnabled: boolean;
+  user?: User | null; // Additional alias for compatibility
 }
 
 export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-export const useAuth = () => {
-  const context = React.useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
-};
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -71,8 +64,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signUp = async (data: any): Promise<void> => {
     try {
-      // For now, use the login service as a placeholder
-      const user = await authService.login(data.email, data.password);
+      const user = await authService.signUp(data);
       localStorage.setItem("zwm_user", JSON.stringify(user));
       setCurrentUser(user);
       console.log("User signed up successfully:", user);
@@ -176,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     verifyTwoFactor,
     disableTwoFactor,
     isTwoFactorEnabled,
+    user: currentUser, // Additional alias for compatibility
   };
 
   return (

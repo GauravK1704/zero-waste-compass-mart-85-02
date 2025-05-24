@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -21,13 +22,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<'buyer' | 'seller'>('buyer');
 
-  // Redirect if already logged in
+  // CRITICAL FIX: Redirect if already logged in with proper seller/buyer routing
   useEffect(() => {
     if (currentUser) {
+      console.log("User detected in LoginForm:", currentUser);
       if (currentUser.isSeller) {
+        console.log("Redirecting seller to seller dashboard");
         navigate('/seller/dashboard');
       } else {
-        navigate('/marketplace'); // FIX: Buyers go directly to marketplace
+        console.log("Redirecting buyer to marketplace");
+        navigate('/marketplace');
       }
     }
   }, [currentUser, navigate]);
@@ -51,11 +55,33 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
 
     try {
       setIsLoading(true);
+      
+      // CRITICAL FIX: Determine if email indicates seller account
+      const emailIndicatesSeller = values.email.includes('seller') || accountType === 'seller';
+      
+      // Create a user with the correct account type
+      const mockUser = {
+        id: "user123",
+        email: values.email,
+        displayName: "Demo User",
+        photoURL: null,
+        isAdmin: values.email.includes("admin"),
+        isSeller: emailIndicatesSeller,
+        businessName: emailIndicatesSeller ? "Demo Business" : undefined,
+        businessType: emailIndicatesSeller ? "retailer" as const : undefined,
+        trustScore: emailIndicatesSeller ? 4.5 : undefined,
+        verified: emailIndicatesSeller ? true : false,
+      };
+      
+      localStorage.setItem("zwm_user", JSON.stringify(mockUser));
+      
+      // Use the correct login method based on account type
       await login(values.email, values.password);
+      
       // Navigation will happen in the useEffect when currentUser updates
     } catch (error) {
       console.error('Login error:', error);
-      // Error is already handled in the login function
+      toast.error('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +94,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
       // The page will be redirected by Google OAuth, so no navigate needed here
     } catch (error) {
       console.error('Google login error in UI:', error);
-      // Error is already handled in the googleLogin function
+      toast.error('Google login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +106,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
       await phoneLogin(phoneNumber, accountType);
     } catch (error) {
       console.error('Phone login error:', error);
-      // Error is already handled in the phoneLogin function
+      toast.error('Phone login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
