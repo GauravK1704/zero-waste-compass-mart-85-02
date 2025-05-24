@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,15 +28,28 @@ const Settings: React.FC = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState("english");
+  const [language, setLanguage] = useState(currentUser?.language || "english");
+
+  // Initialize settings from user data
+  useEffect(() => {
+    if (currentUser) {
+      setLanguage(currentUser.language || "english");
+      if (currentUser.notificationPreferences) {
+        setEmailNotifications(currentUser.notificationPreferences.email);
+        setPushNotifications(currentUser.notificationPreferences.push);
+      }
+    }
+  }, [currentUser]);
 
   const handleSaveSettings = async () => {
     try {
       await updateUser({
+        language,
         notificationPreferences: {
           email: emailNotifications,
           push: pushNotifications,
-          sms: false
+          sms: false,
+          marketingEmails: true
         }
       });
       toast.success("Settings saved successfully!");
@@ -104,11 +117,14 @@ const Settings: React.FC = () => {
                       className="w-full h-10 px-3 py-2 border border-input rounded-md"
                     >
                       <option value="english">English</option>
-                      <option value="hindi">Hindi</option>
-                      <option value="tamil">Tamil</option>
-                      <option value="telugu">Telugu</option>
-                      <option value="kannada">Kannada</option>
+                      <option value="hindi">हिंदी (Hindi)</option>
+                      <option value="tamil">தமிழ் (Tamil)</option>
+                      <option value="telugu">తెలుగు (Telugu)</option>
+                      <option value="kannada">ಕನ್ನಡ (Kannada)</option>
                     </select>
+                    <p className="text-sm text-muted-foreground">
+                      Your profile language will be updated when you save changes.
+                    </p>
                   </div>
 
                   <div className="space-y-2">

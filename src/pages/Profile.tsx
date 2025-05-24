@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/auth';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import ProfileSidebar from '@/components/profile/ProfileSidebar';
-import ProfileContent from '@/components/profile/ProfileContent';
+import EnhancedProfileContent from '@/components/profile/EnhancedProfileContent';
 
 const Profile: React.FC = () => {
   const { currentUser, updateProfile } = useAuth();
@@ -59,7 +59,6 @@ const Profile: React.FC = () => {
     sms?: boolean;
     marketingEmails?: boolean;
   }) => {
-    // Placeholder for saving notification preferences
     await new Promise<void>(resolve => {
       setTimeout(() => {
         toast.success("Notification preferences saved!");
@@ -74,7 +73,6 @@ const Profile: React.FC = () => {
     instagram?: string;
     linkedin?: string;
   }) => {
-    // Placeholder for saving social media connections
     await new Promise<void>(resolve => {
       setTimeout(() => {
         toast.success("Social media connections saved!");
@@ -116,20 +114,20 @@ const Profile: React.FC = () => {
         setActiveTab={setActiveTab}
       />
 
-      {/* Profile Content */}
-      <ProfileContent
-        currentUser={currentUser}
-        updateProfile={updateProfile}
-        activeTab={activeTab}
-        isEditing={isEditing}
-        toggleEdit={toggleEdit}
-        handleSave={handleSave}
-        loading={loading}
-        profileImage={profileImage}
-        handleProfileImageChange={handleProfileImageChange}
-        handleNotificationSave={handleNotificationSave}
-        handleSocialSave={handleSocialSave}
-      />
+      {/* Enhanced Profile Content */}
+      <div className="flex-1">
+        <EnhancedProfileContent
+          currentUser={currentUser}
+          updateProfile={updateProfile}
+          activeTab={activeTab}
+          isEditing={isEditing}
+          toggleEdit={toggleEdit}
+          handleSave={handleSave}
+          loading={loading}
+          profileImage={profileImage}
+          handleProfileImageChange={handleProfileImageChange}
+        />
+      </div>
     </motion.div>
   );
 };

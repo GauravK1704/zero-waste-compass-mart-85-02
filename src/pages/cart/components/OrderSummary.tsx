@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 interface OrderSummaryProps {
   subtotal: number;
@@ -11,56 +12,74 @@ interface OrderSummaryProps {
   isDisabled: boolean;
 }
 
-const OrderSummary: React.FC<OrderSummaryProps> = ({ 
-  subtotal, 
-  deliveryFee = 40, 
+const OrderSummary: React.FC<OrderSummaryProps> = ({
+  subtotal,
+  deliveryFee,
   onCheckout,
   isDisabled
 }) => {
-  const total = subtotal + deliveryFee;
+  // Free delivery for orders above ₹500
+  const actualDeliveryFee = subtotal >= 500 ? 0 : deliveryFee;
+  const total = subtotal + actualDeliveryFee;
+  const savings = subtotal >= 500 ? deliveryFee : 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.3, duration: 0.5 }}
-    >
-      <Card className="sticky top-24 border border-gray-200">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b">
-          <CardTitle>Order Summary</CardTitle>
-        </CardHeader>
-        <CardContent className="p-6">
-          <div className="space-y-4">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
-              <span className="font-medium">₹{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Delivery Fee</span>
-              <span className="font-medium">₹{deliveryFee.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-lg">
-              <span className="font-semibold">Total</span>
-              <span className="font-bold text-indigo-700">₹{total.toFixed(2)}</span>
-            </div>
-            <Button 
-              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
-              onClick={onCheckout}
-              disabled={isDisabled}
-            >
-              Proceed to Checkout
-            </Button>
-            
-            <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 mt-4">
-              <h4 className="text-sm font-medium text-indigo-700 mb-2">Delivery Information</h4>
-              <p className="text-xs text-indigo-600">
-                Orders are typically delivered within 24-48 hours. Free delivery on orders above ₹500.
-              </p>
+    <Card className="sticky top-4">
+      <CardHeader>
+        <CardTitle className="text-lg">Order Summary</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <div className="flex justify-between text-sm">
+            <span>Subtotal</span>
+            <span>₹{subtotal.toFixed(2)}</span>
+          </div>
+          
+          <div className="flex justify-between text-sm items-center">
+            <span>Delivery Fee</span>
+            <div className="flex items-center gap-2">
+              {subtotal >= 500 ? (
+                <>
+                  <span className="line-through text-gray-500">₹{deliveryFee.toFixed(2)}</span>
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">FREE</Badge>
+                </>
+              ) : (
+                <span>₹{deliveryFee.toFixed(2)}</span>
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+          
+          {savings > 0 && (
+            <div className="flex justify-between text-sm text-green-600">
+              <span>You saved</span>
+              <span>₹{savings.toFixed(2)}</span>
+            </div>
+          )}
+          
+          {subtotal < 500 && subtotal > 0 && (
+            <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+              Add ₹{(500 - subtotal).toFixed(2)} more for free delivery!
+            </div>
+          )}
+        </div>
+        
+        <Separator />
+        
+        <div className="flex justify-between font-semibold text-lg">
+          <span>Total</span>
+          <span>₹{total.toFixed(2)}</span>
+        </div>
+        
+        <Button 
+          onClick={onCheckout} 
+          className="w-full" 
+          size="lg"
+          disabled={isDisabled}
+        >
+          Proceed to Secure Checkout
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

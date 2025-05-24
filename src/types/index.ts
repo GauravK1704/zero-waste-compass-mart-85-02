@@ -13,11 +13,12 @@ export interface User {
   gstin?: string;
   businessAddress?: string;
   role?: 'admin' | 'seller' | 'buyer';
+  language?: 'english' | 'hindi' | 'tamil' | 'telugu' | 'kannada';
   notificationPreferences?: {
     email: boolean;
     push: boolean;
     sms: boolean;
-    marketingEmails: boolean;
+    marketingEmails?: boolean;
   };
 }
 
