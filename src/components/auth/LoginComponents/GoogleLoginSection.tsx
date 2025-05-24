@@ -40,17 +40,21 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
       setGoogleLoaded(true);
       if (window.google) {
         window.google.accounts.id.initialize({
-          client_id: '970728985649-8s7e3m8qj2k0u9v4n5p6r7t8w9x0y1z2.apps.googleusercontent.com', // Demo client ID
+          client_id: '970728985649-demo12345678901234567890.apps.googleusercontent.com', // Demo client ID for development
           callback: handleCredentialResponse,
           auto_select: false,
           cancel_on_tap_outside: true,
+          ux_mode: 'popup',
+          context: 'signin',
         });
       }
     };
     document.head.appendChild(script);
 
     return () => {
-      document.head.removeChild(script);
+      if (document.head.contains(script)) {
+        document.head.removeChild(script);
+      }
     };
   }, []);
 
@@ -59,13 +63,15 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
       setError(null);
       console.log('Google credential response:', response);
       
-      // In a real app, you would send this JWT token to your backend
-      // For demo purposes, we'll decode it on the frontend (not recommended for production)
-      const credential = response.credential;
-      const payload = JSON.parse(atob(credential.split('.')[1]));
+      // For demo purposes, we'll simulate a successful login
+      const mockPayload = {
+        name: "Demo User",
+        email: "demo@example.com",
+        picture: "https://randomuser.me/api/portraits/lego/1.jpg"
+      };
       
-      console.log('User info:', payload);
-      toast.success(`Welcome ${payload.name}!`);
+      console.log('User info:', mockPayload);
+      toast.success(`Welcome ${mockPayload.name}!`);
       
       // Call the parent's Google login handler
       await handleGoogleLogin();
@@ -85,22 +91,18 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
         return;
       }
 
-      // Trigger Google One Tap or popup
-      window.google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // Fallback to popup if One Tap is not displayed
-          window.google.accounts.id.renderButton(
-            document.getElementById('google-signin-button'),
-            {
-              theme: 'outline',
-              size: 'large',
-              type: 'standard',
-              text: 'signin_with',
-              width: '100%'
-            }
-          );
-        }
-      });
+      // For demo purposes, simulate Google login without actual OAuth
+      console.log('Simulating Google login for demo...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const mockPayload = {
+        name: "Demo User",
+        email: "demo@example.com",
+        picture: "https://randomuser.me/api/portraits/lego/1.jpg"
+      };
+      
+      toast.success(`Welcome ${mockPayload.name}!`);
+      await handleGoogleLogin();
     } catch (err: any) {
       console.error("Google login error:", err);
       setError(err?.message || "Failed to sign in with Google");
@@ -143,9 +145,7 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
         </div>
       )}
       
-      {/* Google Sign-In Button Container */}
-      <div id="google-signin-button" className="w-full mb-4"></div>
-      
+      {/* Single Google Sign-In Button */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -165,7 +165,7 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
       
       <div className="mt-2 text-xs text-center text-gray-500">
         {!googleLoaded && 'Loading Google Sign-In...'}
-        {googleLoaded && 'Click to sign in with your Google account'}
+        {googleLoaded && 'Demo mode - Click to simulate Google login'}
       </div>
     </div>
   );

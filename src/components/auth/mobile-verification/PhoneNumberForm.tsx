@@ -40,6 +40,11 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
     }
   });
 
+  const handleCountrySelect = (countryCode: string) => {
+    phoneForm.setValue('countryCode', countryCode);
+    setOpen(false);
+  };
+
   return (
     <Form {...phoneForm}>
       <form onSubmit={phoneForm.handleSubmit(onSubmit)} className="space-y-4">
@@ -58,6 +63,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                       aria-expanded={open}
                       className="w-full justify-between hover:bg-gray-50 cursor-pointer transition-all duration-200 hover:border-zwm-primary focus:border-zwm-primary focus:ring-2 focus:ring-zwm-primary/20"
                       type="button"
+                      onClick={() => setOpen(!open)}
                     >
                       {field.value ? (
                         <div className="flex items-center gap-2">
@@ -89,10 +95,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                           <CommandItem
                             key={`${country.code}-${country.label}`}
                             value={`${country.code} ${country.label}`}
-                            onSelect={() => {
-                              field.onChange(country.code);
-                              setOpen(false);
-                            }}
+                            onSelect={() => handleCountrySelect(country.code)}
                             className="cursor-pointer hover:bg-gray-100 transition-colors duration-150 px-3 py-2 flex items-center"
                           >
                             <Check

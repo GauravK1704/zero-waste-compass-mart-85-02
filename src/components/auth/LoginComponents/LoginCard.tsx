@@ -118,7 +118,7 @@ const LoginCard: React.FC = () => {
         transition={{ duration: 0.7, ease: "easeOut" }}
         whileHover={{ boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
       >
-        <div className="border-0 shadow-xl overflow-hidden bg-white rounded-xl">
+        <div className="border-0 shadow-xl overflow-hidden bg-white rounded-xl relative">
           <motion.div 
             className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-indigo-500/5 z-0"
             animate={{ 
