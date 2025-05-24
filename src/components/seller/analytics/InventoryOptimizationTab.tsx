@@ -3,14 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { AlertTriangle, Package, Plus, Truck, Calendar, DollarSign, Bot } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import ScheduleDialog from './ScheduleDialog';
 
 interface UrgentReorderItem {
   id: string;
@@ -42,6 +44,7 @@ const InventoryOptimizationTab: React.FC = () => {
   const [urgentItems, setUrgentItems] = useState<UrgentReorderItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<UrgentReorderItem | null>(null);
   const [isCreateOrderOpen, setIsCreateOrderOpen] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [orderForm, setOrderForm] = useState<CreateOrderFormData>({
     supplierId: '',
     supplierName: '',
@@ -163,6 +166,11 @@ const InventoryOptimizationTab: React.FC = () => {
       priority: item.urgencyLevel === 'critical' ? 'urgent' : 'standard'
     });
     setIsCreateOrderOpen(true);
+  };
+
+  const openScheduleDialog = (item: UrgentReorderItem) => {
+    setSelectedItem(item);
+    setIsScheduleOpen(true);
   };
 
   const handleCreateOrder = async () => {
@@ -331,7 +339,11 @@ const InventoryOptimizationTab: React.FC = () => {
                       <Plus className="h-4 w-4 mr-1" />
                       Create Order
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => openScheduleDialog(item)}
+                    >
                       <Calendar className="h-4 w-4 mr-1" />
                       Schedule
                     </Button>
@@ -343,125 +355,135 @@ const InventoryOptimizationTab: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Create Order Dialog */}
+      {/* Create Order Dialog with Scroller */}
       <Dialog open={isCreateOrderOpen} onOpenChange={setIsCreateOrderOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[80vh]">
           <DialogHeader>
             <DialogTitle>Create Purchase Order</DialogTitle>
           </DialogHeader>
           
-          {selectedItem && (
-            <div className="space-y-4">
-              <div className="bg-gray-50 p-3 rounded-md">
-                <h4 className="font-medium">{selectedItem.name}</h4>
-                <p className="text-sm text-gray-600">Current Stock: {selectedItem.currentStock} units</p>
-                <p className="text-sm text-gray-600">Reorder Point: {selectedItem.reorderPoint} units</p>
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="supplier">Supplier</Label>
-                  <Input
-                    id="supplier"
-                    value={orderForm.supplierName}
-                    onChange={(e) => setOrderForm(prev => ({ ...prev, supplierName: e.target.value }))}
-                  />
+          <ScrollArea className="max-h-[60vh] pr-4">
+            {selectedItem && (
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <h4 className="font-medium">{selectedItem.name}</h4>
+                  <p className="text-sm text-gray-600">Current Stock: {selectedItem.currentStock} units</p>
+                  <p className="text-sm text-gray-600">Reorder Point: {selectedItem.reorderPoint} units</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-3">
                   <div>
-                    <Label htmlFor="quantity">Order Quantity</Label>
+                    <Label htmlFor="supplier">Supplier</Label>
                     <Input
-                      id="quantity"
-                      type="number"
-                      value={orderForm.orderQuantity}
-                      onChange={(e) => setOrderForm(prev => ({ ...prev, orderQuantity: parseInt(e.target.value) || 0 }))}
+                      id="supplier"
+                      value={orderForm.supplierName}
+                      onChange={(e) => setOrderForm(prev => ({ ...prev, supplierName: e.target.value }))}
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="quantity">Order Quantity</Label>
+                      <Input
+                        id="quantity"
+                        type="number"
+                        value={orderForm.orderQuantity}
+                        onChange={(e) => setOrderForm(prev => ({ ...prev, orderQuantity: parseInt(e.target.value) || 0 }))}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="unitCost">Unit Cost (₹)</Label>
+                      <Input
+                        id="unitCost"
+                        type="number"
+                        value={orderForm.unitCost}
+                        onChange={(e) => setOrderForm(prev => ({ ...prev, unitCost: parseFloat(e.target.value) || 0 }))}
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="unitCost">Unit Cost (₹)</Label>
+                    <Label htmlFor="delivery">Expected Delivery Date</Label>
                     <Input
-                      id="unitCost"
-                      type="number"
-                      value={orderForm.unitCost}
-                      onChange={(e) => setOrderForm(prev => ({ ...prev, unitCost: parseFloat(e.target.value) || 0 }))}
+                      id="delivery"
+                      type="date"
+                      value={orderForm.expectedDelivery}
+                      onChange={(e) => setOrderForm(prev => ({ ...prev, expectedDelivery: e.target.value }))}
                     />
                   </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="delivery">Expected Delivery Date</Label>
-                  <Input
-                    id="delivery"
-                    type="date"
-                    value={orderForm.expectedDelivery}
-                    onChange={(e) => setOrderForm(prev => ({ ...prev, expectedDelivery: e.target.value }))}
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="priority">Priority Level</Label>
+                    <Select value={orderForm.priority} onValueChange={(value: 'urgent' | 'standard' | 'low') => 
+                      setOrderForm(prev => ({ ...prev, priority: value }))
+                    }>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                        <SelectItem value="standard">Standard</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                <div>
-                  <Label htmlFor="priority">Priority Level</Label>
-                  <Select value={orderForm.priority} onValueChange={(value: 'urgent' | 'standard' | 'low') => 
-                    setOrderForm(prev => ({ ...prev, priority: value }))
-                  }>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="urgent">Urgent</SelectItem>
-                      <SelectItem value="standard">Standard</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div>
+                    <Label htmlFor="notes">Notes</Label>
+                    <Textarea
+                      id="notes"
+                      value={orderForm.notes}
+                      onChange={(e) => setOrderForm(prev => ({ ...prev, notes: e.target.value }))}
+                      rows={3}
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="notes">Notes</Label>
-                  <Textarea
-                    id="notes"
-                    value={orderForm.notes}
-                    onChange={(e) => setOrderForm(prev => ({ ...prev, notes: e.target.value }))}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="bg-blue-50 p-3 rounded-md">
-                  <h5 className="font-medium text-blue-800 mb-1">Order Summary</h5>
-                  <p className="text-sm text-blue-700">
-                    Total Value: ₹{calculateTotalOrderValue().toLocaleString()}
-                  </p>
-                  <p className="text-sm text-blue-700">
-                    Expected Delivery: {orderForm.expectedDelivery}
-                  </p>
+                  <div className="bg-blue-50 p-3 rounded-md">
+                    <h5 className="font-medium text-blue-800 mb-1">Order Summary</h5>
+                    <p className="text-sm text-blue-700">
+                      Total Value: ₹{calculateTotalOrderValue().toLocaleString()}
+                    </p>
+                    <p className="text-sm text-blue-700">
+                      Expected Delivery: {orderForm.expectedDelivery}
+                    </p>
+                  </div>
                 </div>
               </div>
+            )}
+          </ScrollArea>
 
-              <div className="flex gap-2 pt-4">
-                <Button
-                  onClick={handleCreateOrder}
-                  disabled={isSubmittingOrder || !orderForm.orderQuantity}
-                  className="flex-1"
-                >
-                  {isSubmittingOrder ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating Order...
-                    </>
-                  ) : (
-                    <>
-                      <Truck className="h-4 w-4 mr-2" />
-                      Create Order
-                    </>
-                  )}
-                </Button>
-                <Button variant="outline" onClick={() => setIsCreateOrderOpen(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          )}
+          <div className="flex gap-2 pt-4 border-t">
+            <Button
+              onClick={handleCreateOrder}
+              disabled={isSubmittingOrder || !orderForm.orderQuantity}
+              className="flex-1"
+            >
+              {isSubmittingOrder ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating Order...
+                </>
+              ) : (
+                <>
+                  <Truck className="h-4 w-4 mr-2" />
+                  Create Order
+                </>
+              )}
+            </Button>
+            <Button variant="outline" onClick={() => setIsCreateOrderOpen(false)}>
+              Cancel
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
+
+      {/* Schedule Dialog */}
+      <ScheduleDialog
+        isOpen={isScheduleOpen}
+        onClose={() => setIsScheduleOpen(false)}
+        itemName={selectedItem?.name || ''}
+        itemId={selectedItem?.id || ''}
+      />
     </div>
   );
 };

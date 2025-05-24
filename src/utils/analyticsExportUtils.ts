@@ -2,9 +2,9 @@
 import { format } from 'date-fns';
 
 // Helper function to generate a filename with date
-const generateFilename = (type: string, format: string): string => {
+const generateFilename = (type: string, fileFormat: string): string => {
   const date = format(new Date(), 'yyyy-MM-dd-HHmm');
-  return `seller-analytics-${type}-${date}.${format}`;
+  return `seller-analytics-${type}-${date}.${fileFormat}`;
 };
 
 // CSV Export with proper data formatting

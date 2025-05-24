@@ -1,103 +1,54 @@
-
-// Type definitions for the application
 export interface User {
   id: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  photoURL?: string;
-  isAdmin?: boolean;
-  isSeller?: boolean;
-  createdAt?: string;
-  updatedAt?: string;
-  location?: Location;
-  businessName?: string;
-  businessType?: string;
-  gstin?: string; // Added GSTIN field
-  businessAddress?: string; // Added business address field
-}
-
-export interface Location {
-  lat: number;
-  lng: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'buyer' | 'seller' | 'admin';
   address?: string;
+  city?: string;
+  country?: string;
+  phoneNumber?: string;
+  profilePicture?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type ItemCategory = 
-  | 'food' 
-  | 'clothing' 
-  | 'electronics' 
-  | 'household' 
-  | 'furniture' 
-  | 'books' 
-  | 'toys' 
-  | 'medicine' 
-  | 'beauty'
-  | 'sports'
-  | 'fitness'
-  | 'stationery' 
-  | 'other';
-
-export interface Item {
+export interface Product {
   id: string;
   name: string;
   description: string;
-  category: ItemCategory;
-  imageUrl: string;
-  expiryDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-  status: ItemStatus;
-  userId: string;
-  userName: string;
-  userPhoto: string | null;
-  location: Location;
-  quantity: number;
-  originalPrice: number;
-  currentPrice: number;
-  dynamicPricingEnabled?: boolean;
+  price: number;
+  images: string[];
+  category: string;
+  stock: number;
+  sellerId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export type ItemStatus = 'available' | 'sold' | 'expired' | 'donated' | 'flagged' | 'reserved';
-
-export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'out-for-delivery' | 'delivered' | 'cancelled';
-export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
-
-export interface OrderItem {
-  id: string;
-  name: string;
-  quantity: number;
-  price: number;
+export interface CartItem {
   productId: string;
-  orderId: string;
-  imageUrl?: string;
+  quantity: number;
 }
 
 export interface Order {
   id: string;
   buyerId: string;
-  buyerName: string;
   sellerId: string;
-  userId: string;
-  sellerName?: string;
-  items: OrderItem[];
+  items: {
+    productId: string;
+    quantity: number;
+    price: number;
+  }[];
+  totalAmount: number;
+  shippingAddress: string;
+  orderDate: Date;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
-  totalAmount: number;
-  createdAt: string;
-  updatedAt: string;
-  shippingAddress: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface Task {
-  id: string;
-  name: string;
-  description?: string;
-  status: 'pending' | 'in-progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  dueDate?: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
-  parameters?: Record<string, any>;
-}
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'out-for-delivery' | 'delivered' | 'cancelled';
