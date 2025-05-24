@@ -75,19 +75,53 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add Zero Waste Certified stamp
+ * Add Zero Waste Certified circular stamp - realistic design
  */
 export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number) => {
-  // Stamp border
-  doc.setDrawColor(75, 181, 67);
-  doc.setLineWidth(1.5);
-  doc.roundedRect(pageWidth - 95, finalY + 45, 80, 25, 4, 4, 'S');
+  const centerX = pageWidth - 55;
+  const centerY = finalY + 57;
+  const radius = 30;
   
-  // Stamp text
+  // Outer circle - stamp border (double border for authentic look)
+  doc.setDrawColor(75, 181, 67);
+  doc.setLineWidth(2);
+  doc.circle(centerX, centerY, radius, 'S');
+  doc.setLineWidth(1);
+  doc.circle(centerX, centerY, radius - 2, 'S');
+  
+  // Inner decorative circle
+  doc.setLineWidth(0.5);
+  doc.circle(centerX, centerY, radius - 8, 'S');
+  
+  // Fill background with light green
+  doc.setFillColor(75, 181, 67, 0.1);
+  doc.circle(centerX, centerY, radius - 2, 'F');
+  
+  // Top curved text "ZERO WASTE"
   doc.setTextColor(75, 181, 67);
-  doc.setFontSize(12);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('ZERO WASTE CERTIFIED', pageWidth - 55, finalY + 60, { align: 'center' });
+  doc.text('ZERO WASTE', centerX, centerY - 8, { align: 'center' });
+  
+  // Center star/checkmark symbol
+  doc.setFontSize(12);
+  doc.text('✓', centerX, centerY + 2, { align: 'center' });
+  
+  // Bottom curved text "CERTIFIED"
+  doc.setFontSize(8);
+  doc.text('CERTIFIED', centerX, centerY + 12, { align: 'center' });
+  
+  // Add small decorative elements around the stamp
+  doc.setFontSize(6);
+  doc.text('★', centerX - 20, centerY - 5, { align: 'center' });
+  doc.text('★', centerX + 20, centerY - 5, { align: 'center' });
+  doc.text('★', centerX - 20, centerY + 5, { align: 'center' });
+  doc.text('★', centerX + 20, centerY + 5, { align: 'center' });
+  
+  // Add date stamp effect
+  doc.setFontSize(5);
+  doc.setFont('helvetica', 'normal');
+  doc.text(new Date().toLocaleDateString('en-IN'), centerX, centerY + 20, { align: 'center' });
 };
 
 /**

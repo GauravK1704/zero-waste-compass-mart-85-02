@@ -75,6 +75,7 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 244 61% 59%;
+    
     --sidebar-background: 224 71% 15%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 244 61% 59%;
@@ -89,6 +90,7 @@
 @layer base {
   * {
     @apply border-border;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
   html {
@@ -102,5 +104,29 @@
 
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Ensure dark mode applies to all elements */
+  .dark {
+    color-scheme: dark;
+  }
+  
+  /* Better scrollbar styling for dark mode */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .dark ::-webkit-scrollbar-track {
+    background: rgb(31 41 55);
+  }
+  
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgb(75 85 99);
+    border-radius: 4px;
+  }
+  
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgb(107 114 128);
   }
 }

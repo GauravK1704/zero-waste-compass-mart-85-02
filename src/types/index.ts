@@ -64,5 +64,49 @@ export interface CountryCodeOption {
 }
 
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
-export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'out-for-delivery';
 export type ItemCategory = 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'food' | 'health' | 'fitness' | 'stationery' | 'household';
+
+export interface Item {
+  id: string;
+  name: string;
+  description: string;
+  category: ItemCategory;
+  imageUrl: string;
+  expiryDate: string | null;
+  createdAt: string;
+  updatedAt: string;
+  status: 'available' | 'donated' | 'expired';
+  userId: string;
+  userName: string;
+  userPhoto: string | null;
+  location: {
+    address: string;
+    lat: number;
+    lng: number;
+  };
+  quantity: number;
+  currentPrice: number;
+}
+
+export interface Order {
+  id: string;
+  buyerId: string;
+  buyerName: string;
+  sellerId: string;
+  sellerName: string;
+  items: {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    imageUrl: string;
+  }[];
+  totalAmount: number;
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
+  createdAt: string;
+  shippingAddress?: string;
+  estimatedDelivery?: string;
+  trackingNumber?: string;
+}

@@ -35,6 +35,8 @@ const Settings: React.FC = () => {
 
   const handleSaveSettings = async () => {
     try {
+      const previousLanguage = currentUser?.language;
+      
       await updateUser({
         language,
         notificationPreferences: {
@@ -44,9 +46,16 @@ const Settings: React.FC = () => {
           marketingEmails: true
         }
       });
+      
       toast.success("Settings saved successfully!");
-      // Force a page reload to apply language changes
-      window.location.reload();
+      
+      // Force a page reload only if language changed
+      if (previousLanguage !== language) {
+        toast.success("Language updated! Reloading page...");
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
     } catch (error) {
       toast.error("Failed to save settings");
     }
