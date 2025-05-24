@@ -5,15 +5,16 @@ import { toast } from "sonner";
 export const authService = {
   login: async (email: string, password: string): Promise<User> => {
     try {
-      // Get the stored user to preserve the account type
+      // Get the stored user to preserve the account type that was set during login
       const storedUser = localStorage.getItem("zwm_user");
       let mockUser;
       
       if (storedUser) {
         // Use the stored user data which has the correct account type
         mockUser = JSON.parse(storedUser);
+        console.log("Using stored user data for login:", mockUser);
       } else {
-        // Fallback mock user
+        // Fallback mock user - this shouldn't happen if LoginForm works correctly
         mockUser = {
           id: "user123",
           email,
@@ -21,6 +22,7 @@ export const authService = {
           photoURL: null,
           isAdmin: email.includes("admin"),
           isSeller: email.includes("seller"),
+          role: email.includes("seller") ? "seller" : "buyer",
           businessName: email.includes("seller") ? "Demo Business" : undefined,
           businessType: email.includes("seller") ? "retailer" as const : undefined,
           trustScore: email.includes("seller") ? 4.5 : undefined,
@@ -28,6 +30,7 @@ export const authService = {
         };
       }
       
+      // Always store the user again to ensure consistency
       localStorage.setItem("zwm_user", JSON.stringify(mockUser));
       return mockUser;
     } catch (error) {
@@ -42,7 +45,6 @@ export const authService = {
 
   signUp: async (data: any): Promise<User> => {
     try {
-      // Simulate signup for now
       const mockUser = {
         id: "user" + Math.random().toString(36).substring(2, 9),
         email: data.email,
@@ -50,6 +52,7 @@ export const authService = {
         photoURL: null,
         isAdmin: false,
         isSeller: data.businessName ? true : false,
+        role: data.businessName ? "seller" : "buyer",
         businessName: data.businessName || undefined,
         businessType: data.businessType || undefined,
         trustScore: data.businessName ? 4.0 : undefined,
@@ -68,10 +71,8 @@ export const authService = {
     try {
       console.log("Initiating Google login as", accountType);
       
-      // Simulate Google login for demo purposes
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Create a realistic mock Google user based on accountType
       const mockUser = {
         id: "google_" + Math.random().toString(36).substring(2, 9),
         email: "demo.user@gmail.com",
@@ -79,10 +80,11 @@ export const authService = {
         photoURL: "https://randomuser.me/api/portraits/lego/1.jpg",
         isAdmin: false,
         isSeller: accountType === 'seller',
+        role: accountType,
         businessName: accountType === 'seller' ? "Demo Google Business" : undefined,
         businessType: accountType === 'seller' ? "retailer" as const : undefined,
         trustScore: accountType === 'seller' ? 4.2 : undefined,
-        verified: true, // Google accounts are considered verified
+        verified: true,
       };
       
       console.log("Google login successful:", mockUser);
@@ -96,11 +98,9 @@ export const authService = {
 
   phoneLogin: async (phoneNumber: string, accountType: 'buyer' | 'seller' = 'buyer'): Promise<{ verificationId: string }> => {
     try {
-      // Simulate phone login verification process
       console.log(`Sending OTP to ${phoneNumber} for ${accountType} account`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Return a mock verification ID
       return { 
         verificationId: "mock_verification_" + Math.random().toString(36).substring(2, 10)
       };
@@ -112,7 +112,6 @@ export const authService = {
 
   verifyOtp: async (verificationId: string, otp: string): Promise<boolean> => {
     try {
-      // Simple mock verification - any 6 digit OTP is valid
       console.log(`Verifying OTP for verification ID: ${verificationId}`);
       await new Promise(resolve => setTimeout(resolve, 1000));
       
@@ -126,7 +125,6 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     try {
-      // Simulate logout
       await new Promise(resolve => setTimeout(resolve, 300));
       localStorage.removeItem("zwm_user");
       console.log("User logged out successfully");
@@ -138,7 +136,6 @@ export const authService = {
 
   resetPassword: async (email: string): Promise<void> => {
     try {
-      // Simulate password reset process
       console.log(`Password reset email sent to ${email}`);
       await new Promise(resolve => setTimeout(resolve, 1000));
     } catch (error) {

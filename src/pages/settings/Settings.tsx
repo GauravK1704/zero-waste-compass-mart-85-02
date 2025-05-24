@@ -1,7 +1,8 @@
+
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,16 +11,16 @@ import {
   Settings as SettingsIcon,
   Bell,
   Lock,
-  Smartphone,
-  Moon,
   Sun,
-  Languages,
+  Moon,
   Trash2,
   Save
 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/auth";
 
 const Settings: React.FC = () => {
+  const { currentUser, updateUser } = useAuth();
   const [activeTab, setActiveTab] = useState("general");
   
   // State for settings
@@ -29,8 +30,20 @@ const Settings: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState("english");
 
-  const handleSaveSettings = () => {
-    toast.success("Settings saved successfully!");
+  const handleSaveSettings = async () => {
+    try {
+      await updateUser({
+        notificationPreferences: {
+          email: emailNotifications,
+          push: pushNotifications,
+          sms: false,
+          marketingEmails: true
+        }
+      });
+      toast.success("Settings saved successfully!");
+    } catch (error) {
+      toast.error("Failed to save settings");
+    }
   };
 
   return (

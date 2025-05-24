@@ -1,14 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/auth';
 import { CartItem, CartHookReturn } from './types';
-import { loadCartFromLocalStorage, saveCartToLocalStorage, generateMockCartItems } from './cartUtils';
+import { loadCartFromLocalStorage, saveCartToLocalStorage } from './cartUtils';
 import { useCartOperations } from './useCartOperations';
 
 /**
  * Main hook for cart functionality
  * Handles state management and connects with cart operations
+ * Only shows items for the current logged-in user
  */
 export const useCart = (): CartHookReturn => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -22,11 +24,11 @@ export const useCart = (): CartHookReturn => {
     currentUser?.id
   );
 
-  // Custom implementation of fetchCartItems
+  // Load user-specific cart items
   const fetchCartItems = async () => {
     if (!currentUser) {
-      // Load from localStorage if not logged in
-      setCartItems(loadCartFromLocalStorage());
+      // Clear cart if no user is logged in
+      setCartItems([]);
       setLoading(false);
       return;
     }
@@ -34,15 +36,15 @@ export const useCart = (): CartHookReturn => {
     try {
       setLoading(true);
       
-      // For authenticated users, try to load from localStorage first
+      // Load cart items from localStorage for the specific user
       const localCartItems = loadCartFromLocalStorage();
-      if (localCartItems.length > 0) {
-        setCartItems(localCartItems);
-      } else {
-        // Mock cart items for demo
-        const mockCartItems = generateMockCartItems(currentUser.id);
-        setCartItems(mockCartItems);
-      }
+      
+      // Filter items to only show those belonging to the current user
+      const userCartItems = localCartItems.filter(item => item.userId === currentUser.id);
+      
+      console.log(`Loading cart for user ${currentUser.id}:`, userCartItems);
+      setCartItems(userCartItems);
+      
     } catch (error) {
       console.error("Error fetching cart items:", error);
       toast.error("Failed to load your cart");
@@ -58,10 +60,14 @@ export const useCart = (): CartHookReturn => {
 
   // Update localStorage whenever cart changes
   useEffect(() => {
-    if (!loading) {
-      saveCartToLocalStorage(cartItems);
+    if (!loading && currentUser) {
+      // Save all cart items (including other users') but ensure current user's items are included
+      const allCartItems = loadCartFromLocalStorage();
+      const otherUsersItems = allCartItems.filter(item => item.userId !== currentUser.id);
+      const updatedCartItems = [...otherUsersItems, ...cartItems];
+      saveCartToLocalStorage(updatedCartItems);
     }
-  }, [cartItems, loading]);
+  }, [cartItems, loading, currentUser]);
 
   return {
     cartItems,

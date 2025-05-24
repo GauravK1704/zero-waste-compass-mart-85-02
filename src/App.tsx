@@ -9,7 +9,7 @@ import AuthCallback from './pages/auth/AuthCallback';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import Profile from './pages/Profile';
-import Settings from './pages/Settings';
+import Settings from './pages/settings/Settings';
 import AdminPanel from './pages/AdminPanel';
 import AuthLayout from './components/layouts/AuthLayout';
 import DashboardLayout from './components/layouts/DashboardLayout';
@@ -49,6 +49,7 @@ function App() {
                 <Route element={<DashboardLayout />}>
                   <Route path="/dashboard" element={<Dashboard />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/settings" element={<Settings />} />
                   <Route path="/marketplace" element={<Marketplace />} />
                   <Route path="/cart" element={<Cart />} />
                   <Route path="/orders" element={<MyOrders />} />
@@ -72,9 +73,7 @@ function App() {
               <Route path="*" element={<NotFound />} />
             </Routes>
             
-            {/* Add ZeroBot to be available throughout the whole website */}
             <ZeroBot4 />
-            
             <Toaster richColors />
           </div>
         </BrowserRouter>

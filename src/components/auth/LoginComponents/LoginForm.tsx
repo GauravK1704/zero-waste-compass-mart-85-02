@@ -22,15 +22,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<'buyer' | 'seller'>('buyer');
 
-  // CRITICAL FIX: Redirect based on account type and user data
+  // Handle redirect when user logs in
   useEffect(() => {
     if (currentUser) {
       console.log("User detected in LoginForm:", currentUser);
-      console.log("Account type selected:", accountType);
-      console.log("User isSeller:", currentUser.isSeller);
+      console.log("Selected account type during login:", accountType);
       
-      // Prioritize the selected account type during login
-      if (accountType === 'seller' || currentUser.isSeller) {
+      // Use the account type that was selected during login to determine redirect
+      if (accountType === 'seller') {
         console.log("Redirecting to seller dashboard");
         navigate('/seller/dashboard');
       } else {
@@ -60,14 +59,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
     try {
       setIsLoading(true);
       
-      // CRITICAL FIX: Create user with the correct account type based on tab selection
+      // Create user object based on the selected account type
       const mockUser = {
         id: "user123",
         email: values.email,
         displayName: "Demo User",
         photoURL: null,
         isAdmin: values.email.includes("admin"),
-        isSeller: accountType === 'seller', // Use the selected account type
+        isSeller: accountType === 'seller',
+        role: accountType === 'seller' ? 'seller' as const : 'buyer' as const,
         businessName: accountType === 'seller' ? "Demo Business" : undefined,
         businessType: accountType === 'seller' ? "retailer" as const : undefined,
         trustScore: accountType === 'seller' ? 4.5 : undefined,
@@ -77,11 +77,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
       console.log("Creating user with account type:", accountType);
       console.log("Mock user created:", mockUser);
       
+      // Store the user in localStorage with the correct account type
       localStorage.setItem("zwm_user", JSON.stringify(mockUser));
       
       await login(values.email, values.password);
       
-      // Navigation will happen in the useEffect when currentUser updates
     } catch (error) {
       console.error('Login error:', error);
       toast.error('Login failed. Please try again.');
@@ -94,7 +94,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
     try {
       setIsLoading(true);
       await googleLogin(accountType);
-      // The page will be redirected by Google OAuth, so no navigate needed here
     } catch (error) {
       console.error('Google login error in UI:', error);
       toast.error('Google login failed. Please try again.');
@@ -122,7 +121,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
         onValueChange={(value) => {
           console.log("Switching account type to:", value);
           setAccountType(value as 'buyer' | 'seller');
-          // Reset captcha when switching account types
           setCaptchaValue(null);
         }} 
         className="mb-6"
@@ -171,7 +169,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
         </TabsContent>
       </Tabs>
 
-      {/* Return to home button */}
       <ReturnToHomeButton />
     </>
   );
