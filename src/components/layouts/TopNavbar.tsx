@@ -1,57 +1,68 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Menu } from 'lucide-react';
+import { Search, ShoppingCart, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/auth/use-auth';
-import NotificationsPopover from './NotificationsPopover';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/auth';
+import { useNavigate } from 'react-router-dom';
+import NotificationCenter from '@/components/NotificationCenter';
+import AINotificationCenter from '@/components/notifications/AINotificationCenter';
 import UserMenu from './UserMenu';
 
-interface TopNavbarProps {
-  onMenuClick?: () => void;
-}
-
-const TopNavbar: React.FC<TopNavbarProps> = ({ onMenuClick }) => {
+const TopNavbar = () => {
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
 
   return (
-    <motion.header
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className="bg-white shadow-sm z-20 sticky top-0 border-b border-gray-100"
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            {onMenuClick && (
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={onMenuClick} 
-                className="mr-2 lg:hidden bg-white hover:bg-gray-50"
-                style={{ color: '#000000' }}
-              >
-                <Menu className="h-5 w-5" strokeWidth={2.5} />
-              </Button>
-            )}
-            <div 
-              className="flex items-center cursor-pointer"
-              onClick={() => navigate('/')}
-            >
-              <img src="/placeholder.svg" alt="Logo" className="h-8 w-8" />
-              <span className="ml-2 font-semibold text-gray-800">ZeroWaste Market</span>
-            </div>
+    <nav className="bg-white border-b border-gray-200 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="flex items-center space-x-8">
+          <div className="flex-shrink-0">
+            <h1 className="text-xl font-bold text-zwm-primary">ZeroWasteMart</h1>
           </div>
-
-          <div className="flex items-center space-x-2">
-            <NotificationsPopover />
-            <UserMenu />
+          
+          <div className="hidden md:flex items-center space-x-6">
+            <Button variant="ghost" onClick={() => navigate('/marketplace')}>
+              Marketplace
+            </Button>
+            <Button variant="ghost" onClick={() => navigate('/dashboard')}>
+              Dashboard
+            </Button>
           </div>
         </div>
+
+        <div className="flex-1 max-w-lg mx-8">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              className="pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/cart')}>
+            <ShoppingCart className="h-5 w-5" />
+          </Button>
+          
+          {/* Regular Notifications */}
+          <NotificationCenter />
+          
+          {/* AI-Powered Notifications for Sellers */}
+          {user?.role === 'seller' && <AINotificationCenter />}
+          
+          {user ? (
+            <UserMenu />
+          ) : (
+            <Button variant="ghost" size="icon" onClick={() => navigate('/auth/login')}>
+              <User className="h-5 w-5" />
+            </Button>
+          )}
+        </div>
       </div>
-    </motion.header>
+    </nav>
   );
 };
 
