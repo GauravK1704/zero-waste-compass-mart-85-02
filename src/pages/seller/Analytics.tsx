@@ -7,8 +7,10 @@ import { StatisticsTab } from '@/components/seller/analytics';
 import ForecastTab from '@/components/seller/analytics/ForecastTab';
 import ExportAnalyticsButton from '@/components/seller/analytics/ExportAnalyticsButton';
 import ExpiryTrackingTab from '@/components/seller/analytics/ExpiryTrackingTab';
+import CustomerInsightsTab from '@/components/seller/analytics/CustomerInsightsTab';
+import InventoryOptimizationTab from '@/components/seller/analytics/InventoryOptimizationTab';
 import { revenueData, inventoryForecastData } from '@/components/seller/analytics/mockData';
-import { BarChart4, TrendingUp, Calendar, Bot } from 'lucide-react';
+import { BarChart4, TrendingUp, Calendar, Bot, Users, Package2 } from 'lucide-react';
 
 const Analytics = () => {
   const [selectedTab, setSelectedTab] = useState('statistics');
@@ -42,7 +44,7 @@ const Analytics = () => {
         variants={itemVariants}
       >
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-          Seller Analytics Dashboard
+          Advanced Analytics Dashboard
         </h1>
         <ExportAnalyticsButton 
           data={selectedTab === 'statistics' ? revenueData : inventoryForecastData} 
@@ -54,10 +56,10 @@ const Analytics = () => {
         <Card className="border-0 shadow-lg overflow-hidden profile-card">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700">
             <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100">
-              Advanced Performance Analytics
+              AI-Powered Business Intelligence
             </h2>
             <CardDescription>
-              Comprehensive insights powered by AI to optimize your business performance
+              Comprehensive insights powered by artificial intelligence to optimize your business performance
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
@@ -67,7 +69,7 @@ const Analytics = () => {
               onValueChange={setSelectedTab} 
               className="w-full"
             >
-              <TabsList className="w-full bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 grid grid-cols-4 rounded-none">
+              <TabsList className="w-full bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 grid grid-cols-6 rounded-none">
                 <TabsTrigger value="statistics" className="profile-tab">
                   <span className="flex items-center gap-1">
                     <BarChart4 size={16} />
@@ -83,13 +85,25 @@ const Analytics = () => {
                 <TabsTrigger value="expiry" className="profile-tab">
                   <span className="flex items-center gap-1">
                     <Calendar size={16} />
-                    AI Expiry Tracking
+                    AI Expiry
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="customers" className="profile-tab">
+                  <span className="flex items-center gap-1">
+                    <Users size={16} />
+                    Customer Insights
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="inventory" className="profile-tab">
+                  <span className="flex items-center gap-1">
+                    <Package2 size={16} />
+                    Inventory AI
                   </span>
                 </TabsTrigger>
                 <TabsTrigger value="ai-insights" className="profile-tab">
                   <span className="flex items-center gap-1">
                     <Bot size={16} />
-                    AI Insights
+                    AI Assistant
                   </span>
                 </TabsTrigger>
               </TabsList>
@@ -112,13 +126,25 @@ const Analytics = () => {
                 </div>
               </AnimatedTabContent>
 
+              <AnimatedTabContent value="customers" currentTab={selectedTab}>
+                <div className="p-4">
+                  <CustomerInsightsTab />
+                </div>
+              </AnimatedTabContent>
+
+              <AnimatedTabContent value="inventory" currentTab={selectedTab}>
+                <div className="p-4">
+                  <InventoryOptimizationTab />
+                </div>
+              </AnimatedTabContent>
+
               <AnimatedTabContent value="ai-insights" currentTab={selectedTab}>
                 <div className="p-4">
                   <Card className="border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <Bot className="h-5 w-5 text-purple-600" />
-                        AI Business Intelligence
+                        AI Business Assistant
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -137,6 +163,8 @@ const Analytics = () => {
                             <li>• Automated inventory optimization</li>
                             <li>• Customer behavior analysis</li>
                             <li>• Market trend predictions</li>
+                            <li>• Dynamic pricing recommendations</li>
+                            <li>• Supply chain optimization</li>
                           </ul>
                         </div>
                       </div>
