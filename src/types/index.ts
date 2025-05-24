@@ -65,4 +65,4 @@ export interface CountryCodeOption {
 
 export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
 export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-export type ItemCategory = 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'food' | 'health' | 'fitness' | 'stationery';
+export type ItemCategory = 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'food' | 'health' | 'fitness' | 'stationery' | 'household';
