@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { User, Star, Shield, MapPin, Calendar, Edit3, Save, X } from 'lucide-react';
 import { User as UserType } from '@/types';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface EnhancedProfileContentProps {
   currentUser: UserType;
@@ -74,6 +75,7 @@ const EnhancedProfileContent: React.FC<EnhancedProfileContentProps> = ({
   handleProfileImageChange
 }) => {
   const [editedUser, setEditedUser] = useState<Partial<UserType>>(currentUser);
+  const { isDarkMode } = useTheme();
   const userLanguage = currentUser.language || 'english';
   const t = translations[userLanguage as keyof typeof translations] || translations.english;
 
@@ -84,175 +86,178 @@ const EnhancedProfileContent: React.FC<EnhancedProfileContentProps> = ({
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
-      {/* Profile Header Card */}
-      <Card className="overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32 relative">
-          <div className="absolute -bottom-16 left-6 flex items-end space-x-4">
-            <div className="relative">
-              <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
-                <AvatarImage src={profileImage || currentUser.photoURL || undefined} />
-                <AvatarFallback className="text-2xl bg-white text-gray-600">
-                  {currentUser.displayName?.charAt(0)?.toUpperCase() || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              {isEditing && (
-                <label className="absolute bottom-2 right-2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full cursor-pointer transition-colors">
-                  <Edit3 size={16} />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleProfileImageChange}
-                    className="hidden"
+    <div className={isDarkMode ? 'dark' : ''}>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        {/* Profile Header Card */}
+        <Card className="overflow-hidden dark:bg-gray-800 dark:border-gray-700">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32 relative">
+            <div className="absolute -bottom-16 left-6 flex items-end space-x-4">
+              <div className="relative">
+                <Avatar className="w-32 h-32 border-4 border-white shadow-lg">
+                  <AvatarImage src={profileImage || currentUser.photoURL || undefined} />
+                  <AvatarFallback className="text-2xl bg-white text-gray-600">
+                    {currentUser.displayName?.charAt(0)?.toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                {isEditing && (
+                  <label className="absolute bottom-2 right-2 bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-full cursor-pointer transition-colors">
+                    <Edit3 size={16} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleProfileImageChange}
+                      className="hidden"
+                    />
+                  </label>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <CardContent className="pt-20 pb-6 dark:bg-gray-800">
+            <div className="flex justify-between items-start">
+              <div className="space-y-2">
+                <h1 className="text-2xl font-bold dark:text-white">{currentUser.displayName}</h1>
+                <p className="text-gray-600 dark:text-gray-300">{currentUser.email}</p>
+                <div className="flex items-center space-x-2">
+                  <Badge variant={currentUser.verified ? "default" : "secondary"}>
+                    <Shield size={12} className="mr-1" />
+                    {currentUser.verified ? t.verified : t.unverified}
+                  </Badge>
+                  <Badge variant="outline" className="dark:border-gray-600 dark:text-gray-300">
+                    <User size={12} className="mr-1" />
+                    {currentUser.role === 'buyer' ? t.buyer : currentUser.role === 'seller' ? t.seller : t.admin}
+                  </Badge>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                {!isEditing ? (
+                  <Button onClick={toggleEdit} variant="outline" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                    <Edit3 size={16} className="mr-2" />
+                    {t.editProfile}
+                  </Button>
+                ) : (
+                  <>
+                    <Button onClick={toggleEdit} variant="outline" className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700">
+                      <X size={16} className="mr-2" />
+                      {t.cancel}
+                    </Button>
+                    <Button onClick={handleSave} disabled={loading}>
+                      <Save size={16} className="mr-2" />
+                      {t.saveChanges}
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Personal Information Card */}
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 dark:text-white">
+              <User size={20} />
+              <span>{t.personalInfo}</span>
+            </CardTitle>
+            <CardDescription className="dark:text-gray-300">
+              Manage your personal information and preferences
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="displayName" className="dark:text-gray-300">{t.displayName}</Label>
+                {isEditing ? (
+                  <Input
+                    id="displayName"
+                    value={editedUser.displayName || ''}
+                    onChange={(e) => handleInputChange('displayName', e.target.value)}
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
-                </label>
-              )}
-            </div>
-          </div>
-        </div>
-        
-        <CardContent className="pt-20 pb-6">
-          <div className="flex justify-between items-start">
-            <div className="space-y-2">
-              <h1 className="text-2xl font-bold">{currentUser.displayName}</h1>
-              <p className="text-gray-600">{currentUser.email}</p>
-              <div className="flex items-center space-x-2">
-                <Badge variant={currentUser.verified ? "default" : "secondary"}>
-                  <Shield size={12} className="mr-1" />
-                  {currentUser.verified ? t.verified : t.unverified}
-                </Badge>
-                <Badge variant="outline">
-                  <User size={12} className="mr-1" />
-                  {currentUser.role === 'buyer' ? t.buyer : currentUser.role === 'seller' ? t.seller : t.admin}
-                </Badge>
+                ) : (
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md dark:text-white">{currentUser.displayName}</div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email" className="dark:text-gray-300">{t.email}</Label>
+                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md dark:text-white">{currentUser.email}</div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="language" className="dark:text-gray-300">{t.language}</Label>
+                {isEditing ? (
+                  <select
+                    id="language"
+                    value={editedUser.language || 'english'}
+                    onChange={(e) => handleInputChange('language', e.target.value)}
+                    className="w-full h-10 px-3 py-2 border border-input rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  >
+                    <option value="english">English</option>
+                    <option value="hindi">हिंदी (Hindi)</option>
+                    <option value="tamil">தமிழ் (Tamil)</option>
+                    <option value="telugu">తెలుగు (Telugu)</option>
+                    <option value="kannada">ಕನ್ನಡ (Kannada)</option>
+                  </select>
+                ) : (
+                  <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-md dark:text-white">
+                    {currentUser.language === 'hindi' ? 'हिंदी (Hindi)' : 
+                     currentUser.language === 'tamil' ? 'தமிழ் (Tamil)' :
+                     currentUser.language === 'telugu' ? 'తెలుగు (Telugu)' :
+                     currentUser.language === 'kannada' ? 'ಕನ್ನಡ (Kannada)' : 'English'}
+                  </div>
+                )}
               </div>
             </div>
-            
-            <div className="flex space-x-2">
-              {!isEditing ? (
-                <Button onClick={toggleEdit} variant="outline">
-                  <Edit3 size={16} className="mr-2" />
-                  {t.editProfile}
-                </Button>
-              ) : (
-                <>
-                  <Button onClick={toggleEdit} variant="outline">
-                    <X size={16} className="mr-2" />
-                    {t.cancel}
-                  </Button>
-                  <Button onClick={handleSave} disabled={loading}>
-                    <Save size={16} className="mr-2" />
-                    {t.saveChanges}
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      {/* Personal Information Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <User size={20} />
-            <span>{t.personalInfo}</span>
-          </CardTitle>
-          <CardDescription>
-            Manage your personal information and preferences
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <Label htmlFor="displayName">{t.displayName}</Label>
-              {isEditing ? (
-                <Input
-                  id="displayName"
-                  value={editedUser.displayName || ''}
-                  onChange={(e) => handleInputChange('displayName', e.target.value)}
-                />
-              ) : (
-                <div className="p-3 bg-gray-50 rounded-md">{currentUser.displayName}</div>
-              )}
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">{t.email}</Label>
-              <div className="p-3 bg-gray-50 rounded-md">{currentUser.email}</div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="language">{t.language}</Label>
-              {isEditing ? (
-                <select
-                  id="language"
-                  value={editedUser.language || 'english'}
-                  onChange={(e) => handleInputChange('language', e.target.value)}
-                  className="w-full h-10 px-3 py-2 border border-input rounded-md"
-                >
-                  <option value="english">English</option>
-                  <option value="hindi">हिंदी (Hindi)</option>
-                  <option value="tamil">தமிழ் (Tamil)</option>
-                  <option value="telugu">తెలుగు (Telugu)</option>
-                  <option value="kannada">ಕನ್ನಡ (Kannada)</option>
-                </select>
-              ) : (
-                <div className="p-3 bg-gray-50 rounded-md">
-                  {currentUser.language === 'hindi' ? 'हिंदी (Hindi)' : 
-                   currentUser.language === 'tamil' ? 'தமிழ் (Tamil)' :
-                   currentUser.language === 'telugu' ? 'తెలుగు (Telugu)' :
-                   currentUser.language === 'kannada' ? 'ಕನ್ನಡ (Kannada)' : 'English'}
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Account Details Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center space-x-2">
-            <Shield size={20} />
-            <span>{t.accountDetails}</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex items-center space-x-3">
-              <Calendar size={16} className="text-gray-500" />
-              <div>
-                <p className="text-sm text-gray-500">{t.memberSince}</p>
-                <p className="font-medium">January 2024</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-3">
-              <User size={16} className="text-gray-500" />
-              <div>
-                <p className="text-sm text-gray-500">{t.accountType}</p>
-                <p className="font-medium capitalize">{currentUser.role}</p>
-              </div>
-            </div>
-            
-            {currentUser.isSeller && currentUser.trustScore && (
+        {/* Account Details Card */}
+        <Card className="dark:bg-gray-800 dark:border-gray-700">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 dark:text-white">
+              <Shield size={20} />
+              <span>{t.accountDetails}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-center space-x-3">
-                <Star size={16} className="text-yellow-500" />
+                <Calendar size={16} className="text-gray-500 dark:text-gray-400" />
                 <div>
-                  <p className="text-sm text-gray-500">Trust Score</p>
-                  <p className="font-medium">{currentUser.trustScore}/5.0</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t.memberSince}</p>
+                  <p className="font-medium dark:text-white">January 2024</p>
                 </div>
               </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+              
+              <div className="flex items-center space-x-3">
+                <User size={16} className="text-gray-500 dark:text-gray-400" />
+                <div>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{t.accountType}</p>
+                  <p className="font-medium capitalize dark:text-white">{currentUser.role}</p>
+                </div>
+              </div>
+              
+              {currentUser.isSeller && currentUser.trustScore && (
+                <div className="flex items-center space-x-3">
+                  <Star size={16} className="text-yellow-500" />
+                  <div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">Trust Score</p>
+                    <p className="font-medium dark:text-white">{currentUser.trustScore}/5.0</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
   );
 };
 

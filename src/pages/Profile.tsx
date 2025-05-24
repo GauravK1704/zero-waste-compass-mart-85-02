@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth';
+import { useTheme } from '@/contexts/ThemeContext';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
-import ProfileSidebar from '@/components/profile/ProfileSidebar';
+import ImprovedProfileSidebar from '@/components/profile/ImprovedProfileSidebar';
 import EnhancedProfileContent from '@/components/profile/EnhancedProfileContent';
 
 const Profile: React.FC = () => {
   const { currentUser, updateProfile } = useAuth();
+  const { isDarkMode } = useTheme();
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(currentUser?.photoURL || null);
   const [loading, setLoading] = useState(false);
@@ -83,14 +85,14 @@ const Profile: React.FC = () => {
 
   if (!currentUser) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen dark:bg-gray-900">
         <div className="animate-pulse flex space-x-4">
-          <div className="rounded-full bg-slate-200 h-12 w-12"></div>
+          <div className="rounded-full bg-slate-200 dark:bg-gray-700 h-12 w-12"></div>
           <div className="flex-1 space-y-4 py-1">
-            <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div className="h-4 bg-slate-200 dark:bg-gray-700 rounded w-3/4"></div>
             <div className="space-y-2">
-              <div className="h-4 bg-slate-200 rounded"></div>
-              <div className="h-4 bg-slate-200 rounded w-5/6"></div>
+              <div className="h-4 bg-slate-200 dark:bg-gray-700 rounded"></div>
+              <div className="h-4 bg-slate-200 dark:bg-gray-700 rounded w-5/6"></div>
             </div>
           </div>
         </div>
@@ -99,36 +101,38 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <motion.div
-      className="container mx-auto p-4 md:p-8 flex flex-col md:flex-row gap-4 md:gap-8"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.5 }}
-    >
-      {/* Profile Sidebar */}
-      <ProfileSidebar
-        currentUser={currentUser}
-        profileImage={profileImage}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-      />
-
-      {/* Enhanced Profile Content */}
-      <div className="flex-1">
-        <EnhancedProfileContent
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
+      <motion.div
+        className="container mx-auto p-4 md:p-8 flex flex-col lg:flex-row gap-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Improved Profile Sidebar */}
+        <ImprovedProfileSidebar
           currentUser={currentUser}
-          updateProfile={updateProfile}
-          activeTab={activeTab}
-          isEditing={isEditing}
-          toggleEdit={toggleEdit}
-          handleSave={handleSave}
-          loading={loading}
           profileImage={profileImage}
-          handleProfileImageChange={handleProfileImageChange}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
         />
-      </div>
-    </motion.div>
+
+        {/* Enhanced Profile Content */}
+        <div className="flex-1">
+          <EnhancedProfileContent
+            currentUser={currentUser}
+            updateProfile={updateProfile}
+            activeTab={activeTab}
+            isEditing={isEditing}
+            toggleEdit={toggleEdit}
+            handleSave={handleSave}
+            loading={loading}
+            profileImage={profileImage}
+            handleProfileImageChange={handleProfileImageChange}
+          />
+        </div>
+      </motion.div>
+    </div>
   );
 };
 

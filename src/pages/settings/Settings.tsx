@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,16 +17,17 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const Settings: React.FC = () => {
   const { currentUser, updateUser } = useAuth();
+  const { isDarkMode, setDarkMode } = useTheme();
   const [activeTab, setActiveTab] = useState("general");
   
   // State for settings
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const [language, setLanguage] = useState(currentUser?.language || "english");
 
   // Initialize settings from user data
@@ -53,9 +53,16 @@ const Settings: React.FC = () => {
         }
       });
       toast.success("Settings saved successfully!");
+      // Force a page reload to apply language changes
+      window.location.reload();
     } catch (error) {
       toast.error("Failed to save settings");
     }
+  };
+
+  const handleDarkModeToggle = (checked: boolean) => {
+    setDarkMode(checked);
+    toast.success(`${checked ? 'Dark' : 'Light'} mode enabled`);
   };
 
   return (
@@ -66,8 +73,8 @@ const Settings: React.FC = () => {
     >
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Settings</h1>
-          <p className="text-muted-foreground">Manage your account preferences and settings</p>
+          <h1 className="text-3xl font-bold mb-2 dark:text-white">Settings</h1>
+          <p className="text-muted-foreground dark:text-gray-300">Manage your account preferences and settings</p>
         </div>
         <Button onClick={handleSaveSettings} className="mt-4 md:mt-0 flex items-center gap-2">
           <Save size={16} />
@@ -77,22 +84,22 @@ const Settings: React.FC = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          <Card className="lg:col-span-1">
+          <Card className="lg:col-span-1 dark:bg-gray-800 dark:border-gray-700">
             <CardContent className="p-4">
               <TabsList className="flex flex-col h-auto space-y-1 bg-transparent w-full">
-                <TabsTrigger value="general" className="justify-start w-full">
+                <TabsTrigger value="general" className="justify-start w-full dark:data-[state=active]:bg-gray-700 dark:text-white">
                   <SettingsIcon size={16} className="mr-2" />
                   General
                 </TabsTrigger>
-                <TabsTrigger value="notifications" className="justify-start w-full">
+                <TabsTrigger value="notifications" className="justify-start w-full dark:data-[state=active]:bg-gray-700 dark:text-white">
                   <Bell size={16} className="mr-2" />
                   Notifications
                 </TabsTrigger>
-                <TabsTrigger value="security" className="justify-start w-full">
+                <TabsTrigger value="security" className="justify-start w-full dark:data-[state=active]:bg-gray-700 dark:text-white">
                   <Lock size={16} className="mr-2" />
                   Security & Privacy
                 </TabsTrigger>
-                <TabsTrigger value="appearance" className="justify-start w-full">
+                <TabsTrigger value="appearance" className="justify-start w-full dark:data-[state=active]:bg-gray-700 dark:text-white">
                   <Sun size={16} className="mr-2" />
                   Appearance
                 </TabsTrigger>
@@ -102,19 +109,19 @@ const Settings: React.FC = () => {
 
           <div className="lg:col-span-3 space-y-6">
             <TabsContent value="general" className="m-0">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>General Settings</CardTitle>
-                  <CardDescription>Manage your basic account settings</CardDescription>
+                  <CardTitle className="dark:text-white">General Settings</CardTitle>
+                  <CardDescription className="dark:text-gray-300">Manage your basic account settings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="language">Language</Label>
+                    <Label htmlFor="language" className="dark:text-white">Language</Label>
                     <select 
                       id="language" 
                       value={language} 
                       onChange={(e) => setLanguage(e.target.value)}
-                      className="w-full h-10 px-3 py-2 border border-input rounded-md"
+                      className="w-full h-10 px-3 py-2 border border-input rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     >
                       <option value="english">English</option>
                       <option value="hindi">हिंदी (Hindi)</option>
@@ -122,16 +129,16 @@ const Settings: React.FC = () => {
                       <option value="telugu">తెలుగు (Telugu)</option>
                       <option value="kannada">ಕನ್ನಡ (Kannada)</option>
                     </select>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground dark:text-gray-400">
                       Your profile language will be updated when you save changes.
                     </p>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="timezone">Timezone</Label>
+                    <Label htmlFor="timezone" className="dark:text-white">Timezone</Label>
                     <select 
                       id="timezone" 
-                      className="w-full h-10 px-3 py-2 border border-input rounded-md"
+                      className="w-full h-10 px-3 py-2 border border-input rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     >
                       <option value="IST">Indian Standard Time (IST)</option>
                       <option value="PST">Pacific Standard Time (PST)</option>
@@ -141,13 +148,13 @@ const Settings: React.FC = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="dark-mode">Dark Mode</Label>
-                      <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
+                      <Label htmlFor="dark-mode" className="dark:text-white">Dark Mode</Label>
+                      <p className="text-sm text-muted-foreground dark:text-gray-400">Toggle dark mode theme</p>
                     </div>
                     <Switch 
                       id="dark-mode" 
-                      checked={darkMode}
-                      onCheckedChange={setDarkMode}
+                      checked={isDarkMode}
+                      onCheckedChange={handleDarkModeToggle}
                     />
                   </div>
                 </CardContent>
@@ -155,16 +162,16 @@ const Settings: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="notifications" className="m-0">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Notification Preferences</CardTitle>
-                  <CardDescription>Control how and when you receive notifications</CardDescription>
+                  <CardTitle className="dark:text-white">Notification Preferences</CardTitle>
+                  <CardDescription className="dark:text-gray-300">Control how and when you receive notifications</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-0.5">
-                      <Label htmlFor="notifications">Enable Notifications</Label>
-                      <p className="text-sm text-muted-foreground">Allow the app to send you notifications</p>
+                      <Label htmlFor="notifications" className="dark:text-white">Enable Notifications</Label>
+                      <p className="text-sm text-muted-foreground dark:text-gray-400">Allow the app to send you notifications</p>
                     </div>
                     <Switch 
                       id="notifications" 
@@ -175,10 +182,10 @@ const Settings: React.FC = () => {
                   
                   {notificationsEnabled && (
                     <>
-                      <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center justify-between pt-4 border-t dark:border-gray-600">
                         <div className="space-y-0.5">
-                          <Label htmlFor="email-notifications">Email Notifications</Label>
-                          <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                          <Label htmlFor="email-notifications" className="dark:text-white">Email Notifications</Label>
+                          <p className="text-sm text-muted-foreground dark:text-gray-400">Receive notifications via email</p>
                         </div>
                         <Switch 
                           id="email-notifications" 
@@ -187,10 +194,10 @@ const Settings: React.FC = () => {
                         />
                       </div>
                       
-                      <div className="flex items-center justify-between pt-4 border-t">
+                      <div className="flex items-center justify-between pt-4 border-t dark:border-gray-600">
                         <div className="space-y-0.5">
-                          <Label htmlFor="push-notifications">Push Notifications</Label>
-                          <p className="text-sm text-muted-foreground">Receive push notifications on your device</p>
+                          <Label htmlFor="push-notifications" className="dark:text-white">Push Notifications</Label>
+                          <p className="text-sm text-muted-foreground dark:text-gray-400">Receive push notifications on your device</p>
                         </div>
                         <Switch 
                           id="push-notifications" 
@@ -205,32 +212,32 @@ const Settings: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="security" className="m-0">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Security & Privacy</CardTitle>
-                  <CardDescription>Manage your account security settings</CardDescription>
+                  <CardTitle className="dark:text-white">Security & Privacy</CardTitle>
+                  <CardDescription className="dark:text-gray-300">Manage your account security settings</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Change Password</h3>
+                    <h3 className="text-lg font-medium dark:text-white">Change Password</h3>
                     <div className="space-y-2">
-                      <Label htmlFor="current-password">Current Password</Label>
-                      <Input id="current-password" type="password" />
+                      <Label htmlFor="current-password" className="dark:text-white">Current Password</Label>
+                      <Input id="current-password" type="password" className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="new-password">New Password</Label>
-                      <Input id="new-password" type="password" />
+                      <Label htmlFor="new-password" className="dark:text-white">New Password</Label>
+                      <Input id="new-password" type="password" className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirm New Password</Label>
-                      <Input id="confirm-password" type="password" />
+                      <Label htmlFor="confirm-password" className="dark:text-white">Confirm New Password</Label>
+                      <Input id="confirm-password" type="password" className="dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                     </div>
                     <Button className="mt-2">Update Password</Button>
                   </div>
                   
-                  <div className="pt-6 border-t">
-                    <h3 className="text-lg font-medium mb-4">Account Deletion</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
+                  <div className="pt-6 border-t dark:border-gray-600">
+                    <h3 className="text-lg font-medium mb-4 dark:text-white">Account Deletion</h3>
+                    <p className="text-sm text-muted-foreground dark:text-gray-400 mb-4">
                       Once you delete your account, there is no going back. Please be certain.
                     </p>
                     <Button variant="destructive" className="flex items-center">
@@ -243,37 +250,47 @@ const Settings: React.FC = () => {
             </TabsContent>
 
             <TabsContent value="appearance" className="m-0">
-              <Card>
+              <Card className="dark:bg-gray-800 dark:border-gray-700">
                 <CardHeader>
-                  <CardTitle>Appearance</CardTitle>
-                  <CardDescription>Customize how the application looks</CardDescription>
+                  <CardTitle className="dark:text-white">Appearance</CardTitle>
+                  <CardDescription className="dark:text-gray-300">Customize how the application looks</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium">Theme</h3>
+                    <h3 className="text-lg font-medium dark:text-white">Theme</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${!darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(false)}>
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 transition-all dark:border-gray-600 ${
+                          !isDarkMode ? 'border-primary bg-primary/10' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`} 
+                        onClick={() => handleDarkModeToggle(false)}
+                      >
                         <Sun size={18} />
-                        <span>Light Mode</span>
+                        <span className="dark:text-white">Light Mode</span>
                       </div>
-                      <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(true)}>
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 transition-all dark:border-gray-600 ${
+                          isDarkMode ? 'border-primary bg-primary/10' : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        }`} 
+                        onClick={() => handleDarkModeToggle(true)}
+                      >
                         <Moon size={18} />
-                        <span>Dark Mode</span>
+                        <span className="dark:text-white">Dark Mode</span>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="pt-6 border-t">
-                    <h3 className="text-lg font-medium mb-4">Font Size</h3>
+                  <div className="pt-6 border-t dark:border-gray-600">
+                    <h3 className="text-lg font-medium mb-4 dark:text-white">Font Size</h3>
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="p-3 border rounded-lg cursor-pointer text-center">
-                        <span className="text-sm">Small</span>
+                      <div className="p-3 border rounded-lg cursor-pointer text-center dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span className="text-sm dark:text-white">Small</span>
                       </div>
-                      <div className="p-3 border rounded-lg cursor-pointer text-center border-primary bg-primary/10">
-                        <span className="text-base">Medium</span>
+                      <div className="p-3 border rounded-lg cursor-pointer text-center border-primary bg-primary/10 dark:border-gray-600">
+                        <span className="text-base dark:text-white">Medium</span>
                       </div>
-                      <div className="p-3 border rounded-lg cursor-pointer text-center">
-                        <span className="text-lg">Large</span>
+                      <div className="p-3 border rounded-lg cursor-pointer text-center dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <span className="text-lg dark:text-white">Large</span>
                       </div>
                     </div>
                   </div>
