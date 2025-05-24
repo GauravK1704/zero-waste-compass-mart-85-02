@@ -22,19 +22,23 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<'buyer' | 'seller'>('buyer');
 
-  // CRITICAL FIX: Redirect if already logged in with proper seller/buyer routing
+  // CRITICAL FIX: Redirect based on account type and user data
   useEffect(() => {
     if (currentUser) {
       console.log("User detected in LoginForm:", currentUser);
-      if (currentUser.isSeller) {
-        console.log("Redirecting seller to seller dashboard");
+      console.log("Account type selected:", accountType);
+      console.log("User isSeller:", currentUser.isSeller);
+      
+      // Prioritize the selected account type during login
+      if (accountType === 'seller' || currentUser.isSeller) {
+        console.log("Redirecting to seller dashboard");
         navigate('/seller/dashboard');
       } else {
-        console.log("Redirecting buyer to marketplace");
+        console.log("Redirecting to marketplace for buyer");
         navigate('/marketplace');
       }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, accountType, navigate]);
 
   // Notify parent component when account type changes
   useEffect(() => {
@@ -56,26 +60,25 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
     try {
       setIsLoading(true);
       
-      // CRITICAL FIX: Determine if email indicates seller account
-      const emailIndicatesSeller = values.email.includes('seller') || accountType === 'seller';
-      
-      // Create a user with the correct account type
+      // CRITICAL FIX: Create user with the correct account type based on tab selection
       const mockUser = {
         id: "user123",
         email: values.email,
         displayName: "Demo User",
         photoURL: null,
         isAdmin: values.email.includes("admin"),
-        isSeller: emailIndicatesSeller,
-        businessName: emailIndicatesSeller ? "Demo Business" : undefined,
-        businessType: emailIndicatesSeller ? "retailer" as const : undefined,
-        trustScore: emailIndicatesSeller ? 4.5 : undefined,
-        verified: emailIndicatesSeller ? true : false,
+        isSeller: accountType === 'seller', // Use the selected account type
+        businessName: accountType === 'seller' ? "Demo Business" : undefined,
+        businessType: accountType === 'seller' ? "retailer" as const : undefined,
+        trustScore: accountType === 'seller' ? 4.5 : undefined,
+        verified: accountType === 'seller' ? true : false,
       };
+      
+      console.log("Creating user with account type:", accountType);
+      console.log("Mock user created:", mockUser);
       
       localStorage.setItem("zwm_user", JSON.stringify(mockUser));
       
-      // Use the correct login method based on account type
       await login(values.email, values.password);
       
       // Navigation will happen in the useEffect when currentUser updates
@@ -117,6 +120,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onAccountTypeChange }) => {
       <Tabs 
         value={accountType} 
         onValueChange={(value) => {
+          console.log("Switching account type to:", value);
           setAccountType(value as 'buyer' | 'seller');
           // Reset captcha when switching account types
           setCaptchaValue(null);

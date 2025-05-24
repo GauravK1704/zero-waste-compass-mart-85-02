@@ -18,8 +18,8 @@ export const generateMockOrders = (): MockOrder[] => {
       customerName: "John Doe",
       items: ["Organic Apples", "Fresh Bread"],
       total: 25.50,
-      status: "pending" as OrderStatus,
-      paymentStatus: "completed" as PaymentStatus,
+      status: "pending",
+      paymentStatus: "completed",
       date: new Date().toISOString().split('T')[0]
     },
     {
@@ -27,8 +27,8 @@ export const generateMockOrders = (): MockOrder[] => {
       customerName: "Jane Smith",
       items: ["Eco-friendly Soap"],
       total: 12.99,
-      status: "processing" as OrderStatus,
-      paymentStatus: "pending" as PaymentStatus,
+      status: "processing",
+      paymentStatus: "pending",
       date: new Date().toISOString().split('T')[0]
     }
   ];

@@ -5,19 +5,28 @@ import { toast } from "sonner";
 export const authService = {
   login: async (email: string, password: string): Promise<User> => {
     try {
-      // Simulate login for now
-      const mockUser = {
-        id: "user123",
-        email,
-        displayName: "Demo User",
-        photoURL: null,
-        isAdmin: email.includes("admin"),
-        isSeller: email.includes("seller"),
-        businessName: email.includes("seller") ? "Demo Business" : undefined,
-        businessType: email.includes("seller") ? "retailer" as const : undefined,
-        trustScore: email.includes("seller") ? 4.5 : undefined,
-        verified: email.includes("seller") ? true : false,
-      };
+      // Get the stored user to preserve the account type
+      const storedUser = localStorage.getItem("zwm_user");
+      let mockUser;
+      
+      if (storedUser) {
+        // Use the stored user data which has the correct account type
+        mockUser = JSON.parse(storedUser);
+      } else {
+        // Fallback mock user
+        mockUser = {
+          id: "user123",
+          email,
+          displayName: "Demo User",
+          photoURL: null,
+          isAdmin: email.includes("admin"),
+          isSeller: email.includes("seller"),
+          businessName: email.includes("seller") ? "Demo Business" : undefined,
+          businessType: email.includes("seller") ? "retailer" as const : undefined,
+          trustScore: email.includes("seller") ? 4.5 : undefined,
+          verified: email.includes("seller") ? true : false,
+        };
+      }
       
       localStorage.setItem("zwm_user", JSON.stringify(mockUser));
       return mockUser;
