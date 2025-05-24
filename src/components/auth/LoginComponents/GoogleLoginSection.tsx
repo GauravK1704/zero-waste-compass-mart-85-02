@@ -1,8 +1,14 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import ReCAPTCHA from 'react-google-recaptcha';
 import { toast } from 'sonner';
+
+declare global {
+  interface Window {
+    google: any;
+  }
+}
 
 interface GoogleLoginSectionProps {
   handleGoogleLogin: () => Promise<void>;
@@ -22,12 +28,79 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
   showCaptcha = false
 }) => {
   const [error, setError] = useState<string | null>(null);
+  const [googleLoaded, setGoogleLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load Google Identity Services
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      setGoogleLoaded(true);
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: '970728985649-8s7e3m8qj2k0u9v4n5p6r7t8w9x0y1z2.apps.googleusercontent.com', // Demo client ID
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  const handleCredentialResponse = async (response: any) => {
+    try {
+      setError(null);
+      console.log('Google credential response:', response);
+      
+      // In a real app, you would send this JWT token to your backend
+      // For demo purposes, we'll decode it on the frontend (not recommended for production)
+      const credential = response.credential;
+      const payload = JSON.parse(atob(credential.split('.')[1]));
+      
+      console.log('User info:', payload);
+      toast.success(`Welcome ${payload.name}!`);
+      
+      // Call the parent's Google login handler
+      await handleGoogleLogin();
+    } catch (err: any) {
+      console.error('Google sign-in error:', err);
+      setError('Failed to sign in with Google');
+      toast.error('Failed to sign in with Google');
+    }
+  };
 
   const handleClick = async () => {
     try {
       setError(null);
-      toast.info("Redirecting to Google login...");
-      await handleGoogleLogin();
+      
+      if (!googleLoaded || !window.google) {
+        toast.error('Google Sign-In is still loading. Please try again.');
+        return;
+      }
+
+      // Trigger Google One Tap or popup
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Fallback to popup if One Tap is not displayed
+          window.google.accounts.id.renderButton(
+            document.getElementById('google-signin-button'),
+            {
+              theme: 'outline',
+              size: 'large',
+              type: 'standard',
+              text: 'signin_with',
+              width: '100%'
+            }
+          );
+        }
+      });
     } catch (err: any) {
       console.error("Google login error:", err);
       setError(err?.message || "Failed to sign in with Google");
@@ -70,11 +143,14 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
         </div>
       )}
       
+      {/* Google Sign-In Button Container */}
+      <div id="google-signin-button" className="w-full mb-4"></div>
+      
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={handleClick}
-        disabled={isLoading || (showCaptcha && !captchaValue)}
+        disabled={isLoading || (showCaptcha && !captchaValue) || !googleLoaded}
         className="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 rounded-lg py-3 px-4 font-medium text-gray-700 hover:bg-gray-50 transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
         aria-label={`Sign in with Google as ${accountType}`}
       >
@@ -84,8 +160,13 @@ const GoogleLoginSection: React.FC<GoogleLoginSectionProps> = ({
           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
           <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
         </svg>
-        {isLoading ? 'Signing in...' : `Continue with Google`}
+        {isLoading ? 'Signing in...' : googleLoaded ? 'Continue with Google' : 'Loading Google...'}
       </motion.button>
+      
+      <div className="mt-2 text-xs text-center text-gray-500">
+        {!googleLoaded && 'Loading Google Sign-In...'}
+        {googleLoaded && 'Click to sign in with your Google account'}
+      </div>
     </div>
   );
 };

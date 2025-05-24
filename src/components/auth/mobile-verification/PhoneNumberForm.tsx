@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Check, ChevronsUpDown } from 'lucide-react';
@@ -77,7 +76,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0 bg-white border shadow-lg z-50 max-w-sm" align="start">
+                <PopoverContent className="w-full p-0 bg-white border shadow-lg z-[9999] max-w-sm" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Search country..." 
@@ -94,7 +93,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                               field.onChange(country.code);
                               setOpen(false);
                             }}
-                            className="cursor-pointer hover:bg-gray-100 transition-colors duration-150 px-3 py-2"
+                            className="cursor-pointer hover:bg-gray-100 transition-colors duration-150 px-3 py-2 flex items-center"
                           >
                             <Check
                               className={cn(

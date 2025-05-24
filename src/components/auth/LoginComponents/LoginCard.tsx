@@ -111,13 +111,12 @@ const LoginCard: React.FC = () => {
         />
       </motion.div>
       
-      {/* Card Container - matching signup design */}
+      {/* Card Container - removed floating animation */}
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
         whileHover={{ boxShadow: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)" }}
-        className="auth-card-float"
       >
         <div className="border-0 shadow-xl overflow-hidden bg-white rounded-xl">
           <motion.div 
