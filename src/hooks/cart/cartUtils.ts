@@ -40,6 +40,22 @@ export const clearUserCartFromLocalStorage = (userId: string): void => {
   }
 };
 
+// Convert marketplace product to cart item format
+export const convertMarketplaceProductToCartItem = (product: any): Omit<CartItem, 'userId'> => {
+  return {
+    id: product.id,
+    name: product.name,
+    price: product.price,
+    quantity: 1,
+    image: product.image,
+    description: product.description || '',
+    category: product.category,
+    sellerId: product.sellerId,
+    sellerName: product.seller,
+    expiryDate: product.expiryDate
+  };
+};
+
 // Mock cart items are no longer needed since we only show user-added items
 export const generateMockCartItems = (userId: string): CartItem[] => {
   // Return empty array - no mock items, only user-added items
