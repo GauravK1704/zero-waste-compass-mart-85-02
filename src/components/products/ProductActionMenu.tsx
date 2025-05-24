@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Item, ItemCategory } from '@/types';
 import {
@@ -17,7 +16,7 @@ import BasicActions from './menu/BasicActions';
 import CategoryMenu from './menu/CategoryMenu';
 import EnhancedActions from './menu/EnhancedActions';
 import DeleteMenuItem from './menu/DeleteMenuItem';
-import DynamicPricingDialog from './menu/DynamicPricingDialog';
+import EnhancedDynamicPricingDialog from './menu/EnhancedDynamicPricingDialog';
 
 const ProductActionMenu: React.FC<ActionMenuProps> = ({ product }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>(product.category);
@@ -168,6 +167,7 @@ const ProductActionMenu: React.FC<ActionMenuProps> = ({ product }) => {
     maxPrice?: number;
     strategy?: string;
     automaticAdjustment?: boolean;
+    aiInsights?: any;
   }) => {
     // Update the product dynamic pricing status in local storage
     const updatedProducts = savedProducts.map(p => {
@@ -178,8 +178,9 @@ const ProductActionMenu: React.FC<ActionMenuProps> = ({ product }) => {
           dynamicPricingSettings: {
             minPrice: settings.minPrice || p.currentPrice * 0.7,
             maxPrice: settings.maxPrice || p.currentPrice * 1.3,
-            strategy: settings.strategy || 'demand-based',
-            automaticAdjustment: settings.automaticAdjustment || false
+            strategy: settings.strategy || 'ai-optimized',
+            automaticAdjustment: settings.automaticAdjustment || false,
+            aiInsights: settings.aiInsights
           }
         };
       }
@@ -189,8 +190,8 @@ const ProductActionMenu: React.FC<ActionMenuProps> = ({ product }) => {
     setSavedProducts(updatedProducts);
     setShowDynamicPricing(false);
     
-    toast.success("Dynamic pricing updated", {
-      description: `Dynamic pricing ${settings.enabled ? 'enabled' : 'disabled'} for "${product.name}"`,
+    toast.success("AI Dynamic Pricing Updated", {
+      description: `Enhanced dynamic pricing ${settings.enabled ? 'enabled' : 'disabled'} for "${product.name}"`,
       duration: 3000,
     });
   };
@@ -259,7 +260,7 @@ const ProductActionMenu: React.FC<ActionMenuProps> = ({ product }) => {
         </DropdownMenuContent>
       </DropdownMenu>
       
-      <DynamicPricingDialog 
+      <EnhancedDynamicPricingDialog 
         isOpen={showDynamicPricing} 
         onClose={() => setShowDynamicPricing(false)}
         onSave={handleUpdateDynamicPricing}

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -19,6 +20,12 @@ const UserMenu: React.FC = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
+  // Don't show the dropdown menu for sellers - they have their own navigation
+  const isSeller = currentUser?.isSeller;
+  if (isSeller) {
+    return null;
+  }
+
   const getInitials = (name: string | null) => {
     if (!name) return 'U';
     return name
@@ -39,8 +46,6 @@ const UserMenu: React.FC = () => {
     }
   };
 
-  // Separate more options for buyers (non-admin, non-seller)
-  const isSeller = currentUser?.isSeller;
   const isAdmin = currentUser?.isAdmin;
 
   return (
@@ -51,9 +56,9 @@ const UserMenu: React.FC = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <Avatar className={`h-9 w-9 border-2 ${isSeller ? 'border-amber-300 hover:border-amber-400' : 'border-blue-300 hover:border-blue-400'} hover:shadow-lg transition-all duration-300`}>
+          <Avatar className="h-9 w-9 border-2 border-blue-300 hover:border-blue-400 hover:shadow-lg transition-all duration-300">
             <AvatarImage src={currentUser?.photoURL || undefined} />
-            <AvatarFallback className={`${isSeller ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-800'} font-medium`}>
+            <AvatarFallback className="bg-blue-100 text-blue-800 font-medium">
               {getInitials(currentUser?.displayName)}
             </AvatarFallback>
           </Avatar>
@@ -78,44 +83,23 @@ const UserMenu: React.FC = () => {
           <span>Profile</span>
         </DropdownMenuItem>
 
-        {/* "Orders" and "Wishlist" in a drop-down for buyer only */}
-        {!isSeller && !isAdmin ? (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
-              onClick={() => { navigate('/orders'); setOpen(false); }}
-            >
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              <span>Orders</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
-              onClick={() => { navigate('/wishlist'); setOpen(false); }}
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              <span>Wishlist</span>
-            </DropdownMenuItem>
-          </>
-        ) : (
-          // For sellers/admin, keep the default order/wishlist
-          <>
-            <DropdownMenuItem
-              className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
-              onClick={() => { navigate('/orders'); setOpen(false); }}
-            >
-              <ShoppingBag className="mr-2 h-4 w-4" />
-              <span>Orders</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
-              onClick={() => { navigate('/wishlist'); setOpen(false); }}
-            >
-              <Heart className="mr-2 h-4 w-4" />
-              <span>Wishlist</span>
-            </DropdownMenuItem>
-          </>
-        )}
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem
+          className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
+          onClick={() => { navigate('/orders'); setOpen(false); }}
+        >
+          <ShoppingBag className="mr-2 h-4 w-4" />
+          <span>Orders</span>
+        </DropdownMenuItem>
+        
+        <DropdownMenuItem
+          className="flex items-center cursor-pointer px-3 py-2 hover:bg-gray-50"
+          onClick={() => { navigate('/wishlist'); setOpen(false); }}
+        >
+          <Heart className="mr-2 h-4 w-4" />
+          <span>Wishlist</span>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 

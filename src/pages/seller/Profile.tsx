@@ -8,9 +8,10 @@ import { motion } from 'framer-motion';
 import '@/styles/animations/seller.css';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, BarChart4, Settings } from 'lucide-react';
+import { LayoutDashboard, BarChart4, Settings, Calendar } from 'lucide-react';
 import StatisticsTab from '@/components/seller/StatisticsTab';
 import SettingsTab from '@/components/seller/SettingsTab';
+import ExpiryTrackingTab from '@/components/seller/analytics/ExpiryTrackingTab';
 
 const Profile = () => {
   const [selectedTab, setSelectedTab] = useState('profile');
@@ -77,13 +78,19 @@ const Profile = () => {
               onValueChange={handleTabChange} 
               className="w-full"
             >
-              <TabsList className="w-full bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 grid grid-cols-4 rounded-none">
+              <TabsList className="w-full bg-gray-50 dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700 grid grid-cols-5 rounded-none">
                 <TabsTrigger value="profile" className="profile-tab">Profile</TabsTrigger>
                 <TabsTrigger value="recent" className="profile-tab">Recent Items</TabsTrigger>
                 <TabsTrigger value="statistics" className="profile-tab">
                   <span className="flex items-center gap-1">
                     <BarChart4 size={16} />
                     Statistics
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="expiry" className="profile-tab">
+                  <span className="flex items-center gap-1">
+                    <Calendar size={16} />
+                    AI Expiry
                   </span>
                 </TabsTrigger>
                 <TabsTrigger value="settings" className="profile-tab">
@@ -104,6 +111,10 @@ const Profile = () => {
 
               <AnimatedTabContent value="statistics" currentTab={selectedTab}>
                 <StatisticsTab />
+              </AnimatedTabContent>
+
+              <AnimatedTabContent value="expiry" currentTab={selectedTab}>
+                <ExpiryTrackingTab />
               </AnimatedTabContent>
 
               <AnimatedTabContent value="settings" currentTab={selectedTab}>

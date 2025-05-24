@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import IdleView from "./IdleView";
-import ScannerView from "./ScannerView";
+import EnhancedScannerView from "./EnhancedScannerView";
 import { useBarcodeScanner } from "../../hooks/useBarcodeScanner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -84,8 +84,8 @@ const BarcodeScannerDialog: React.FC<BarcodeScannerDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">
-            {view === "idle" ? "Scan Product Barcode" : "Scanning Barcode"}
+          <DialogTitle className="text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            {view === "idle" ? "🚀 Enhanced Barcode Scanner" : "🔍 AI-Powered Scanning"}
           </DialogTitle>
         </DialogHeader>
 
@@ -101,59 +101,61 @@ const BarcodeScannerDialog: React.FC<BarcodeScannerDialogProps> = ({
             <>
               <IdleView onStartScanner={handleStartScanner} />
               
-              {/* Scanner settings */}
-              <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
-                <h3 className="font-medium text-sm text-gray-700">Scanner Settings</h3>
+              {/* Enhanced scanner settings */}
+              <div className="mt-4 p-4 bg-gradient-to-br from-gray-50 to-indigo-50 rounded-lg space-y-3 border border-indigo-100">
+                <h3 className="font-medium text-sm text-gray-700 flex items-center gap-2">
+                  ⚙️ Advanced Scanner Settings
+                </h3>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <Label htmlFor="format-select" className="text-xs">Barcode Format</Label>
+                    <Label htmlFor="format-select" className="text-xs font-medium">📊 Barcode Format</Label>
                     <Select 
                       value={scannerSettings.format} 
                       onValueChange={(value) => handleSettingsChange('format', value)}
                     >
-                      <SelectTrigger id="format-select" className="h-8 text-xs">
+                      <SelectTrigger id="format-select" className="h-8 text-xs bg-white border-indigo-200">
                         <SelectValue placeholder="Select format" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Formats</SelectItem>
-                        <SelectItem value="ean">EAN / UPC</SelectItem>
-                        <SelectItem value="code128">Code 128</SelectItem>
-                        <SelectItem value="qrcode">QR Code</SelectItem>
+                        <SelectItem value="all">🔄 All Formats</SelectItem>
+                        <SelectItem value="ean">📦 EAN / UPC</SelectItem>
+                        <SelectItem value="code128">🏷️ Code 128</SelectItem>
+                        <SelectItem value="qrcode">📱 QR Code</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
                   <div className="space-y-1">
-                    <Label htmlFor="resolution-select" className="text-xs">Resolution</Label>
+                    <Label htmlFor="resolution-select" className="text-xs font-medium">📹 Resolution</Label>
                     <Select 
                       value={scannerSettings.resolution} 
                       onValueChange={(value) => handleSettingsChange('resolution', value)}
                     >
-                      <SelectTrigger id="resolution-select" className="h-8 text-xs">
+                      <SelectTrigger id="resolution-select" className="h-8 text-xs bg-white border-indigo-200">
                         <SelectValue placeholder="Select resolution" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="sd">Standard (480p)</SelectItem>
-                        <SelectItem value="hd">High (720p)</SelectItem>
-                        <SelectItem value="fullhd">Full HD (1080p)</SelectItem>
+                        <SelectItem value="sd">📺 Standard (480p)</SelectItem>
+                        <SelectItem value="hd">🎥 High (720p)</SelectItem>
+                        <SelectItem value="fullhd">✨ Full HD (1080p)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   
-                  <div className="space-y-1">
-                    <Label htmlFor="frequency-select" className="text-xs">Scan Frequency</Label>
+                  <div className="space-y-1 col-span-2">
+                    <Label htmlFor="frequency-select" className="text-xs font-medium">⚡ Scan Frequency</Label>
                     <Select 
                       value={scannerSettings.frequency} 
                       onValueChange={(value) => handleSettingsChange('frequency', value)}
                     >
-                      <SelectTrigger id="frequency-select" className="h-8 text-xs">
+                      <SelectTrigger id="frequency-select" className="h-8 text-xs bg-white border-indigo-200">
                         <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="low">Low (Battery Saving)</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="high">High (Better Detection)</SelectItem>
+                        <SelectItem value="low">🔋 Low (Battery Saving)</SelectItem>
+                        <SelectItem value="normal">⚖️ Normal</SelectItem>
+                        <SelectItem value="high">🚀 High (Better Detection)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -161,7 +163,7 @@ const BarcodeScannerDialog: React.FC<BarcodeScannerDialogProps> = ({
               </div>
             </>
           ) : (
-            <ScannerView
+            <EnhancedScannerView
               scannerRef={scannerRef}
               scanLineRef={scanLineRef}
               scanFeedback={scanFeedback}
