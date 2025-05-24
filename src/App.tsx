@@ -29,56 +29,59 @@ import AdvancedFeatures from './pages/services/AdvancedFeatures';
 import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/auth'; 
 import { ZeroBotProvider } from '@/contexts/ZeroBotContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import ZeroBot4 from '@/components/ai/ZeroBot4';
 
 function App() {
   return (
-    <AuthProvider>
-      <ZeroBotProvider>
-        <BrowserRouter>
-          <div className="app-container">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route element={<AuthLayout />}>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-              </Route>
-              <Route path="/auth/callback" element={<AuthCallback />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <ZeroBotProvider>
+          <BrowserRouter>
+            <div className="app-container">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route element={<AuthLayout />}>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                </Route>
+                <Route path="/auth/callback" element={<AuthCallback />} />
 
-              <Route element={<PrivateRoute />}>
-                <Route element={<DashboardLayout />}>
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/marketplace" element={<Marketplace />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/orders" element={<MyOrders />} />
-                  <Route path="/advanced-features" element={<AdvancedFeatures />} />
+                <Route element={<PrivateRoute />}>
+                  <Route element={<DashboardLayout />}>
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/marketplace" element={<Marketplace />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/orders" element={<MyOrders />} />
+                    <Route path="/advanced-features" element={<AdvancedFeatures />} />
 
-                  <Route element={<SellerRoute />}>
-                    <Route path="/seller/dashboard" element={<SellerDashboard />} />
-                    <Route path="/seller/profile" element={<SellerProfile />} />
-                    <Route path="/seller/products" element={<SellerProducts />} />
-                    <Route path="/seller/orders" element={<SellerOrders />} />
-                    <Route path="/seller/analytics" element={<SellerAnalytics />} />
-                    <Route path="/items/add" element={<AddItem />} />
-                  </Route>
+                    <Route element={<SellerRoute />}>
+                      <Route path="/seller/dashboard" element={<SellerDashboard />} />
+                      <Route path="/seller/profile" element={<SellerProfile />} />
+                      <Route path="/seller/products" element={<SellerProducts />} />
+                      <Route path="/seller/orders" element={<SellerOrders />} />
+                      <Route path="/seller/analytics" element={<SellerAnalytics />} />
+                      <Route path="/items/add" element={<AddItem />} />
+                    </Route>
 
-                  <Route element={<AdminRoute />}>
-                    <Route path="/admin/panel" element={<AdminPanel />} />
+                    <Route element={<AdminRoute />}>
+                      <Route path="/admin/panel" element={<AdminPanel />} />
+                    </Route>
                   </Route>
                 </Route>
-              </Route>
 
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            
-            <ZeroBot4 />
-            <Toaster richColors />
-          </div>
-        </BrowserRouter>
-      </ZeroBotProvider>
-    </AuthProvider>
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              
+              <ZeroBot4 />
+              <Toaster richColors />
+            </div>
+          </BrowserRouter>
+        </ZeroBotProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
