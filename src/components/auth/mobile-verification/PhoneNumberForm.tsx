@@ -1,13 +1,17 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Command, CommandInput, CommandEmpty, CommandGroup, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Check, ChevronsUpDown } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { COUNTRY_CODES } from '@/utils/countryCodes';
+import { cn } from '@/lib/utils';
 
 const phoneSchema = z.object({
   countryCode: z.string().min(1, { message: 'Country code is required' }),
@@ -28,8 +32,6 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
   isSubmitting
 }) => {
   const [open, setOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCountries, setFilteredCountries] = useState(COUNTRY_CODES);
 
   const phoneForm = useForm<PhoneFormValues>({
     resolver: zodResolver(phoneSchema),
@@ -38,19 +40,6 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
       phoneNumber: ''
     }
   });
-
-  useEffect(() => {
-    // Filter countries based on search query
-    if (searchQuery) {
-      const filtered = COUNTRY_CODES.filter(country => 
-        country.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        country.code.includes(searchQuery)
-      );
-      setFilteredCountries(filtered);
-    } else {
-      setFilteredCountries(COUNTRY_CODES);
-    }
-  }, [searchQuery]);
 
   return (
     <Form {...phoneForm}>
@@ -67,45 +56,54 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                     <Button
                       variant="outline"
                       role="combobox"
-                      className="w-full justify-between"
+                      aria-expanded={open}
+                      className="w-full justify-between hover:bg-gray-50 cursor-pointer"
                     >
-                      {field.value ? 
-                        <>
-                          <span className="mr-2">
+                      {field.value ? (
+                        <div className="flex items-center gap-2">
+                          <span>
                             {COUNTRY_CODES.find(country => country.code === field.value)?.flag}
                           </span>
-                          {field.value + ' '}
-                          <span className="text-muted-foreground ml-2">
+                          <span className="font-medium">{field.value}</span>
+                          <span className="text-muted-foreground">
                             {COUNTRY_CODES.find(country => country.code === field.value)?.label}
                           </span>
-                        </>
-                        : "Select country code"}
+                        </div>
+                      ) : (
+                        "Select country code"
+                      )}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0 z-50 bg-white" align="start">
+                <PopoverContent className="w-full p-0 bg-white border shadow-lg z-50" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Search country..." 
-                      className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground focus:placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                      value={searchQuery}
-                      onValueChange={setSearchQuery}
+                      className="h-10"
                     />
-                    <CommandList>
+                    <CommandList className="max-h-60 overflow-y-auto">
                       <CommandEmpty>No country found.</CommandEmpty>
                       <CommandGroup>
-                        {filteredCountries.map((country) => (
+                        {COUNTRY_CODES.map((country) => (
                           <CommandItem
-                            key={country.code + country.label}
-                            value={`${country.code}-${country.label}`}
+                            key={`${country.code}-${country.label}`}
+                            value={`${country.code} ${country.label}`}
                             onSelect={() => {
                               field.onChange(country.code);
                               setOpen(false);
                             }}
+                            className="cursor-pointer hover:bg-gray-100"
                           >
+                            <Check
+                              className={cn(
+                                "mr-2 h-4 w-4",
+                                field.value === country.code ? "opacity-100" : "opacity-0"
+                              )}
+                            />
                             <span className="mr-2">{country.flag}</span>
-                            <span className="font-medium">{country.code}</span>
-                            <span className="ml-2 text-muted-foreground">{country.label}</span>
+                            <span className="font-medium mr-2">{country.code}</span>
+                            <span className="text-muted-foreground">{country.label}</span>
                           </CommandItem>
                         ))}
                       </CommandGroup>

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { toast } from 'sonner';
 import PhoneNumberForm, { PhoneFormValues } from './mobile-verification/PhoneNumberForm';
-import OtpForm, { OtpFormValues } from './mobile-verification/OtpForm';
+import ImprovedOtpForm, { OtpFormValues } from './mobile-verification/ImprovedOtpForm';
 import VerificationHeader from './mobile-verification/VerificationHeader';
 import useCountdown from './mobile-verification/useCountdown';
 
@@ -107,10 +107,10 @@ const MobileOtpVerification: React.FC<MobileOtpVerificationProps> = ({
       transition={{ duration: 0.3 }}
       className="w-full max-w-md mx-auto"
     >
-      <Card className="shadow-md">
+      <Card className="shadow-lg border-0">
         <VerificationHeader step={step} phoneNumber={formattedPhoneNumber} />
         
-        <CardContent>
+        <CardContent className="p-6">
           {step === 'phone' ? (
             <PhoneNumberForm 
               onSubmit={handleSendOtp} 
@@ -118,7 +118,7 @@ const MobileOtpVerification: React.FC<MobileOtpVerificationProps> = ({
               isSubmitting={isSubmitting}
             />
           ) : (
-            <OtpForm
+            <ImprovedOtpForm
               onSubmit={handleVerifyOtp}
               onBack={() => setStep('phone')}
               isSubmitting={isSubmitting}
@@ -130,7 +130,7 @@ const MobileOtpVerification: React.FC<MobileOtpVerificationProps> = ({
           )}
         </CardContent>
         
-        <CardFooter className="flex flex-col space-y-2">
+        <CardFooter className="flex flex-col space-y-2 p-6 pt-0">
           <div className="text-center text-sm text-muted-foreground">
             {step === 'phone' && 'We\'ll send a verification code to this number'}
           </div>
