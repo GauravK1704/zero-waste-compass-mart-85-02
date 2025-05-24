@@ -4,9 +4,16 @@ import { Shield, Award, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
+interface VerifiedDocument {
+  type: string;
+  documentNumber: string;
+  confidence: number;
+  verifiedAt: string;
+}
+
 interface TrustScoreDisplayProps {
   aiTrustScore: number;
-  documentsVerified: string[];
+  documentsVerified: VerifiedDocument[];
 }
 
 const TrustScoreDisplay: React.FC<TrustScoreDisplayProps> = ({ 
@@ -27,6 +34,10 @@ const TrustScoreDisplay: React.FC<TrustScoreDisplayProps> = ({
     return { text: 'Needs Improvement', color: 'bg-red-100 text-red-800 border-red-200' };
   };
 
+  const averageConfidence = documentsVerified.length > 0 
+    ? documentsVerified.reduce((sum, doc) => sum + doc.confidence, 0) / documentsVerified.length 
+    : 0;
+
   return (
     <>
       <div className="flex items-center justify-between">
@@ -42,14 +53,23 @@ const TrustScoreDisplay: React.FC<TrustScoreDisplayProps> = ({
           </div>
         </div>
         {documentsVerified.length > 0 && (
-          <Badge className="bg-green-100 text-green-800 border-green-200">
-            <CheckCircle className="h-3 w-3 mr-1" />
-            {documentsVerified.length} docs verified
-          </Badge>
+          <div className="text-right">
+            <Badge className="bg-green-100 text-green-800 border-green-200 mb-1">
+              <CheckCircle className="h-3 w-3 mr-1" />
+              {documentsVerified.length} docs verified
+            </Badge>
+            <div className="text-xs text-gray-600">
+              Avg. confidence: {(averageConfidence * 100).toFixed(1)}%
+            </div>
+          </div>
         )}
       </div>
       
       <Progress value={(aiTrustScore / 5) * 100} className="h-3" />
+      
+      <div className="text-xs text-gray-600 text-center">
+        Trust Score based on AI-verified documents • Secure & Confidential
+      </div>
     </>
   );
 };

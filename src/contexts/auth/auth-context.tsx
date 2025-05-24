@@ -1,388 +1,107 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useContext } from 'react';
+import { authService } from '@/services/auth-service';
+import { userService } from '@/services/user-service';
 import { User } from '@/types';
-import { AuthContextType } from './auth-types';
-import { supabase } from '@/integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
-import { toast } from 'sonner';
-import { authActions } from './actions/authActions';
-import { useUserProfile } from './hooks/useUserProfile';
-import { customAlphabet } from "nanoid";
-import { authenticator } from "otplib";
 
-// Create the context with undefined as initial value
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: React.ReactNode;
+interface AuthContextProps {
+  currentUser: User | null;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (data: any) => Promise<void>;
+  signOut: () => Promise<void>;
+  updateUser: (data: Partial<User>) => Promise<void>;
 }
 
-// Renamed from AuthContextProvider to AuthProvider for consistency with imports
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};
+
+const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isTwoFactorEnabled, setIsTwoFactorEnabled] = useState(false);
-  const { fetchUserProfile } = useUserProfile();
-
-  // Types for two_factor_auth (since it's not in generated types)
-  type TwoFactorAuthRow = {
-    id: string;
-    user_id: string;
-    secret: string;
-    is_enabled: boolean;
-    created_at?: string;
-    updated_at?: string;
-  };
-
-  // Generate a unique secret using otplib (Browser-compatible)
-  const generateTwoFactorSecret = (email: string) => {
-    // Use browser crypto instead of Node.js 'crypto'
-    // 32 random bytes, base32-encoded
-    const randomArray = new Uint8Array(32);
-    window.crypto.getRandomValues(randomArray);
-    const randomString = Array.from(randomArray, (b) => String.fromCharCode(b)).join('');
-    const secret = authenticator.generateSecret(undefined, randomString); // fallback, works in browser
-
-    const otpauth = authenticator.keyuri(
-      email,
-      "ZeroWasteMart",
-      secret
-    );
-    return { secret, otpauth };
-  };
-
-  // Check if 2FA is enabled for the user in Supabase
-  const fetchTwoFactorStatus = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('two_factor_auth')
-        .select('is_enabled')
-        .eq('user_id', userId)
-        .maybeSingle();
-      if (error) {
-        console.error('2FA status fetch error:', error);
-        setIsTwoFactorEnabled(false);
-        return;
-      }
-      if (data && typeof data.is_enabled === "boolean") {
-        setIsTwoFactorEnabled(data.is_enabled);
-      } else {
-        setIsTwoFactorEnabled(false);
-      }
-    } catch (err) {
-      console.error("2FA status fetch failed", err);
-      setIsTwoFactorEnabled(false);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Set up the auth state change listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, currentSession) => {
-      setSession(currentSession);
-      
-      if (currentSession?.user) {
-        // Check if user is a seller directly from metadata
-        const isSeller = currentSession.user.user_metadata?.is_seller === true;
-        
-        const user: User = {
-          id: currentSession.user.id,
-          email: currentSession.user.email || '',
-          displayName: currentSession.user.user_metadata?.full_name || '',
-          photoURL: currentSession.user.user_metadata?.avatar_url || null,
-          isAdmin: false, // Default, will be updated from profile
-          isSeller: isSeller, // Set directly from metadata first
-          businessName: currentSession.user.user_metadata?.business_name,
-          businessType: currentSession.user.user_metadata?.business_type,
-          trustScore: currentSession.user.user_metadata?.trust_score,
-          verified: currentSession.user.user_metadata?.verified,
-        };
+    const loadUser = async () => {
+      try {
+        const user = await userService.getCurrentUser();
         setCurrentUser(user);
-        
-        // Fetch additional profile data without blocking
-        setTimeout(() => {
-          handleFetchUserProfile(currentSession.user.id);
-        }, 0);
-      } else {
-        setCurrentUser(null);
-        setIsTwoFactorEnabled(false);
+      } catch (error) {
+        console.error("Error loading user:", error);
+      } finally {
+        setIsLoading(false);
       }
-    });
-
-    // Then check for an existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-
-      if (currentSession?.user) {
-        // Check if user is a seller directly from metadata
-        const isSeller = currentSession.user.user_metadata?.is_seller === true;
-        
-        const user: User = {
-          id: currentSession.user.id,
-          email: currentSession.user.email || '',
-          displayName: currentSession.user.user_metadata?.full_name || '',
-          photoURL: currentSession.user.user_metadata?.avatar_url || null,
-          isAdmin: false, // Default, will be updated from profile
-          isSeller: isSeller, // Set directly from metadata first
-          businessName: currentSession.user.user_metadata?.business_name,
-          businessType: currentSession.user.user_metadata?.business_type,
-          trustScore: currentSession.user.user_metadata?.trust_score,
-          verified: currentSession.user.user_metadata?.verified,
-        };
-        setCurrentUser(user);
-        
-        // Fetch additional profile data
-        handleFetchUserProfile(currentSession.user.id);
-      }
-      
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
     };
+
+    loadUser();
   }, []);
 
-  useEffect(() => {
-    if (currentUser?.id) {
-      fetchTwoFactorStatus(currentUser.id);
-    }
-  }, [currentUser?.id]);
-
-  const handleFetchUserProfile = async (userId: string) => {
+  const signIn = async (email: string, password: string): Promise<void> => {
     try {
-      const updatedUser = await fetchUserProfile(userId, currentUser);
+      const user = await authService.signIn(email, password);
+      localStorage.setItem("zwm_user", JSON.stringify(user));
+      setCurrentUser(user);
+      console.log("User signed in successfully:", user);
+    } catch (error) {
+      console.error("Error signing in:", error);
+      throw error;
+    }
+  };
+
+  const signUp = async (data: any): Promise<void> => {
+    try {
+      const user = await authService.signUp(data);
+      localStorage.setItem("zwm_user", JSON.stringify(user));
+      setCurrentUser(user);
+      console.log("User signed up successfully:", user);
+    } catch (error) {
+      console.error("Error signing up:", error);
+      throw error;
+    }
+  };
+
+  const signOut = async (): Promise<void> => {
+    try {
+      localStorage.removeItem("zwm_user");
+      setCurrentUser(null);
+      console.log("User signed out successfully");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      throw error;
+    }
+  };
+
+  const updateUser = async (data: Partial<User>): Promise<void> => {
+    try {
+      const updatedUser = await userService.updateProfile(data);
       if (updatedUser) {
         setCurrentUser(updatedUser);
       }
     } catch (error) {
-      console.error("Failed to fetch user profile:", error);
-    }
-  };
-
-  const handleLogin = async (email: string, password: string): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.login(email, password);
-    } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || "Failed to log in");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleLogin = async (accountType: 'buyer' | 'seller' = 'buyer'): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.googleLogin(accountType);
-    } catch (error: any) {
-      console.error("Google authentication error:", error);
-      toast.error(error.message || "Failed to log in with Google");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePhoneLogin = async (phoneNumber: string, accountType: 'buyer' | 'seller' = 'buyer'): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.phoneLogin(phoneNumber, accountType);
-    } catch (error: any) {
-      console.error("Phone login error:", error);
-      toast.error(error.message || "Failed to send OTP");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async (): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.logout();
-      setCurrentUser(null);
-    } catch (error: any) {
-      console.error("Logout error:", error);
-      toast.error(error.message || "Failed to log out");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleRegister = async (email: string, password: string, name: string, businessDetails?: { 
-    businessName?: string, 
-    businessType?: 'retailer' | 'distributor' | 'manufacturer' | 'individual',
-    isSeller?: boolean 
-  }): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.register(email, password, name, businessDetails);
-    } catch (error: any) {
-      console.error("Registration error:", error);
-      toast.error(error.message || "Failed to register");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleResetPassword = async (email: string): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.resetPassword(email);
-    } catch (error: any) {
-      console.error("Reset password error:", error);
-      toast.error(error.message || "Failed to send password reset email");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleUpdateProfile = async (data: Partial<User>): Promise<void> => {
-    try {
-      setLoading(true);
-      const updatedUser = await authActions.updateProfile(currentUser, data);
-      if (updatedUser) {
-        setCurrentUser(updatedUser);
-      }
-    } catch (error: any) {
-      console.error("Update profile error:", error);
-      toast.error(error.message || "Failed to update profile");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleVerifySellerAccount = async (businessDocuments: File[]): Promise<void> => {
-    try {
-      setLoading(true);
-      await authActions.verifySellerAccount(currentUser, businessDocuments);
-    } catch (error: any) {
-      console.error("Seller account verification error:", error);
-      toast.error(error.message || "Failed to submit seller account verification request");
-      throw error;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --- START 2FA FUNCTIONS ---
-
-  const setupTwoFactor = async () => {
-    if (!currentUser?.email || !currentUser?.id) throw new Error("No authenticated user in 2FA setup");
-
-    const { secret, otpauth } = generateTwoFactorSecret(currentUser.email);
-
-    const { error } = await supabase
-      .from('two_factor_auth')
-      .upsert({
-        user_id: currentUser.id,
-        secret,
-        is_enabled: false,
-      }, { onConflict: "user_id" });
-
-    if (error) {
-      console.error("2FA setup upsert error:", error);
+      console.error("Error updating user:", error);
       throw error;
     }
-
-    sessionStorage.setItem("2fa_tmp_secret", secret);
-
-    return {
-      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(otpauth)}`,
-      secret,
-    };
   };
 
-  const verifyTwoFactor = async (code: string) => {
-    if (!currentUser?.id) throw new Error("No authenticated user in 2FA verify");
-    let secret = sessionStorage.getItem("2fa_tmp_secret");
-    if (!secret) {
-      const { data, error } = await supabase
-        .from('two_factor_auth')
-        .select('secret')
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if (error) {
-        console.error("2FA verify fetch secret error:", error);
-        throw error;
-      }
-      if (data && typeof data.secret === "string") {
-        secret = data.secret;
-      } else {
-        throw new Error("No setup secret found in 2FA verify");
-      }
-    }
-
-    let isValid = false;
-    try {
-      isValid = authenticator.check(code, secret);
-    } catch (err) {
-      console.error("2FA otp check error:", err);
-    }
-    if (isValid) {
-      const { error } = await supabase
-        .from('two_factor_auth')
-        .update({ is_enabled: true })
-        .eq('user_id', currentUser.id);
-      if (error) {
-        console.error("2FA enable flag update error:", error);
-        throw error;
-      }
-      setIsTwoFactorEnabled(true);
-      sessionStorage.removeItem("2fa_tmp_secret");
-      toast.success("Two-factor authentication enabled!");
-    } else {
-      toast.error("Invalid verification code.");
-    }
-    return isValid;
-  };
-
-  const disableTwoFactor = async () => {
-    if (!currentUser?.id) throw new Error("No authenticated user in 2FA disable");
-    const { error } = await supabase
-      .from('two_factor_auth')
-      .update({ is_enabled: false })
-      .eq('user_id', currentUser.id);
-    if (error) {
-      console.error("2FA disable error:", error);
-      throw error;
-    }
-    setIsTwoFactorEnabled(false);
-    toast.success("Two-factor authentication disabled.");
-  };
-
-  // --- END 2FA FUNCTIONS ---
-
-  const contextValue: AuthContextType = {
+  const value: AuthContextProps = {
     currentUser,
-    session,
-    loading,
-    login: handleLogin,
-    googleLogin: handleGoogleLogin,
-    phoneLogin: handlePhoneLogin,
-    logout: handleLogout,
-    register: handleRegister,
-    resetPassword: handleResetPassword,
-    updateProfile: handleUpdateProfile,
-    verifySellerAccount: handleVerifySellerAccount,
-    isTwoFactorEnabled,
-    setupTwoFactor,
-    verifyTwoFactor,
-    disableTwoFactor,
+    isLoading,
+    signIn,
+    signUp,
+    signOut,
+    updateUser,
   };
 
   return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
+    <AuthContext.Provider value={value}>
+      {!isLoading && children}
     </AuthContext.Provider>
   );
 };
 
-// Export the AuthContext (for use-auth.ts)
-export { AuthContext };
+export default AuthProvider;

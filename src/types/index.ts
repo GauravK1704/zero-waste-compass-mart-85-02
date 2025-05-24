@@ -1,8 +1,8 @@
-
 export interface User {
   id: string;
   firstName: string;
   lastName: string;
+  name?: string; // Added for compatibility
   email: string;
   role: 'buyer' | 'seller' | 'admin';
   address?: string;
@@ -25,6 +25,8 @@ export interface User {
     verifiedAt: Date;
     confidence: number;
     status: 'verified' | 'rejected';
+    documentNumber?: string;
+    securityFeatures?: string[];
   }[];
   verified?: boolean;
 }
@@ -93,7 +95,7 @@ export interface Task {
 // AI-Powered Notification Types
 export interface AINotification {
   id: string;
-  type: 'expiry_alert' | 'stock_low' | 'price_change' | 'quality_issue' | 'compliance_alert';
+  type: 'expiry_alert' | 'stock_low' | 'price_change' | 'quality_issue' | 'compliance_alert' | 'document_verification' | 'trust_score_update';
   title: string;
   message: string;
   aiConfidence: number;
@@ -101,9 +103,13 @@ export interface AINotification {
   actionable: boolean;
   suggestedActions?: string[];
   relatedProductId?: string;
+  relatedDocumentId?: string;
   expiryDate?: string;
   daysUntilExpiry?: number;
   predictedImpact?: string;
+  trustScoreChange?: number;
+  documentType?: string;
+  verificationStatus?: 'pending' | 'verified' | 'failed';
   createdAt: Date;
   read: boolean;
 }
