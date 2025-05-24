@@ -36,8 +36,7 @@ const Settings: React.FC = () => {
         notificationPreferences: {
           email: emailNotifications,
           push: pushNotifications,
-          sms: false,
-          marketingEmails: true
+          sms: false
         }
       });
       toast.success("Settings saved successfully!");
@@ -63,11 +62,11 @@ const Settings: React.FC = () => {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <Card className="lg:col-span-1">
-          <CardContent className="p-4">
-            <Tabs orientation="vertical" value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="flex flex-col h-auto space-y-1 bg-transparent">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <Card className="lg:col-span-1">
+            <CardContent className="p-4">
+              <TabsList className="flex flex-col h-auto space-y-1 bg-transparent w-full">
                 <TabsTrigger value="general" className="justify-start w-full">
                   <SettingsIcon size={16} className="mr-2" />
                   General
@@ -85,189 +84,189 @@ const Settings: React.FC = () => {
                   Appearance
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <div className="lg:col-span-3 space-y-6">
-          <TabsContent value="general" className="m-0">
-            <Card>
-              <CardHeader>
-                <CardTitle>General Settings</CardTitle>
-                <CardDescription>Manage your basic account settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  <select 
-                    id="language" 
-                    value={language} 
-                    onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full h-10 px-3 py-2 border border-input rounded-md"
-                  >
-                    <option value="english">English</option>
-                    <option value="hindi">Hindi</option>
-                    <option value="tamil">Tamil</option>
-                    <option value="telugu">Telugu</option>
-                    <option value="kannada">Kannada</option>
-                  </select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="timezone">Timezone</Label>
-                  <select 
-                    id="timezone" 
-                    className="w-full h-10 px-3 py-2 border border-input rounded-md"
-                  >
-                    <option value="IST">Indian Standard Time (IST)</option>
-                    <option value="PST">Pacific Standard Time (PST)</option>
-                    <option value="EST">Eastern Standard Time (EST)</option>
-                  </select>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="dark-mode">Dark Mode</Label>
-                    <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
+          <div className="lg:col-span-3 space-y-6">
+            <TabsContent value="general" className="m-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>General Settings</CardTitle>
+                  <CardDescription>Manage your basic account settings</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="language">Language</Label>
+                    <select 
+                      id="language" 
+                      value={language} 
+                      onChange={(e) => setLanguage(e.target.value)}
+                      className="w-full h-10 px-3 py-2 border border-input rounded-md"
+                    >
+                      <option value="english">English</option>
+                      <option value="hindi">Hindi</option>
+                      <option value="tamil">Tamil</option>
+                      <option value="telugu">Telugu</option>
+                      <option value="kannada">Kannada</option>
+                    </select>
                   </div>
-                  <Switch 
-                    id="dark-mode" 
-                    checked={darkMode}
-                    onCheckedChange={setDarkMode}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          <TabsContent value="notifications" className="m-0">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>Control how and when you receive notifications</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="notifications">Enable Notifications</Label>
-                    <p className="text-sm text-muted-foreground">Allow the app to send you notifications</p>
+                  <div className="space-y-2">
+                    <Label htmlFor="timezone">Timezone</Label>
+                    <select 
+                      id="timezone" 
+                      className="w-full h-10 px-3 py-2 border border-input rounded-md"
+                    >
+                      <option value="IST">Indian Standard Time (IST)</option>
+                      <option value="PST">Pacific Standard Time (PST)</option>
+                      <option value="EST">Eastern Standard Time (EST)</option>
+                    </select>
                   </div>
-                  <Switch 
-                    id="notifications" 
-                    checked={notificationsEnabled}
-                    onCheckedChange={setNotificationsEnabled}
-                  />
-                </div>
-                
-                {notificationsEnabled && (
-                  <>
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="email-notifications">Email Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="dark-mode">Dark Mode</Label>
+                      <p className="text-sm text-muted-foreground">Toggle dark mode theme</p>
+                    </div>
+                    <Switch 
+                      id="dark-mode" 
+                      checked={darkMode}
+                      onCheckedChange={setDarkMode}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="notifications" className="m-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Notification Preferences</CardTitle>
+                  <CardDescription>Control how and when you receive notifications</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="notifications">Enable Notifications</Label>
+                      <p className="text-sm text-muted-foreground">Allow the app to send you notifications</p>
+                    </div>
+                    <Switch 
+                      id="notifications" 
+                      checked={notificationsEnabled}
+                      onCheckedChange={setNotificationsEnabled}
+                    />
+                  </div>
+                  
+                  {notificationsEnabled && (
+                    <>
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="email-notifications">Email Notifications</Label>
+                          <p className="text-sm text-muted-foreground">Receive notifications via email</p>
+                        </div>
+                        <Switch 
+                          id="email-notifications" 
+                          checked={emailNotifications}
+                          onCheckedChange={setEmailNotifications}
+                        />
                       </div>
-                      <Switch 
-                        id="email-notifications" 
-                        checked={emailNotifications}
-                        onCheckedChange={setEmailNotifications}
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <div className="space-y-0.5">
-                        <Label htmlFor="push-notifications">Push Notifications</Label>
-                        <p className="text-sm text-muted-foreground">Receive push notifications on your device</p>
+                      
+                      <div className="flex items-center justify-between pt-4 border-t">
+                        <div className="space-y-0.5">
+                          <Label htmlFor="push-notifications">Push Notifications</Label>
+                          <p className="text-sm text-muted-foreground">Receive push notifications on your device</p>
+                        </div>
+                        <Switch 
+                          id="push-notifications" 
+                          checked={pushNotifications}
+                          onCheckedChange={setPushNotifications}
+                        />
                       </div>
-                      <Switch 
-                        id="push-notifications" 
-                        checked={pushNotifications}
-                        onCheckedChange={setPushNotifications}
-                      />
-                    </div>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="security" className="m-0">
-            <Card>
-              <CardHeader>
-                <CardTitle>Security & Privacy</CardTitle>
-                <CardDescription>Manage your account security settings</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Change Password</h3>
-                  <div className="space-y-2">
-                    <Label htmlFor="current-password">Current Password</Label>
-                    <Input id="current-password" type="password" />
+            <TabsContent value="security" className="m-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Security & Privacy</CardTitle>
+                  <CardDescription>Manage your account security settings</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Change Password</h3>
+                    <div className="space-y-2">
+                      <Label htmlFor="current-password">Current Password</Label>
+                      <Input id="current-password" type="password" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-password">New Password</Label>
+                      <Input id="new-password" type="password" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirm-password">Confirm New Password</Label>
+                      <Input id="confirm-password" type="password" />
+                    </div>
+                    <Button className="mt-2">Update Password</Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="new-password">New Password</Label>
-                    <Input id="new-password" type="password" />
+                  
+                  <div className="pt-6 border-t">
+                    <h3 className="text-lg font-medium mb-4">Account Deletion</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Once you delete your account, there is no going back. Please be certain.
+                    </p>
+                    <Button variant="destructive" className="flex items-center">
+                      <Trash2 size={16} className="mr-2" />
+                      Delete Account
+                    </Button>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="confirm-password">Confirm New Password</Label>
-                    <Input id="confirm-password" type="password" />
-                  </div>
-                  <Button className="mt-2">Update Password</Button>
-                </div>
-                
-                <div className="pt-6 border-t">
-                  <h3 className="text-lg font-medium mb-4">Account Deletion</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Once you delete your account, there is no going back. Please be certain.
-                  </p>
-                  <Button variant="destructive" className="flex items-center">
-                    <Trash2 size={16} className="mr-2" />
-                    Delete Account
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-          <TabsContent value="appearance" className="m-0">
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>Customize how the application looks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium">Theme</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${!darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(false)}>
-                      <Sun size={18} />
-                      <span>Light Mode</span>
-                    </div>
-                    <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(true)}>
-                      <Moon size={18} />
-                      <span>Dark Mode</span>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="pt-6 border-t">
-                  <h3 className="text-lg font-medium mb-4">Font Size</h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="p-3 border rounded-lg cursor-pointer text-center">
-                      <span className="text-sm">Small</span>
-                    </div>
-                    <div className="p-3 border rounded-lg cursor-pointer text-center border-primary bg-primary/10">
-                      <span className="text-base">Medium</span>
-                    </div>
-                    <div className="p-3 border rounded-lg cursor-pointer text-center">
-                      <span className="text-lg">Large</span>
+            <TabsContent value="appearance" className="m-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Appearance</CardTitle>
+                  <CardDescription>Customize how the application looks</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-medium">Theme</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${!darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(false)}>
+                        <Sun size={18} />
+                        <span>Light Mode</span>
+                      </div>
+                      <div className={`p-4 border rounded-lg cursor-pointer flex items-center gap-2 ${darkMode ? 'border-primary bg-primary/10' : ''}`} onClick={() => setDarkMode(true)}>
+                        <Moon size={18} />
+                        <span>Dark Mode</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+                  
+                  <div className="pt-6 border-t">
+                    <h3 className="text-lg font-medium mb-4">Font Size</h3>
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="p-3 border rounded-lg cursor-pointer text-center">
+                        <span className="text-sm">Small</span>
+                      </div>
+                      <div className="p-3 border rounded-lg cursor-pointer text-center border-primary bg-primary/10">
+                        <span className="text-base">Medium</span>
+                      </div>
+                      <div className="p-3 border rounded-lg cursor-pointer text-center">
+                        <span className="text-lg">Large</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </div>
         </div>
-      </div>
+      </Tabs>
     </motion.div>
   );
 };
