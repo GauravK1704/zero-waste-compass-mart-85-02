@@ -77,6 +77,7 @@ const LoginCard: React.FC = () => {
           animate={{
             y: [0, -15, 0],
             x: [0, 10, 0],
+            scale: [1, 1.1, 1],
           }}
           transition={{
             duration: 6,
@@ -90,6 +91,7 @@ const LoginCard: React.FC = () => {
           animate={{
             y: [0, 20, 0],
             x: [0, -15, 0],
+            scale: [1, 1.2, 1],
           }}
           transition={{
             duration: 7,
@@ -103,6 +105,7 @@ const LoginCard: React.FC = () => {
           className="absolute top-1/2 -right-16 w-24 h-24 rounded-full bg-gradient-to-r from-amber-300 to-orange-400 blur-xl opacity-20"
           animate={{
             scale: [1, 1.2, 1],
+            rotate: [0, 180, 360],
           }}
           transition={{
             duration: 8,
@@ -112,48 +115,61 @@ const LoginCard: React.FC = () => {
         />
       </motion.div>
       
-      <Card className="border-0 shadow-xl overflow-hidden bg-white rounded-xl">
-        <div className={`absolute inset-0 bg-gradient-to-r ${gradientStyle} z-0`}></div>
-        
-        <CardHeader className="relative z-10">
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="text-center mb-2"
-          >
-            <CardTitle className="text-2xl font-bold mb-2">
-              {accountType === 'buyer' ? 'Buyer Login' : 'Seller Login'}
-            </CardTitle>
-            <motion.div 
-              className={`h-1 w-12 bg-gradient-to-r ${accentColor} mx-auto rounded-full`}
-              animate={{
-                width: ["0%", "100%", "50%"],
-              }}
-              transition={{
-                duration: 1.2,
-                ease: "easeInOut",
-              }}
-            />
-          </motion.div>
-        </CardHeader>
-        
-        <CardContent className="relative z-10">
-          <LoginForm onAccountTypeChange={handleAccountTypeChange} />
-        </CardContent>
-        
-        <CardFooter className="flex justify-center relative z-10">
-          <motion.p 
-            className="text-sm text-gray-600"
-            whileHover={{ scale: 1.05 }}
-          >
-            Don't have an account?{' '}
-            <Link to="/register" className={`font-medium ${accountType === 'buyer' ? 'text-zwm-primary hover:text-zwm-secondary' : 'text-amber-600 hover:text-orange-500'}`}>
-              Sign up
-            </Link>
-          </motion.p>
-        </CardFooter>
-      </Card>
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.2, duration: 0.5 }}
+        className="auth-card-float"
+      >
+        <Card className="border-0 shadow-xl overflow-hidden bg-white/90 backdrop-blur-sm rounded-xl auth-backdrop">
+          <div className={`absolute inset-0 bg-gradient-to-r ${gradientStyle} z-0`}></div>
+          
+          <CardHeader className="relative z-10">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              className="text-center mb-2"
+            >
+              <CardTitle className="text-2xl font-bold mb-2 auth-gradient-text">
+                {accountType === 'buyer' ? 'Buyer Login' : 'Seller Login'}
+              </CardTitle>
+              <motion.div 
+                className={`h-1 w-12 bg-gradient-to-r ${accentColor} mx-auto rounded-full`}
+                animate={{
+                  width: ["48px", "100px", "60px"],
+                  opacity: [0.7, 1, 0.8],
+                }}
+                transition={{
+                  duration: 2,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                }}
+              />
+            </motion.div>
+          </CardHeader>
+          
+          <CardContent className="relative z-10 auth-form-enter">
+            <LoginForm onAccountTypeChange={handleAccountTypeChange} />
+          </CardContent>
+          
+          <CardFooter className="flex justify-center relative z-10">
+            <motion.p 
+              className="text-sm text-gray-600"
+              whileHover={{ scale: 1.05 }}
+              transition={{ duration: 0.2 }}
+            >
+              Don't have an account?{' '}
+              <Link 
+                to="/register" 
+                className={`font-medium ${accountType === 'buyer' ? 'text-zwm-primary hover:text-zwm-secondary' : 'text-amber-600 hover:text-orange-500'} transition-colors duration-200 hover:underline`}
+              >
+                Sign up
+              </Link>
+            </motion.p>
+          </CardFooter>
+        </Card>
+      </motion.div>
       
       <motion.div 
         className="mt-4 text-center text-sm text-gray-500"
@@ -162,9 +178,9 @@ const LoginCard: React.FC = () => {
         transition={{ delay: 0.6, duration: 0.5 }}
       >
         By signing in, you agree to our{' '}
-        <Link to="#" className="text-zwm-primary hover:text-zwm-secondary">Terms of Service</Link>{' '}
+        <Link to="#" className="text-zwm-primary hover:text-zwm-secondary transition-colors duration-200">Terms of Service</Link>{' '}
         and{' '}
-        <Link to="#" className="text-zwm-primary hover:text-zwm-secondary">Privacy Policy</Link>
+        <Link to="#" className="text-zwm-primary hover:text-zwm-secondary transition-colors duration-200">Privacy Policy</Link>
       </motion.div>
     </motion.div>
   );

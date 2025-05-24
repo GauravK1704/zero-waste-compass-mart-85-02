@@ -57,7 +57,8 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                       variant="outline"
                       role="combobox"
                       aria-expanded={open}
-                      className="w-full justify-between hover:bg-gray-50 cursor-pointer"
+                      className="w-full justify-between hover:bg-gray-50 cursor-pointer transition-all duration-200 hover:border-zwm-primary focus:border-zwm-primary focus:ring-2 focus:ring-zwm-primary/20"
+                      type="button"
                     >
                       {field.value ? (
                         <div className="flex items-center gap-2">
@@ -76,7 +77,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
-                <PopoverContent className="w-full p-0 bg-white border shadow-lg z-50" align="start">
+                <PopoverContent className="w-full p-0 bg-white border shadow-lg z-50 max-w-sm" align="start">
                   <Command>
                     <CommandInput 
                       placeholder="Search country..." 
@@ -93,7 +94,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                               field.onChange(country.code);
                               setOpen(false);
                             }}
-                            className="cursor-pointer hover:bg-gray-100"
+                            className="cursor-pointer hover:bg-gray-100 transition-colors duration-150 px-3 py-2"
                           >
                             <Check
                               className={cn(
@@ -126,7 +127,7 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
                 <Input 
                   placeholder="123-456-7890" 
                   {...field}
-                  className="w-full" 
+                  className="w-full transition-all duration-200 focus:border-zwm-primary focus:ring-2 focus:ring-zwm-primary/20" 
                   type="tel"
                   inputMode="tel"
                 />
@@ -136,18 +137,19 @@ const PhoneNumberForm: React.FC<PhoneNumberFormProps> = ({
           )}
         />
         
-        <div className="flex justify-between">
+        <div className="flex justify-between gap-4">
           <Button 
             variant="outline" 
             type="button" 
             onClick={onCancel}
             disabled={isSubmitting}
+            className="flex-1 transition-all duration-200 hover:bg-gray-50"
           >
             Back
           </Button>
           <Button 
             type="submit" 
-            className="zwm-gradient"
+            className="zwm-gradient flex-1 transition-all duration-200 hover:scale-105"
             disabled={isSubmitting}
           >
             {isSubmitting ? 'Sending...' : 'Send Code'}
