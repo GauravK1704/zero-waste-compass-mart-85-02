@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2 } from 'lucide-react';
@@ -10,10 +10,14 @@ interface PerformanceCardProps {
   verified: boolean;
 }
 
-const PerformanceCard: React.FC<PerformanceCardProps> = ({ trustScore, verified }) => {
-  // Fix: Ensure trust score is a valid number, using a default if not
-  const validTrustScore = trustScore || 0;
-  const trustScorePercentage = (validTrustScore / 5) * 100;
+const PerformanceCard: React.FC<PerformanceCardProps> = ({ trustScore: initialTrustScore, verified }) => {
+  const [currentTrustScore, setCurrentTrustScore] = useState(initialTrustScore || 0);
+  
+  const handleTrustScoreUpdate = useCallback((additionalScore: number) => {
+    setCurrentTrustScore(prev => Math.min(prev + additionalScore, 5.0));
+  }, []);
+
+  const trustScorePercentage = (currentTrustScore / 5) * 100;
   
   return (
     <div className="col-span-2 md:col-span-1 seller-card-enter seller-card-delay-2">
@@ -37,8 +41,9 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({ trustScore, verified 
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.5 }}
+                    key={currentTrustScore}
                   >
-                    {validTrustScore.toFixed(1)}/5.0
+                    {currentTrustScore.toFixed(1)}/5.0
                   </motion.div>
                 </div>
                 <div className="mt-1 h-2 w-full bg-slate-200 rounded-full overflow-hidden">
@@ -82,7 +87,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({ trustScore, verified 
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.9 }}
                   >
-                    <VerificationForm />
+                    <VerificationForm onTrustScoreUpdate={handleTrustScoreUpdate} />
                   </motion.div>
                 )}
               </motion.div>

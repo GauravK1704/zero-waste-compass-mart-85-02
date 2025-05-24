@@ -20,6 +20,7 @@ import SellerDashboard from './pages/seller/Dashboard';
 import SellerProfile from './pages/seller/Profile';
 import SellerProducts from './pages/seller/Products';
 import SellerOrders from './pages/seller/Orders';
+import SellerAnalytics from './pages/seller/Analytics';
 import AddItem from './pages/items/AddItem';
 import Cart from './pages/cart/Cart';
 import MyOrders from './pages/orders/MyOrders';
@@ -57,6 +58,7 @@ function App() {
                     <Route path="/seller/profile" element={<SellerProfile />} />
                     <Route path="/seller/products" element={<SellerProducts />} />
                     <Route path="/seller/orders" element={<SellerOrders />} />
+                    <Route path="/seller/analytics" element={<SellerAnalytics />} />
                     <Route path="/items/add" element={<AddItem />} />
                   </Route>
 

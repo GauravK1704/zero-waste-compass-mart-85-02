@@ -1,12 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { Calendar, AlertTriangle, Clock, Package, TrendingUp, Bot } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Package, Bot } from 'lucide-react';
 import { toast } from 'sonner';
+import ExpiryInsights from './expiry/ExpiryInsights';
+import ExpiryItemCard from './expiry/ExpiryItem';
 
 interface ExpiryItem {
   id: string;
@@ -30,7 +28,6 @@ const ExpiryTrackingTab: React.FC = () => {
     recommendedActions: [] as string[]
   });
 
-  // Mock AI-generated expiry data
   useEffect(() => {
     generateMockExpiryData();
   }, []);
@@ -98,14 +95,13 @@ const ExpiryTrackingTab: React.FC = () => {
 
     setExpiryItems(mockItems);
     
-    // Calculate AI insights
     const totalAtRisk = mockItems.filter(item => 
       item.aiRiskLevel === 'critical' || item.aiRiskLevel === 'high'
     ).reduce((sum, item) => sum + item.currentStock, 0);
     
     const potentialLoss = mockItems
       .filter(item => item.aiRiskLevel === 'critical')
-      .reduce((sum, item) => sum + (item.currentStock * 2.5), 0); // Estimate ₹2.5 per unit
+      .reduce((sum, item) => sum + (item.currentStock * 2.5), 0);
     
     setAiInsights({
       totalAtRisk,
@@ -121,15 +117,12 @@ const ExpiryTrackingTab: React.FC = () => {
 
   const handleAiAnalysis = async () => {
     setIsAnalyzing(true);
-    
-    // Simulate AI analysis
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     toast.success("AI Analysis Complete", {
       description: "Updated recommendations and risk levels based on sales patterns"
     });
     
-    // Update some recommendations to simulate AI learning
     setExpiryItems(prev => prev.map(item => ({
       ...item,
       aiRecommendation: item.aiRiskLevel === 'critical' 
@@ -140,73 +133,10 @@ const ExpiryTrackingTab: React.FC = () => {
     setIsAnalyzing(false);
   };
 
-  const getRiskColor = (level: string) => {
-    switch (level) {
-      case 'critical': return 'bg-red-500';
-      case 'high': return 'bg-orange-500';
-      case 'medium': return 'bg-yellow-500';
-      default: return 'bg-green-500';
-    }
-  };
-
-  const getRiskBadgeColor = (level: string) => {
-    switch (level) {
-      case 'critical': return 'destructive';
-      case 'high': return 'destructive';
-      case 'medium': return 'secondary';
-      default: return 'default';
-    }
-  };
-
-  const getUrgencyProgress = (days: number) => {
-    if (days <= 2) return 95;
-    if (days <= 5) return 70;
-    if (days <= 10) return 40;
-    return 10;
-  };
-
   return (
     <div className="space-y-6">
-      {/* AI Insights Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-red-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-orange-600 font-medium">Items at Risk</p>
-                <p className="text-2xl font-bold text-orange-700">{aiInsights.totalAtRisk}</p>
-              </div>
-              <AlertTriangle className="h-8 w-8 text-orange-500" />
-            </div>
-          </CardContent>
-        </Card>
+      <ExpiryInsights {...aiInsights} />
 
-        <Card className="border-red-200 bg-gradient-to-br from-red-50 to-pink-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-red-600 font-medium">Potential Loss</p>
-                <p className="text-2xl font-bold text-red-700">₹{aiInsights.potentialLoss}</p>
-              </div>
-              <TrendingUp className="h-8 w-8 text-red-500" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-blue-600 font-medium">AI Recommendations</p>
-                <p className="text-2xl font-bold text-blue-700">{aiInsights.recommendedActions.length}</p>
-              </div>
-              <Bot className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* AI Analysis Controls */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center gap-2">
@@ -244,7 +174,6 @@ const ExpiryTrackingTab: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Expiry Items List */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -255,72 +184,7 @@ const ExpiryTrackingTab: React.FC = () => {
         <CardContent>
           <div className="space-y-4">
             {expiryItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="border rounded-lg p-4 bg-gradient-to-r from-white to-gray-50"
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="font-medium text-gray-800">{item.name}</h4>
-                      <Badge variant={getRiskBadgeColor(item.aiRiskLevel)}>
-                        {item.aiRiskLevel}
-                      </Badge>
-                      {item.batchNumber && (
-                        <span className="text-xs text-gray-500">#{item.batchNumber}</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                      <span className="flex items-center gap-1">
-                        <Package className="h-3 w-3" />
-                        Stock: {item.currentStock}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Expires: {item.expiryDate}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {item.daysUntilExpiry} days left
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Urgency Progress Bar */}
-                <div className="mb-3">
-                  <div className="flex justify-between text-xs text-gray-500 mb-1">
-                    <span>Urgency Level</span>
-                    <span>{getUrgencyProgress(item.daysUntilExpiry)}%</span>
-                  </div>
-                  <Progress 
-                    value={getUrgencyProgress(item.daysUntilExpiry)} 
-                    className="h-2"
-                  />
-                </div>
-
-                {/* AI Recommendation */}
-                <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-3 rounded-md border border-purple-200">
-                  <div className="flex items-start gap-2">
-                    <Bot className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-purple-700 mb-1">AI Recommendation</p>
-                      <p className="text-sm text-purple-800">{item.aiRecommendation}</p>
-                      <div className="flex items-center gap-4 mt-2 text-xs">
-                        <span className="text-purple-600">
-                          Predicted daily sales: {item.aiPredictedSalesRate} units
-                        </span>
-                        <span className="text-purple-600">
-                          Category: {item.category}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              <ExpiryItemCard key={item.id} item={item} index={index} />
             ))}
           </div>
         </CardContent>
