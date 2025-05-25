@@ -9,7 +9,7 @@ import {
   setupCompanyHeader, 
   setupCustomerInfo,
   addGSTInfoBox,
-  addZeroWasteCertifiedStamp,
+  addCertifiedBySellerStamp,
   addFooterText
 } from './invoice/invoiceStyles';
 
@@ -134,8 +134,8 @@ export const generateInvoicePdf = (order: Order) => {
     state: companyInfo.state
   }, finalY);
   
-  // Add Zero Waste Certified stamp
-  addZeroWasteCertifiedStamp(doc, finalY, pageWidth);
+  // Add Certified by Seller stamp
+  addCertifiedBySellerStamp(doc, finalY, pageWidth);
   
   // Add footer text
   addFooterText(doc, finalY, pageWidth);
