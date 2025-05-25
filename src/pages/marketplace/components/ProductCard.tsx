@@ -250,7 +250,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
           </Button>
         </motion.div>
-      </div>
+      </motion.div>
     </motion.div>
   );
 };
