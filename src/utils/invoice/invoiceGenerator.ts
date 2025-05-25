@@ -1,7 +1,7 @@
 
 import { jsPDF } from 'jspdf';
 import { Order } from '@/types';
-import { setupHeaderStyle, setupCompanyHeader, setupCustomerInfo, addGSTInfoBox, addZeroWasteCertifiedStamp, addFooterText } from './invoiceStyles';
+import { setupHeaderStyle, setupCompanyHeader, setupCustomerInfo, addGSTInfoBox, addCertifiedBySellerStamp, addFooterText } from './invoiceStyles';
 import { formatIndianRupees, calculateGST } from './formatUtils';
 
 /**
@@ -99,9 +99,9 @@ export const generateInvoice = (order: Order): boolean => {
       state: 'Karnataka'
     }, finalY);
     
-    // Zero Waste Certified stamp with seller name
-    const sellerName = order.items[0]?.sellerId || 'Verified Seller';
-    addZeroWasteCertifiedStamp(doc, finalY, pageWidth, sellerName);
+    // Certified by Seller stamp
+    const sellerName = order.items[0]?.name || 'Verified Seller';
+    addCertifiedBySellerStamp(doc, finalY, pageWidth, sellerName);
     
     // Footer text
     addFooterText(doc, finalY, pageWidth);

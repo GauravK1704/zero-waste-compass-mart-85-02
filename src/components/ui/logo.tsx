@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { Leaf } from 'lucide-react';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -27,6 +28,13 @@ export const Logo: React.FC<LogoProps> = ({
     md: certified ? 'h-20 w-20' : 'h-10 w-10',
     lg: certified ? 'h-24 w-24' : 'h-12 w-12',
     xl: certified ? 'h-32 w-32' : 'h-16 w-16',
+  };
+
+  const leafSizeClasses = {
+    sm: 'h-4 w-4',
+    md: 'h-5 w-5',
+    lg: 'h-6 w-6',
+    xl: 'h-8 w-8',
   };
 
   const textSizeClasses = {
@@ -112,7 +120,7 @@ export const Logo: React.FC<LogoProps> = ({
           ease: "easeInOut"
         }}
       >
-        <span className="text-white font-bold text-xl">🍃</span>
+        <Leaf className={cn("text-white", leafSizeClasses[size])} />
         {animated && (
           <>
             <div className="absolute inset-0 bg-white/20 shimmer"></div>

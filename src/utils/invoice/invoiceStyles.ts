@@ -75,69 +75,62 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add redesigned circular certified stamp matching the reference image
+ * Add circular "CERTIFIED BY SELLER" stamp
  */
-export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
+export const addCertifiedBySellerStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
   const centerX = 140;
   const centerY = finalY + 57;
-  const outerRadius = 30;
+  const outerRadius = 28;
   
-  // Outer red border ring (thick)
-  doc.setDrawColor(200, 50, 50); // Red color
+  // Outer blue border ring
+  doc.setDrawColor(59, 130, 246); // Blue color
   doc.setLineWidth(3);
   doc.circle(centerX, centerY, outerRadius, 'S');
   
-  // Inner red border ring
+  // Inner blue border ring
   doc.setLineWidth(2);
-  doc.circle(centerX, centerY, outerRadius - 5, 'S');
+  doc.circle(centerX, centerY, outerRadius - 4, 'S');
   
   // White background fill
   doc.setFillColor(255, 255, 255);
-  doc.circle(centerX, centerY, outerRadius - 6, 'F');
+  doc.circle(centerX, centerY, outerRadius - 5, 'F');
   
-  // Top curved text "CERTIFIED"
-  doc.setTextColor(200, 50, 50); // Red color
+  // Top text "CERTIFIED"
+  doc.setTextColor(59, 130, 246); // Blue color
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   
-  // Position text in arc formation at top
   const topText = 'CERTIFIED';
   const textWidth = doc.getTextWidth(topText);
-  doc.text(topText, centerX - textWidth/2, centerY - 15);
+  doc.text(topText, centerX - textWidth/2, centerY - 12);
   
-  // Center main text "ZERO WASTE MART"
+  // Center text "BY SELLER"
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(200, 50, 50);
-  doc.text('ZERO WASTE', centerX, centerY - 3, { align: 'center' });
-  doc.text('MART', centerX, centerY + 3, { align: 'center' });
+  doc.setTextColor(59, 130, 246);
+  doc.text('BY', centerX, centerY - 2, { align: 'center' });
+  doc.text('SELLER', centerX, centerY + 4, { align: 'center' });
   
-  // Stars decoration around the center
-  doc.setTextColor(200, 50, 50);
-  doc.setFontSize(6);
-  doc.text('★', centerX - 12, centerY - 8, { align: 'center' });
-  doc.text('★', centerX + 12, centerY - 8, { align: 'center' });
-  doc.text('★', centerX - 12, centerY + 8, { align: 'center' });
-  doc.text('★', centerX + 12, centerY + 8, { align: 'center' });
-  doc.text('★', centerX, centerY - 12, { align: 'center' });
-  
-  // Bottom curved text "CERTIFIED"
+  // Leaf icon at center
+  doc.setTextColor(34, 197, 94);
   doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-  const bottomText = 'CERTIFIED';
-  const bottomTextWidth = doc.getTextWidth(bottomText);
-  doc.text(bottomText, centerX - bottomTextWidth/2, centerY + 18);
+  doc.text('🍃', centerX, centerY + 12, { align: 'center' });
   
-  // Seller name in smaller text
-  doc.setFontSize(5);
+  // Bottom text "ZERO WASTE MART"
+  doc.setFontSize(6);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  const sellerDisplayName = sellerName.length > 20 ? sellerName.substring(0, 20) + '...' : sellerName;
-  doc.text(`Seller: ${sellerDisplayName}`, centerX, centerY + 24, { align: 'center' });
+  doc.text('ZERO WASTE MART', centerX, centerY + 18, { align: 'center' });
+  
+  // Seller name
+  doc.setFontSize(5);
+  doc.setTextColor(80, 80, 80);
+  const sellerDisplayName = sellerName.length > 25 ? sellerName.substring(0, 25) + '...' : sellerName;
+  doc.text(sellerDisplayName, centerX, centerY + 23, { align: 'center' });
   
   // Date stamp
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(`Date: ${certDate}`, centerX, centerY + 28, { align: 'center' });
+  doc.text(`Date: ${certDate}`, centerX, centerY + 27, { align: 'center' });
 };
 
 /**
