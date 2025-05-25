@@ -20,57 +20,67 @@ const Marketplace: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const { addToCart } = useCart();
   const [showExpiryAlerts, setShowExpiryAlerts] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Get all unique categories from products
   const categories = ['all', ...Array.from(new Set(mockProducts.map(p => p.category.toLowerCase())))];
 
-  // Fetch products with better error handling
+  // Fetch products with stabilized loading
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchProducts = async () => {
-      setLoading(true);
-      setError(null);
+      if (!isMounted) return;
       
       try {
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 800));
+        // Simulate network delay only on first load
+        if (!isInitialized) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
         
-        // This would be a real Supabase query in production
-        // const { data, error } = await supabase
-        //   .from('products')
-        //   .select('*')
+        if (!isMounted) return;
         
-        // For now, we'll use our mock data with validation
         const data = mockProducts.filter(product => {
-          // Validate required fields
           return product.id && product.name && product.price >= 0;
         });
         
-        // Apply dynamic pricing algorithm
         const updatedProducts = data.map(product => {
           const discountPercentage = calculateDiscount(product.expiryDate);
           return {
             ...product,
             discountPercentage,
-            inStock: product.inStock !== false // Default to true if not specified
+            inStock: product.inStock !== false
           };
         });
         
-        setProducts(updatedProducts);
+        if (isMounted) {
+          setProducts(updatedProducts);
+          setError(null);
+          setIsInitialized(true);
+        }
       } catch (error) {
         console.error("Error fetching products:", error);
-        setError("Failed to load products. Please try again later.");
-        toast({ 
-          title: "Error", 
-          description: "Failed to load products. Please try again later.",
-          variant: "destructive"
-        });
+        if (isMounted) {
+          setError("Failed to load products. Please try again later.");
+          toast({ 
+            title: "Error", 
+            description: "Failed to load products. Please try again later.",
+            variant: "destructive"
+          });
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
     
     fetchProducts();
-  }, [toast]);
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [toast, isInitialized]);
 
   const handleAddToCart = async (product: Product) => {
     try {
@@ -89,7 +99,6 @@ const Marketplace: React.FC = () => {
         quantity: 1
       };
       
-      console.log("Adding item to cart:", cartItem);
       await addToCart(cartItem);
       
       toast({
@@ -116,15 +125,8 @@ const Marketplace: React.FC = () => {
     });
   };
 
-  const retryFetch = () => {
-    setError(null);
-    setLoading(true);
-    // Trigger refetch
-    window.location.reload();
-  };
-
-  // Show loading state
-  if (loading) {
+  // Show loading state only on initial load
+  if (loading && !isInitialized) {
     return <LoadingState />;
   }
 
@@ -142,7 +144,7 @@ const Marketplace: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <button 
-              onClick={retryFetch}
+              onClick={() => window.location.reload()}
               className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
             >
               Try Again
@@ -154,7 +156,7 @@ const Marketplace: React.FC = () => {
   }
 
   // Show empty state
-  if (products.length === 0) {
+  if (products.length === 0 && !loading) {
     return (
       <div className="container mx-auto px-4 py-8">
         <MarketplaceHeader 

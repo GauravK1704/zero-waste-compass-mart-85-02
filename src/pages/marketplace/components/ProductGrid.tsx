@@ -33,13 +33,14 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   showExpiryAlerts, 
   getAiExpiryAlert 
 }) => {
-  // Animation variants
+  // Simplified animation variants to reduce flickering
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: { 
-        staggerChildren: 0.1 
+        staggerChildren: 0.05,
+        duration: 0.2
       }
     }
   };
@@ -55,6 +56,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         variants={containerVariants}
         initial="hidden"
         animate="visible"
+        layout={false}
       >
         {filteredProducts.map(product => (
           <ProductCard 

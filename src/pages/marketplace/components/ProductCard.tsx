@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,11 +43,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showAiPricing, setShowAiPricing] = useState(false);
   
   const { calculateDaysToExpiry, generateAiPricingRecommendation } = useAiPricing(product);
-  const aiPricing = generateAiPricingRecommendation();
-  const daysToExpiry = product.expiryDate ? calculateDaysToExpiry(product.expiryDate) : null;
-  const showAlert = showExpiryAlerts && daysToExpiry !== null && daysToExpiry <= 7 && daysToExpiry >= 0;
+  
+  // Memoize expensive calculations to prevent unnecessary re-renders
+  const aiPricing = useMemo(() => generateAiPricingRecommendation(), [generateAiPricingRecommendation]);
+  const daysToExpiry = useMemo(() => 
+    product.expiryDate ? calculateDaysToExpiry(product.expiryDate) : null, 
+    [product.expiryDate, calculateDaysToExpiry]
+  );
+  const showAlert = useMemo(() => 
+    showExpiryAlerts && daysToExpiry !== null && daysToExpiry <= 7 && daysToExpiry >= 0,
+    [showExpiryAlerts, daysToExpiry]
+  );
 
-  const handleAddToCart = () => {
+  const handleAddToCart = useCallback(() => {
     try {
       const cartItem = convertMarketplaceProductToCartItem(product);
       addToCart(cartItem);
@@ -57,20 +65,30 @@ const ProductCard: React.FC<ProductCardProps> = ({
       console.error('Error adding to cart:', error);
       toast.error('Failed to add item to cart');
     }
-  };
+  }, [product, addToCart, onAddToCart]);
 
-  // Animation variants
+  // Stabilized hover handlers
+  const handleMouseEnter = useCallback(() => {
+    setShowAiPricing(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setShowAiPricing(false);
+  }, []);
+
+  // Simplified animation variants
   const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.2 } }
   };
 
   return (
     <motion.div
-      className="rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition-shadow relative"
+      className="rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition-shadow duration-200 relative"
       variants={cardVariants}
-      onMouseEnter={() => setShowAiPricing(true)}
-      onMouseLeave={() => setShowAiPricing(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      layout={false}
     >
       <AiPricingOverlay aiPricing={aiPricing} showAiPricing={showAiPricing} />
       
@@ -97,7 +115,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         />
         
         <Button 
-          className="w-full mt-4 flex items-center justify-center"
+          className="w-full mt-4 flex items-center justify-center transition-colors duration-200"
           variant="default"
           onClick={handleAddToCart}
           disabled={product.inStock === false}
