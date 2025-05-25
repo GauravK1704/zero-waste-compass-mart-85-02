@@ -75,74 +75,59 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add Zero Waste Certified circular stamp - positioned next to GST info with realistic design
+ * Add Verified by Zero Waste Mart circular stamp with pink borders and seller signature
  */
 export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number) => {
   const centerX = 135; // Position next to GST info box
   const centerY = finalY + 57; // Center vertically with GST info
-  const radius = 22; // Slightly larger for better visibility
-  
-  // Outer decorative ring
-  doc.setFillColor(34, 197, 94, 0.1);
-  doc.circle(centerX, centerY, radius + 2, 'F');
+  const radius = 25; // Larger radius for better text visibility
   
   // White background fill
   doc.setFillColor(255, 255, 255);
   doc.circle(centerX, centerY, radius, 'F');
   
-  // Main green border ring
-  doc.setDrawColor(34, 197, 94);
-  doc.setLineWidth(2.5);
+  // Outer pink border ring
+  doc.setDrawColor(236, 72, 153); // Pink color
+  doc.setLineWidth(2);
   doc.circle(centerX, centerY, radius - 1, 'S');
   
-  // Inner decorative ring
-  doc.setLineWidth(0.8);
-  doc.circle(centerX, centerY, radius - 10, 'S');
+  // Inner pink border ring
+  doc.setLineWidth(1.5);
+  doc.circle(centerX, centerY, radius - 5, 'S');
   
-  // Top text "ZERO WASTE"
-  doc.setTextColor(34, 197, 94);
-  doc.setFontSize(8);
+  // Top text "VERIFIED BY"
+  doc.setTextColor(236, 72, 153);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
-  doc.text('ZERO WASTE', centerX, centerY - 6, { align: 'center' });
+  doc.text('VERIFIED BY', centerX, centerY - 8, { align: 'center' });
   
-  // Center verification symbol (checkmark in circle)
-  doc.setFillColor(34, 197, 94);
-  doc.circle(centerX, centerY, 4, 'F');
+  // Main text "ZERO WASTE MART"
+  doc.setFontSize(6);
+  doc.setFont('helvetica', 'bold');
+  doc.text('ZERO WASTE MART', centerX, centerY - 3, { align: 'center' });
+  
+  // Center verification checkmark
+  doc.setFillColor(236, 72, 153);
+  doc.circle(centerX, centerY + 3, 3, 'F');
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
-  doc.text('✓', centerX, centerY + 1, { align: 'center' });
+  doc.setFontSize(6);
+  doc.text('✓', centerX, centerY + 4, { align: 'center' });
   
-  // Bottom text "CERTIFIED"
-  doc.setTextColor(34, 197, 94);
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CERTIFIED', centerX, centerY + 10, { align: 'center' });
-  
-  // Add realistic decorative stars around the stamp
-  doc.setFontSize(8);
-  doc.setTextColor(34, 197, 94);
-  // Using actual star symbols (★) for better appearance
-  doc.text('★', centerX - 18, centerY - 8, { align: 'center' });
-  doc.text('★', centerX + 18, centerY - 8, { align: 'center' });
-  doc.text('★', centerX - 18, centerY + 8, { align: 'center' });
-  doc.text('★', centerX + 18, centerY + 8, { align: 'center' });
-  
-  // Add smaller accent stars
-  doc.setFontSize(5);
-  doc.text('★', centerX - 14, centerY - 15, { align: 'center' });
-  doc.text('★', centerX + 14, centerY - 15, { align: 'center' });
-  doc.text('★', centerX - 14, centerY + 15, { align: 'center' });
-  doc.text('★', centerX + 14, centerY + 15, { align: 'center' });
-  
-  // Add certification date in smaller text
+  // Bottom text "SELLER SIGNATURE"
+  doc.setTextColor(236, 72, 153);
   doc.setFontSize(5);
   doc.setFont('helvetica', 'normal');
+  doc.text('SELLER SIGNATURE', centerX, centerY + 10, { align: 'center' });
+  
+  // Add signature line
+  doc.setLineWidth(0.5);
+  doc.line(centerX - 15, centerY + 15, centerX + 15, centerY + 15);
+  
+  // Add certification date
+  doc.setFontSize(4);
   doc.setTextColor(100, 100, 100);
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(`Certified: ${certDate}`, centerX, centerY + 18, { align: 'center' });
-  
-  // Add certification number
-  doc.text('Cert. #ZWC-2024-001', centerX, centerY + 21, { align: 'center' });
+  doc.text(`Date: ${certDate}`, centerX, centerY + 20, { align: 'center' });
 };
 
 /**
