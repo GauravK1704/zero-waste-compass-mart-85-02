@@ -7,15 +7,13 @@ interface ProductInfoProps {
   price: number;
   rating: number;
   seller: string;
-  sellerVerified?: boolean;
 }
 
 export const ProductInfo: React.FC<ProductInfoProps> = ({
   name,
   price,
   rating,
-  seller,
-  sellerVerified
+  seller
 }) => {
   return (
     <>

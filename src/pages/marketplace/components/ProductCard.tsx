@@ -1,12 +1,11 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { ShoppingCart } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingCart, Heart, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/cart';
 import { toast } from 'sonner';
 import { convertMarketplaceProductToCartItem } from '@/hooks/cart/cartUtils';
-import { ProductImage } from './ProductCard/ProductImage';
 import { ProductInfo } from './ProductCard/ProductInfo';
 import { ExpiryAlert } from './ProductCard/ExpiryAlert';
 
@@ -22,7 +21,6 @@ interface Product {
   expiryDate: string;
   discountPercentage?: number;
   inStock?: boolean;
-  sellerVerified?: boolean;
 }
 
 interface ProductCardProps {
@@ -40,6 +38,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { addToCart } = useCart();
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   
   const calculateDaysToExpiry = useCallback((expiryDate: string): number => {
     if (!expiryDate) return 999;
@@ -49,11 +49,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   }, []);
   
-  // Memoize expensive calculations to prevent unnecessary re-renders
   const daysToExpiry = useMemo(() => 
     product.expiryDate ? calculateDaysToExpiry(product.expiryDate) : null, 
     [product.expiryDate, calculateDaysToExpiry]
   );
+  
   const showAlert = useMemo(() => 
     showExpiryAlerts && daysToExpiry !== null && daysToExpiry <= 7 && daysToExpiry >= 0,
     [showExpiryAlerts, daysToExpiry]
@@ -71,80 +71,153 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }, [product, addToCart, onAddToCart]);
 
-  // Enhanced animation variants with smooth transitions
+  const handleFavorite = useCallback(() => {
+    setIsFavorited(!isFavorited);
+    toast.success(isFavorited ? 'Removed from favorites' : 'Added to favorites');
+  }, [isFavorited]);
+
+  // Enhanced animation variants with premium quality
   const cardVariants = {
     hidden: { 
       opacity: 0, 
-      y: 20,
-      scale: 0.95
+      y: 30,
+      scale: 0.95,
+      rotateX: 15
     },
     visible: { 
       opacity: 1, 
       y: 0,
       scale: 1,
+      rotateX: 0,
       transition: { 
-        duration: 0.4,
-        ease: "easeOut"
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        duration: 0.6
       }
     },
     hover: {
-      y: -8,
-      scale: 1.02,
-      boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+      y: -12,
+      scale: 1.03,
+      rotateY: 2,
+      boxShadow: "0 25px 50px rgba(0,0,0,0.15)",
       transition: {
-        duration: 0.3,
-        ease: "easeOut"
+        type: "spring",
+        damping: 20,
+        stiffness: 300
       }
+    }
+  };
+
+  const imageVariants = {
+    initial: { scale: 1 },
+    hover: { 
+      scale: 1.1,
+      transition: { duration: 0.4, ease: "easeOut" }
+    }
+  };
+
+  const overlayVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
     }
   };
 
   return (
     <motion.div
-      className="rounded-xl overflow-hidden shadow-lg bg-white transition-all duration-300 relative group"
+      className="rounded-2xl overflow-hidden shadow-xl bg-white transition-all duration-300 relative group cursor-pointer border border-gray-100"
       variants={cardVariants}
       initial="hidden"
       animate="visible"
       whileHover="hover"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
       layout={false}
     >
-      {/* Enhanced image section with loading state */}
-      <div className="relative h-56 bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+      {/* Premium image section with HD quality */}
+      <div className="relative h-64 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
         {!imageLoaded && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-purple-500 border-t-transparent"></div>
+            <motion.div 
+              className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
           </div>
         )}
+        
         <motion.img 
-          src={product.image || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=800&h=600&fit=crop'} 
+          src={product.image || 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=800&h=600&fit=crop&auto=format&q=80'} 
           alt={product.name}
-          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
+          className={`w-full h-full object-cover transition-all duration-700 ${
             imageLoaded ? 'opacity-100' : 'opacity-0'
           }`}
+          variants={imageVariants}
           onLoad={() => setImageLoaded(true)}
           loading="lazy"
         />
         
-        {/* Gradient overlay for better text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Premium gradient overlay */}
+        <motion.div 
+          className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isHovered ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+        />
         
-        {/* Discount Badge with enhanced styling */}
+        {/* Action buttons overlay */}
+        <AnimatePresence>
+          {isHovered && (
+            <motion.div
+              className="absolute top-4 right-4 flex flex-col gap-2"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+            >
+              <motion.button
+                className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                onClick={handleFavorite}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Heart className={`h-5 w-5 ${isFavorited ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
+              </motion.button>
+              
+              <motion.button
+                className="w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:bg-white transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Eye className="h-5 w-5 text-gray-600" />
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        
+        {/* Premium discount badge */}
         {product.discountPercentage && product.discountPercentage > 0 && (
           <motion.div 
-            className="absolute top-3 right-3 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg"
+            className="absolute top-4 left-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1.5 rounded-full text-sm font-bold shadow-lg backdrop-blur-sm"
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.2, type: "spring" }}
+            transition={{ delay: 0.3, type: "spring", damping: 15 }}
+            whileHover={{ scale: 1.05 }}
           >
-            -{product.discountPercentage}%
+            -{product.discountPercentage}% OFF
           </motion.div>
         )}
       </div>
       
+      {/* Enhanced content section */}
       <motion.div 
-        className="p-5"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
+        className="p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4 }}
       >
         <ProductInfo 
           name={product.name}
@@ -159,17 +232,21 @@ const ProductCard: React.FC<ProductCardProps> = ({
           getAiExpiryAlert={getAiExpiryAlert}
         />
         
+        {/* Premium add to cart button */}
         <motion.div
+          className="mt-6"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           <Button 
-            className="w-full mt-4 flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl"
+            className="w-full h-12 flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-700 hover:via-blue-700 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 relative overflow-hidden group"
             variant="default"
             onClick={handleAddToCart}
             disabled={product.inStock === false}
           >
-            <ShoppingCart className="h-4 w-4 mr-2" />
+            {/* Button shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            <ShoppingCart className="h-5 w-5 mr-2" />
             {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
           </Button>
         </motion.div>

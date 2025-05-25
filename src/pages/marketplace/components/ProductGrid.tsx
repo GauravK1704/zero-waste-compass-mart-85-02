@@ -16,7 +16,6 @@ interface Product {
   expiryDate: string;
   discountPercentage?: number;
   inStock?: boolean;
-  sellerVerified?: boolean;
 }
 
 interface ProductGridProps {
@@ -34,15 +33,37 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   showExpiryAlerts, 
   getAiExpiryAlert 
 }) => {
-  // Enhanced animation variants with staggered children
+  // Premium animation variants with staggered entrance
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: { 
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-        duration: 0.4
+        staggerChildren: 0.08,
+        delayChildren: 0.1,
+        duration: 0.6,
+        ease: "easeOut"
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 50,
+      scale: 0.9,
+      rotateX: 15
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      rotateX: 0,
+      transition: {
+        type: "spring",
+        damping: 25,
+        stiffness: 300,
+        duration: 0.6
       }
     }
   };
@@ -60,14 +81,29 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         animate="visible"
         layout={false}
       >
-        {filteredProducts.map(product => (
-          <ProductCard 
-            key={product.id} 
-            product={product} 
-            onAddToCart={onAddToCart} 
-            showExpiryAlerts={showExpiryAlerts}
-            getAiExpiryAlert={getAiExpiryAlert}
-          />
+        {filteredProducts.map((product, index) => (
+          <motion.div
+            key={product.id}
+            variants={itemVariants}
+            custom={index}
+            whileInView={{ 
+              opacity: 1, 
+              y: 0,
+              transition: { 
+                delay: index * 0.05,
+                duration: 0.5,
+                ease: "easeOut"
+              }
+            }}
+            viewport={{ once: true, margin: "-50px" }}
+          >
+            <ProductCard 
+              product={product} 
+              onAddToCart={onAddToCart} 
+              showExpiryAlerts={showExpiryAlerts}
+              getAiExpiryAlert={getAiExpiryAlert}
+            />
+          </motion.div>
         ))}
       </motion.div>
     </TabsContent>
