@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { Star, Shield } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { Star } from 'lucide-react';
 
 interface ProductInfoProps {
   name: string;
@@ -37,18 +36,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
       </div>
       
-      <div className="flex items-center justify-between mt-1">
-        <p className="text-sm text-gray-500">{seller || 'Unknown Seller'}</p>
-        {sellerVerified && (
-          <Badge 
-            variant="secondary" 
-            className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1 px-2 py-1"
-          >
-            <Shield className="h-3 w-3" />
-            <span className="text-xs">Verified</span>
-          </Badge>
-        )}
-      </div>
+      <p className="text-sm text-gray-500 mt-1">{seller || 'Unknown Seller'}</p>
     </>
   );
 };

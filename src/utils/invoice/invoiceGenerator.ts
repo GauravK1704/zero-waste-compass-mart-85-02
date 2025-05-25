@@ -99,8 +99,9 @@ export const generateInvoice = (order: Order): boolean => {
       state: 'Karnataka'
     }, finalY);
     
-    // Zero Waste Certified stamp
-    addZeroWasteCertifiedStamp(doc, finalY, pageWidth);
+    // Zero Waste Certified stamp with seller name
+    const sellerName = order.items[0]?.sellerId || 'Verified Seller';
+    addZeroWasteCertifiedStamp(doc, finalY, pageWidth, sellerName);
     
     // Footer text
     addFooterText(doc, finalY, pageWidth);

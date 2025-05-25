@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Leaf } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface LogoProps {
@@ -10,21 +9,24 @@ interface LogoProps {
   showText?: boolean;
   animated?: boolean;
   onClick?: () => void;
+  certified?: boolean;
+  sellerName?: string;
 }
 
-// Export both default and named export
 export const Logo: React.FC<LogoProps> = ({ 
   size = 'md', 
   className, 
   showText = true,
   animated = true,
-  onClick
+  onClick,
+  certified = false,
+  sellerName
 }) => {
   const sizeClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-10 w-10',
-    lg: 'h-12 w-12',
-    xl: 'h-16 w-16',
+    sm: certified ? 'h-16 w-16' : 'h-8 w-8',
+    md: certified ? 'h-20 w-20' : 'h-10 w-10',
+    lg: certified ? 'h-24 w-24' : 'h-12 w-12',
+    xl: certified ? 'h-32 w-32' : 'h-16 w-16',
   };
 
   const textSizeClasses = {
@@ -34,12 +36,61 @@ export const Logo: React.FC<LogoProps> = ({
     xl: 'text-3xl',
   };
 
-  const leafIconSize = {
-    sm: 16,
-    md: 20,
-    lg: 24,
-    xl: 32,
-  };
+  if (certified) {
+    return (
+      <motion.div 
+        className={cn("flex flex-col items-center", className)}
+        onClick={onClick}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+      >
+        <motion.div 
+          className={cn(
+            "rounded-full relative flex items-center justify-center overflow-hidden",
+            sizeClasses[size]
+          )}
+          initial={{ rotate: 0 }}
+          animate={animated ? { 
+            rotate: [0, 360],
+          } : {}}
+          transition={{ 
+            duration: 20, 
+            repeat: Infinity, 
+            ease: "linear"
+          }}
+        >
+          {/* Outer border ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-gray-800"></div>
+          
+          {/* Inner border ring */}
+          <div className="absolute inset-2 rounded-full border-2 border-gray-600"></div>
+          
+          {/* White background */}
+          <div className="absolute inset-4 rounded-full bg-white"></div>
+          
+          {/* Top text "ZERO WASTE MART" */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center">
+              <div className="text-xs font-bold text-gray-800 leading-tight">
+                ZERO WASTE MART
+              </div>
+              <div className="text-lg font-bold text-gray-800 mt-1">
+                CERTIFIED
+              </div>
+              {sellerName && (
+                <div className="text-xs text-gray-600 mt-1 border-t border-gray-300 pt-1">
+                  {sellerName}
+                </div>
+              )}
+              {/* Star decoration */}
+              <div className="text-yellow-500 text-sm mt-1">★</div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
   
   return (
     <motion.div 
@@ -67,10 +118,7 @@ export const Logo: React.FC<LogoProps> = ({
           ease: "easeInOut"
         }}
       >
-        <Leaf 
-          className={cn("text-white", animated && "animate-float")} 
-          size={leafIconSize[size]}
-        />
+        <span className="text-white font-bold">ZWM</span>
         {animated && (
           <>
             <div className="absolute inset-0 bg-white/20 shimmer"></div>
@@ -96,5 +144,4 @@ export const Logo: React.FC<LogoProps> = ({
   );
 };
 
-// Also maintain the default export for backward compatibility
 export default Logo;

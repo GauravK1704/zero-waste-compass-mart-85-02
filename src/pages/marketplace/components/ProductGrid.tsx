@@ -34,14 +34,15 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   showExpiryAlerts, 
   getAiExpiryAlert 
 }) => {
-  // Simplified animation variants to reduce flickering
+  // Enhanced animation variants with staggered children
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { 
       opacity: 1,
       transition: { 
-        staggerChildren: 0.05,
-        duration: 0.2
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+        duration: 0.4
       }
     }
   };
@@ -51,9 +52,9 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   );
 
   return (
-    <TabsContent key={category} value={category} className="mt-6">
+    <TabsContent key={category} value={category} className="mt-8">
       <motion.div 
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8"
         variants={containerVariants}
         initial="hidden"
         animate="visible"

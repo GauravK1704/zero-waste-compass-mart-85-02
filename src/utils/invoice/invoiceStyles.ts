@@ -75,9 +75,9 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add Verified by Zero Waste Mart circular stamp with pink borders and seller signature
+ * Add Zero Waste Mart Certified circular stamp with seller signature
  */
-export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number) => {
+export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
   const centerX = 135; // Position next to GST info box
   const centerY = finalY + 57; // Center vertically with GST info
   const radius = 25; // Larger radius for better text visibility
@@ -86,48 +86,47 @@ export const addZeroWasteCertifiedStamp = (doc: jsPDF, finalY: number, pageWidth
   doc.setFillColor(255, 255, 255);
   doc.circle(centerX, centerY, radius, 'F');
   
-  // Outer pink border ring
-  doc.setDrawColor(236, 72, 153); // Pink color
+  // Outer black border ring
+  doc.setDrawColor(0, 0, 0);
   doc.setLineWidth(2);
   doc.circle(centerX, centerY, radius - 1, 'S');
   
-  // Inner pink border ring
-  doc.setLineWidth(1.5);
-  doc.circle(centerX, centerY, radius - 5, 'S');
+  // Inner black border ring
+  doc.setLineWidth(1);
+  doc.circle(centerX, centerY, radius - 6, 'S');
   
-  // Top text "VERIFIED BY"
-  doc.setTextColor(236, 72, 153);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('VERIFIED BY', centerX, centerY - 8, { align: 'center' });
-  
-  // Main text "ZERO WASTE MART"
+  // Top curved text "ZERO WASTE MART"
+  doc.setTextColor(0, 0, 0);
   doc.setFontSize(6);
   doc.setFont('helvetica', 'bold');
-  doc.text('ZERO WASTE MART', centerX, centerY - 3, { align: 'center' });
+  doc.text('ZERO WASTE MART', centerX, centerY - 10, { align: 'center' });
   
-  // Center verification checkmark
-  doc.setFillColor(236, 72, 153);
-  doc.circle(centerX, centerY + 3, 3, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(6);
-  doc.text('✓', centerX, centerY + 4, { align: 'center' });
+  // Center text "CERTIFIED"
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CERTIFIED', centerX, centerY - 2, { align: 'center' });
   
-  // Bottom text "SELLER SIGNATURE"
-  doc.setTextColor(236, 72, 153);
+  // Center star decoration
+  doc.setTextColor(255, 193, 7);
+  doc.setFontSize(8);
+  doc.text('★', centerX, centerY + 4, { align: 'center' });
+  
+  // Bottom text with seller name
+  doc.setTextColor(0, 0, 0);
   doc.setFontSize(5);
   doc.setFont('helvetica', 'normal');
-  doc.text('SELLER SIGNATURE', centerX, centerY + 10, { align: 'center' });
+  doc.text(sellerName, centerX, centerY + 10, { align: 'center' });
   
   // Add signature line
   doc.setLineWidth(0.5);
   doc.line(centerX - 15, centerY + 15, centerX + 15, centerY + 15);
+  doc.text('Seller Signature', centerX, centerY + 18, { align: 'center' });
   
   // Add certification date
   doc.setFontSize(4);
   doc.setTextColor(100, 100, 100);
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(`Date: ${certDate}`, centerX, centerY + 20, { align: 'center' });
+  doc.text(`Date: ${certDate}`, centerX, centerY + 22, { align: 'center' });
 };
 
 /**
