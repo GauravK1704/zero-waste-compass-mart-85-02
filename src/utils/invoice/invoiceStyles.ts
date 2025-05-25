@@ -10,7 +10,7 @@ export const setupHeaderStyle = (doc: jsPDF, pageWidth: number) => {
   doc.rect(0, 0, pageWidth, 40, 'F');
   
   // Logo circle with leaf design
-  doc.setFillColor(34, 197, 94); // Green color for leaf
+  doc.setFillColor(147, 51, 234); // Purple color to match theme
   doc.circle(20, 20, 10, 'F');
   
   // Add leaf symbol
@@ -75,56 +75,63 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add circular "CERTIFIED BY SELLER" stamp
+ * Add red circular "CERTIFIED" stamp matching the uploaded image
  */
 export const addCertifiedBySellerStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
   const centerX = 140;
   const centerY = finalY + 57;
   const outerRadius = 28;
   
-  // Outer blue border ring
-  doc.setDrawColor(59, 130, 246); // Blue color
-  doc.setLineWidth(3);
+  // Outer red border ring (thick)
+  doc.setDrawColor(220, 38, 38); // Red color
+  doc.setLineWidth(4);
   doc.circle(centerX, centerY, outerRadius, 'S');
   
-  // Inner blue border ring
+  // Inner red border ring
   doc.setLineWidth(2);
-  doc.circle(centerX, centerY, outerRadius - 4, 'S');
+  doc.circle(centerX, centerY, outerRadius - 3, 'S');
   
   // White background fill
   doc.setFillColor(255, 255, 255);
-  doc.circle(centerX, centerY, outerRadius - 5, 'F');
+  doc.circle(centerX, centerY, outerRadius - 4, 'F');
   
-  // Top text "CERTIFIED"
-  doc.setTextColor(59, 130, 246); // Blue color
-  doc.setFontSize(8);
+  // Top curved text "CERTIFIED"
+  doc.setTextColor(220, 38, 38); // Red color
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
   
   const topText = 'CERTIFIED';
   const textWidth = doc.getTextWidth(topText);
-  doc.text(topText, centerX - textWidth/2, centerY - 12);
+  doc.text(topText, centerX - textWidth/2, centerY - 15);
   
-  // Center text "BY SELLER"
-  doc.setFontSize(7);
+  // Center large text "CERTIFIED"
+  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(59, 130, 246);
-  doc.text('BY', centerX, centerY - 2, { align: 'center' });
-  doc.text('SELLER', centerX, centerY + 4, { align: 'center' });
+  doc.setTextColor(220, 38, 38);
+  doc.text('CERTIFIED', centerX, centerY - 2, { align: 'center' });
   
-  // Leaf icon at center
-  doc.setTextColor(34, 197, 94);
+  // Bottom curved text "CERTIFIED"
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CERTIFIED', centerX, centerY + 15, { align: 'center' });
+  
+  // Stars decoration around the text
   doc.setFontSize(8);
-  doc.text('🍃', centerX, centerY + 12, { align: 'center' });
+  doc.setTextColor(220, 38, 38);
   
-  // Bottom text "ZERO WASTE MART"
+  // Top stars
+  doc.text('★', centerX - 15, centerY - 8);
+  doc.text('★', centerX, centerY - 18);
+  doc.text('★', centerX + 15, centerY - 8);
+  
+  // Bottom stars
+  doc.text('★', centerX - 15, centerY + 8);
+  doc.text('★', centerX, centerY + 18);
+  doc.text('★', centerX + 15, centerY + 8);
+  
+  // Small seller info at bottom
   doc.setFontSize(6);
-  doc.setFont('helvetica', 'normal');
   doc.setTextColor(100, 100, 100);
-  doc.text('ZERO WASTE MART', centerX, centerY + 18, { align: 'center' });
-  
-  // Seller name
-  doc.setFontSize(5);
-  doc.setTextColor(80, 80, 80);
   const sellerDisplayName = sellerName.length > 25 ? sellerName.substring(0, 25) + '...' : sellerName;
   doc.text(sellerDisplayName, centerX, centerY + 23, { align: 'center' });
   

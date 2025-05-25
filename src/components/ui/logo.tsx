@@ -104,36 +104,78 @@ export const Logo: React.FC<LogoProps> = ({
     >
       <motion.div 
         className={cn(
-          "rounded-full flex items-center justify-center text-white font-bold relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600",
+          "rounded-full flex items-center justify-center text-white font-bold relative overflow-hidden bg-gradient-to-br from-purple-600 via-blue-600 to-purple-700",
           sizeClasses[size],
           animated && "hover-scale"
         )}
         initial={{ rotate: 0 }}
         animate={animated ? { 
-          rotate: [0, 5, 0, -5, 0],
-          scale: [1, 1.05, 1, 1.05, 1]
+          rotate: [0, 10, -10, 5, -5, 0],
+          scale: [1, 1.1, 1, 1.05, 1],
+          background: [
+            "linear-gradient(135deg, #9333ea, #3b82f6, #7c3aed)",
+            "linear-gradient(135deg, #7c3aed, #9333ea, #3b82f6)",
+            "linear-gradient(135deg, #3b82f6, #7c3aed, #9333ea)",
+            "linear-gradient(135deg, #9333ea, #3b82f6, #7c3aed)"
+          ]
         } : {}}
         transition={{ 
-          duration: 5, 
+          duration: 6, 
           repeat: Infinity, 
           repeatType: "loop",
           ease: "easeInOut"
         }}
       >
-        <Leaf className={cn("text-white", leafSizeClasses[size])} />
+        <motion.div
+          animate={animated ? {
+            rotate: [0, 15, -15, 10, -10, 0],
+            scale: [1, 1.2, 0.9, 1.1, 1]
+          } : {}}
+          transition={{
+            duration: 4,
+            repeat: Infinity,
+            repeatType: "loop",
+            ease: "easeInOut",
+            delay: 0.5
+          }}
+        >
+          <Leaf className={cn("text-white", leafSizeClasses[size])} />
+        </motion.div>
+        
         {animated && (
           <>
-            <div className="absolute inset-0 bg-white/20 shimmer"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent animate-pulse-slow"></div>
+            <motion.div 
+              className="absolute inset-0 bg-white/20"
+              animate={{
+                opacity: [0, 0.3, 0],
+                scale: [0.8, 1.2, 0.8]
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
+            <motion.div 
+              className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/20 to-transparent"
+              animate={{
+                rotate: [0, 360],
+                opacity: [0.5, 1, 0.5]
+              }}
+              transition={{
+                duration: 8,
+                repeat: Infinity,
+                ease: "linear"
+              }}
+            />
           </>
         )}
       </motion.div>
       {showText && (
         <motion.span 
           className={cn(
-            "font-bold font-heading",
-            textSizeClasses[size],
-            animated ? "text-black" : "text-black"
+            "font-bold font-heading bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 bg-clip-text text-transparent",
+            textSizeClasses[size]
           )}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
