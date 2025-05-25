@@ -26,7 +26,7 @@ const NavButtons: React.FC<NavButtonsProps> = ({ isSellerPortal }) => {
         variant="outline"
         size="sm"
         onClick={goToHome}
-        className={`hidden md:flex items-center gap-2 transition-colors home-button home-button-3d ${isSellerPortal ? 'seller-home-button seller-button-3d' : 'buyer-home-button buyer-button-3d'} button-bounce button-shimmer hover:bg-white hover:text-gray-800`}
+        className={`hidden md:flex items-center gap-2 transition-colors home-button home-button-3d ${isSellerPortal ? 'seller-home-button seller-button-3d' : 'buyer-home-button buyer-button-3d'} button-bounce button-shimmer`}
       >
         <Home className="h-4 w-4 home-button-icon" />
         <span className="relative">Home</span>
@@ -45,8 +45,7 @@ const NavButtons: React.FC<NavButtonsProps> = ({ isSellerPortal }) => {
             variant="outline"
             size="sm"
             onClick={goToCart}
-            className="hidden md:flex items-center gap-2 transition-colors cart-button cart-button-3d cart-button-highlight buyer-button-3d button-bounce button-shimmer
-              hover:bg-white hover:text-gray-800 group"
+            className="hidden md:flex items-center gap-2 transition-colors cart-button cart-button-3d cart-button-highlight buyer-button-3d button-bounce button-shimmer group"
             style={{
               borderColor: '#8B5CF6',
               color: '#7C3AED'

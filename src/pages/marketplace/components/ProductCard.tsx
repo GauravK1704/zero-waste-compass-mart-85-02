@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Heart, Eye, Plus, Minus } from 'lucide-react';
@@ -63,10 +62,10 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleAddToCart = useCallback(() => {
     try {
-      for (let i = 0; i < quantity; i++) {
-        const cartItem = convertMarketplaceProductToCartItem(product);
-        addToCart(cartItem);
-      }
+      const cartItem = convertMarketplaceProductToCartItem(product);
+      // Set the quantity to the selected amount
+      cartItem.quantity = quantity;
+      addToCart(cartItem);
       toast.success(`${quantity} x ${product.name} added to cart`);
       onAddToCart(product);
       setShowQuantityControls(true);
