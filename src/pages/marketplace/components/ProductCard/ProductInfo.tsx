@@ -7,18 +7,13 @@ interface ProductInfoProps {
   price: number;
   rating: number;
   seller: string;
-  aiPricing: {
-    recommendedPrice: number;
-    priceChange: number;
-  };
 }
 
 export const ProductInfo: React.FC<ProductInfoProps> = ({
   name,
   price,
   rating,
-  seller,
-  aiPricing
+  seller
 }) => {
   return (
     <>
@@ -27,16 +22,9 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
       </h3>
       
       <div className="flex justify-between items-center mt-1">
-        <div className="flex flex-col">
-          <span className="text-lg font-semibold">
-            ₹{price ? price.toFixed(2) : '0.00'}
-          </span>
-          {Math.abs(aiPricing.priceChange) > 5 && (
-            <span className="text-sm text-purple-600">
-              AI: ₹{aiPricing.recommendedPrice}
-            </span>
-          )}
-        </div>
+        <span className="text-lg font-semibold">
+          ₹{price ? price.toFixed(2) : '0.00'}
+        </span>
         
         <div className="flex items-center">
           <Star className="h-4 w-4 text-yellow-500 mr-1" />

@@ -6,11 +6,9 @@ import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/cart';
 import { toast } from 'sonner';
 import { convertMarketplaceProductToCartItem } from '@/hooks/cart/cartUtils';
-import { AiPricingOverlay } from './ProductCard/AiPricingOverlay';
 import { ProductImage } from './ProductCard/ProductImage';
 import { ProductInfo } from './ProductCard/ProductInfo';
 import { ExpiryAlert } from './ProductCard/ExpiryAlert';
-import { useAiPricing } from './ProductCard/useAiPricing';
 
 interface Product {
   id: string;
@@ -40,12 +38,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
   getAiExpiryAlert 
 }) => {
   const { addToCart } = useCart();
-  const [showAiPricing, setShowAiPricing] = useState(false);
   
-  const { calculateDaysToExpiry, generateAiPricingRecommendation } = useAiPricing(product);
+  const calculateDaysToExpiry = useCallback((expiryDate: string): number => {
+    if (!expiryDate) return 999;
+    const today = new Date();
+    const expiry = new Date(expiryDate);
+    const diffTime = expiry.getTime() - today.getTime();
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  }, []);
   
   // Memoize expensive calculations to prevent unnecessary re-renders
-  const aiPricing = useMemo(() => generateAiPricingRecommendation(), [generateAiPricingRecommendation]);
   const daysToExpiry = useMemo(() => 
     product.expiryDate ? calculateDaysToExpiry(product.expiryDate) : null, 
     [product.expiryDate, calculateDaysToExpiry]
@@ -67,15 +69,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
     }
   }, [product, addToCart, onAddToCart]);
 
-  // Stabilized hover handlers
-  const handleMouseEnter = useCallback(() => {
-    setShowAiPricing(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setShowAiPricing(false);
-  }, []);
-
   // Simplified animation variants
   const cardVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -86,17 +79,12 @@ const ProductCard: React.FC<ProductCardProps> = ({
     <motion.div
       className="rounded-lg overflow-hidden shadow-md bg-white hover:shadow-lg transition-shadow duration-200 relative"
       variants={cardVariants}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
       layout={false}
     >
-      <AiPricingOverlay aiPricing={aiPricing} showAiPricing={showAiPricing} />
-      
       <ProductImage 
         image={product.image}
         name={product.name}
         discountPercentage={product.discountPercentage}
-        aiPricing={aiPricing}
       />
       
       <div className="p-4">
@@ -105,7 +93,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
           price={product.price}
           rating={product.rating}
           seller={product.seller}
-          aiPricing={aiPricing}
         />
         
         <ExpiryAlert 
