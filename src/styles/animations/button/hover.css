@@ -26,8 +26,9 @@
 }
 
 .home-button:hover {
-  background-color: #7c3aed !important; /* Darker purple on hover */
-  color: white !important;
+  background-color: white !important;
+  color: #7c3aed !important; /* Purple text on white background */
+  border-color: #7c3aed !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 15px -3px rgba(124, 58, 237, 0.4);
 }

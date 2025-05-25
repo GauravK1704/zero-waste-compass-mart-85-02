@@ -47,7 +47,7 @@ export const Logo: React.FC<LogoProps> = ({
       >
         <motion.div 
           className={cn(
-            "rounded-full relative flex items-center justify-center overflow-hidden",
+            "rounded-full relative flex items-center justify-center overflow-hidden border-4 border-red-500",
             sizeClasses[size]
           )}
           initial={{ rotate: 0 }}
@@ -60,22 +60,16 @@ export const Logo: React.FC<LogoProps> = ({
             ease: "linear"
           }}
         >
-          {/* Outer border ring */}
-          <div className="absolute inset-0 rounded-full border-4 border-gray-800"></div>
-          
-          {/* Inner border ring */}
-          <div className="absolute inset-2 rounded-full border-2 border-gray-600"></div>
-          
           {/* White background */}
-          <div className="absolute inset-4 rounded-full bg-white"></div>
+          <div className="absolute inset-2 rounded-full bg-white"></div>
           
-          {/* Top text "ZERO WASTE MART" */}
+          {/* Content */}
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
-              <div className="text-xs font-bold text-gray-800 leading-tight">
+              <div className="text-xs font-bold text-red-500 leading-tight">
                 ZERO WASTE MART
               </div>
-              <div className="text-lg font-bold text-gray-800 mt-1">
+              <div className="text-lg font-bold text-red-500 mt-1">
                 CERTIFIED
               </div>
               {sellerName && (
@@ -83,8 +77,8 @@ export const Logo: React.FC<LogoProps> = ({
                   {sellerName}
                 </div>
               )}
-              {/* Star decoration */}
-              <div className="text-yellow-500 text-sm mt-1">★</div>
+              {/* Stars decoration */}
+              <div className="text-red-500 text-sm mt-1">★★★</div>
             </div>
           </div>
         </motion.div>
@@ -102,7 +96,7 @@ export const Logo: React.FC<LogoProps> = ({
     >
       <motion.div 
         className={cn(
-          "rounded-full zwm-gradient flex items-center justify-center text-white font-bold relative overflow-hidden",
+          "rounded-full flex items-center justify-center text-white font-bold relative overflow-hidden bg-gradient-to-br from-green-500 to-green-600",
           sizeClasses[size],
           animated && "hover-scale"
         )}
@@ -118,7 +112,7 @@ export const Logo: React.FC<LogoProps> = ({
           ease: "easeInOut"
         }}
       >
-        <span className="text-white font-bold">ZWM</span>
+        <span className="text-white font-bold text-xl">🍃</span>
         {animated && (
           <>
             <div className="absolute inset-0 bg-white/20 shimmer"></div>
