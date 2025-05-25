@@ -1,0 +1,98 @@
+
+/* Enhanced Login Button Animations */
+.login-button-enhanced {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 2px solid #e2e8f0;
+}
+
+.login-button-enhanced:hover {
+  background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%) !important;
+  color: #be185d !important;
+  border-color: #ec4899 !important;
+  transform: translateY(-5px) scale(1.08);
+  box-shadow: 
+    0 25px 35px -5px rgba(236, 72, 153, 0.5),
+    0 15px 15px -5px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Shimmer Effect */
+.login-button-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%) skewX(-15deg);
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-button-enhanced:hover::before {
+  transform: translateX(200%) skewX(-15deg);
+}
+
+/* Radial Glow Effect */
+.login-button-enhanced::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-button-enhanced:hover::after {
+  width: 250px;
+  height: 250px;
+}
+
+/* Enhanced Pulse Animation */
+.login-button-pulse-enhanced {
+  position: relative;
+}
+
+.login-button-pulse-enhanced::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: 3px solid rgba(236, 72, 153, 0.6);
+  border-radius: inherit;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+  animation: enhanced-login-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes enhanced-login-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    border-color: rgba(236, 72, 153, 0.8);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.35);
+    opacity: 0;
+    border-color: rgba(190, 24, 93, 0.2);
+  }
+}
+
+/* Text Glow Effect */
+.login-button-enhanced:hover span {
+  text-shadow: 0 0 8px rgba(236, 72, 153, 0.6);
+}

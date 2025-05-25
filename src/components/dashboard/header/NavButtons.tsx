@@ -43,9 +43,9 @@ const NavButtons: React.FC<NavButtonsProps> = ({ isSellerPortal }) => {
           variant="outline"
           size="sm"
           onClick={goToHome}
-          className="hidden md:flex items-center gap-2 home-button home-button-pulse home-button-sparkle home-button-ripple transition-all duration-400 bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 hover:border-blue-500 hover:bg-white hover:text-gray-700 text-gray-600 font-medium shadow-md hover:shadow-2xl group relative overflow-hidden"
+          className="hidden md:flex items-center gap-2 home-button-enhanced transition-all duration-400 bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 hover:border-blue-500 hover:bg-white hover:text-gray-700 text-gray-600 font-medium shadow-md hover:shadow-2xl group relative overflow-hidden"
         >
-          <Home className="h-4 w-4 home-button-icon group-hover:scale-125 group-hover:rotate-12 transition-all duration-400" />
+          <Home className="h-4 w-4 home-icon-rotatable group-hover:scale-125 group-hover:rotate-12 transition-all duration-400" />
           <span className="relative z-10 font-semibold">Home</span>
         </Button>
       </motion.div>

@@ -1,46 +1,29 @@
-
 export interface User {
   id: string;
   email: string;
-  displayName: string;
-  photoURL?: string | null;
-  isAdmin?: boolean;
-  isSeller?: boolean;
-  businessName?: string;
-  businessType?: 'retailer' | 'wholesaler' | 'distributor';
-  trustScore?: number;
-  verified?: boolean;
+  displayName?: string;
+  photoURL?: string;
+  role?: 'buyer' | 'seller' | 'admin';
+  language?: string;
   gstin?: string;
   businessAddress?: string;
-  role?: 'admin' | 'seller' | 'buyer';
-  language?: 'english' | 'hindi' | 'tamil' | 'telugu' | 'kannada';
-  notificationPreferences?: {
-    email: boolean;
-    push: boolean;
-    sms: boolean;
-    marketingEmails?: boolean;
-  };
 }
 
-export interface Notification {
+export interface AINotification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'info' | 'warning' | 'success' | 'error';
   timestamp: Date;
   read: boolean;
-}
-
-export interface AINotification extends Notification {
-  aiGenerated: boolean;
-  category: 'expiry' | 'inventory' | 'pricing' | 'general';
+  actionUrl?: string;
 }
 
 export interface Task {
   id: string;
   name: string;
-  schedule: string;
   task_type: string;
+  schedule: string;
   enabled: boolean;
   parameters: Record<string, any>;
   created_at: string;
@@ -49,65 +32,32 @@ export interface Task {
   next_run: string;
 }
 
+export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
+
+export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+
+export type ItemCategory = 
+  | 'food' 
+  | 'electronics' 
+  | 'clothing' 
+  | 'books' 
+  | 'furniture' 
+  | 'sports' 
+  | 'beauty' 
+  | 'toys' 
+  | 'automotive' 
+  | 'home' 
+  | 'garden' 
+  | 'health' 
+  | 'pets' 
+  | 'office' 
+  | 'craft' 
+  | 'music' 
+  | 'fitness' 
+  | 'stationery';
+
 export interface VerifiedDocument {
-  id: string;
   type: string;
   status: 'verified' | 'pending' | 'rejected';
-  uploadDate: string;
-}
-
-export interface CountryCodeOption {
-  value: string;
-  label: string;
-  name: string;
-  code: string;
-}
-
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'cancelled';
-export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'out-for-delivery';
-export type ItemCategory = 'electronics' | 'clothing' | 'books' | 'home' | 'sports' | 'food' | 'health' | 'fitness' | 'stationery' | 'household';
-
-export interface Item {
-  id: string;
-  name: string;
-  description: string;
-  category: ItemCategory;
-  imageUrl: string;
-  expiryDate: string | null;
-  createdAt: string;
-  updatedAt: string;
-  status: 'available' | 'donated' | 'expired';
-  userId: string;
-  userName: string;
-  userPhoto: string | null;
-  location: {
-    address: string;
-    lat: number;
-    lng: number;
-  };
-  quantity: number;
-  currentPrice: number;
-}
-
-export interface Order {
-  id: string;
-  buyerId: string;
-  buyerName: string;
-  sellerId: string;
-  sellerName: string;
-  items: {
-    id: string;
-    name: string;
-    price: number;
-    quantity: number;
-    imageUrl: string;
-  }[];
-  totalAmount: number;
-  status: OrderStatus;
-  paymentStatus: PaymentStatus;
-  createdAt: string;
-  shippingAddress?: string;
-  estimatedDelivery?: string;
-  trackingNumber?: string;
-  paymentMethod?: string;
+  uploadedAt: Date;
 }

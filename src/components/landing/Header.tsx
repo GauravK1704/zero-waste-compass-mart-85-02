@@ -58,7 +58,7 @@ const Header: React.FC = () => {
                     >
                       <Button 
                         onClick={item.onClick}
-                        className={`w-full ${item.highlight ? "zwm-gradient-hover button-pulse-glow" : item.label === 'Login' ? "login-button login-button-pulse" : "button-bounce"}`}
+                        className={`w-full ${item.highlight ? "zwm-gradient-hover button-pulse-glow" : item.label === 'Login' ? "login-button-enhanced login-button-pulse-enhanced" : "button-bounce"}`}
                         variant={item.highlight ? "default" : "ghost"}
                       >
                         {item.label}
@@ -88,12 +88,12 @@ const Header: React.FC = () => {
                       item.highlight 
                         ? "zwm-gradient-hover button-pulse-glow button-shimmer" 
                         : item.label === 'Login'
-                        ? "login-button login-button-pulse enhanced-hover"
+                        ? "login-button-enhanced login-button-pulse-enhanced enhanced-hover"
                         : "enhanced-hover"
                     }
                     variant={item.highlight ? "default" : "ghost"}
                   >
-                    {item.label}
+                    <span>{item.label}</span>
                   </Button>
                 </motion.div>
               ))}
