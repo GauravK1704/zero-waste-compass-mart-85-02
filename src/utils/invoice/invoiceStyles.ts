@@ -80,64 +80,68 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 export const addCertifiedBySellerStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
   const centerX = 140;
   const centerY = finalY + 57;
-  const outerRadius = 28;
+  const outerRadius = 30;
   
   // Outer red border ring (thick)
   doc.setDrawColor(220, 38, 38); // Red color
-  doc.setLineWidth(4);
+  doc.setLineWidth(3);
   doc.circle(centerX, centerY, outerRadius, 'S');
   
   // Inner red border ring
-  doc.setLineWidth(2);
-  doc.circle(centerX, centerY, outerRadius - 3, 'S');
+  doc.setLineWidth(1.5);
+  doc.circle(centerX, centerY, outerRadius - 4, 'S');
   
   // White background fill
   doc.setFillColor(255, 255, 255);
-  doc.circle(centerX, centerY, outerRadius - 4, 'F');
+  doc.circle(centerX, centerY, outerRadius - 5, 'F');
   
-  // Top curved text "CERTIFIED"
+  // Top "CERTIFIED" text
   doc.setTextColor(220, 38, 38); // Red color
-  doc.setFontSize(10);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  
   const topText = 'CERTIFIED';
-  const textWidth = doc.getTextWidth(topText);
-  doc.text(topText, centerX - textWidth/2, centerY - 15);
+  doc.text(topText, centerX, centerY - 12, { align: 'center' });
   
-  // Center large text "CERTIFIED"
+  // Center large "CERTIFIED" text
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(220, 38, 38);
-  doc.text('CERTIFIED', centerX, centerY - 2, { align: 'center' });
+  doc.text('CERTIFIED', centerX, centerY, { align: 'center' });
   
-  // Bottom curved text "CERTIFIED"
-  doc.setFontSize(10);
+  // Bottom "CERTIFIED" text
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('CERTIFIED', centerX, centerY + 15, { align: 'center' });
+  doc.text('CERTIFIED', centerX, centerY + 12, { align: 'center' });
   
   // Stars decoration around the text
-  doc.setFontSize(8);
+  doc.setFontSize(6);
   doc.setTextColor(220, 38, 38);
   
-  // Top stars
-  doc.text('★', centerX - 15, centerY - 8);
-  doc.text('★', centerX, centerY - 18);
-  doc.text('★', centerX + 15, centerY - 8);
+  // Top stars arranged in a curve
+  doc.text('★', centerX - 18, centerY - 8);
+  doc.text('★', centerX - 8, centerY - 18);
+  doc.text('★', centerX + 8, centerY - 18);
+  doc.text('★', centerX + 18, centerY - 8);
   
-  // Bottom stars
-  doc.text('★', centerX - 15, centerY + 8);
-  doc.text('★', centerX, centerY + 18);
-  doc.text('★', centerX + 15, centerY + 8);
+  // Bottom stars arranged in a curve
+  doc.text('★', centerX - 18, centerY + 8);
+  doc.text('★', centerX - 8, centerY + 18);
+  doc.text('★', centerX + 8, centerY + 18);
+  doc.text('★', centerX + 18, centerY + 8);
+  
+  // Left and right stars
+  doc.text('★', centerX - 22, centerY);
+  doc.text('★', centerX + 22, centerY);
   
   // Small seller info at bottom
-  doc.setFontSize(6);
+  doc.setFontSize(5);
   doc.setTextColor(100, 100, 100);
   const sellerDisplayName = sellerName.length > 25 ? sellerName.substring(0, 25) + '...' : sellerName;
-  doc.text(sellerDisplayName, centerX, centerY + 23, { align: 'center' });
+  doc.text(sellerDisplayName, centerX, centerY + 20, { align: 'center' });
   
   // Date stamp
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(`Date: ${certDate}`, centerX, centerY + 27, { align: 'center' });
+  doc.text(`Date: ${certDate}`, centerX, centerY + 24, { align: 'center' });
 };
 
 /**
