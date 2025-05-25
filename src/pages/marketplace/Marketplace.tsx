@@ -49,7 +49,9 @@ const Marketplace: React.FC = () => {
           return {
             ...product,
             discountPercentage,
-            inStock: product.inStock !== false
+            inStock: product.inStock !== false,
+            // Add seller verification status (in real app, this would come from backend)
+            sellerVerified: Math.random() > 0.4 // Randomly assign for demo
           };
         });
         

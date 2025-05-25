@@ -16,6 +16,7 @@ interface Product {
   expiryDate: string;
   discountPercentage?: number;
   inStock?: boolean;
+  sellerVerified?: boolean;
 }
 
 interface ProductGridProps {

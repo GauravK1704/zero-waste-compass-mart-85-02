@@ -22,6 +22,7 @@ interface Product {
   expiryDate: string;
   discountPercentage?: number;
   inStock?: boolean;
+  sellerVerified?: boolean;
 }
 
 interface ProductCardProps {
@@ -93,6 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           price={product.price}
           rating={product.rating}
           seller={product.seller}
+          sellerVerified={product.sellerVerified}
         />
         
         <ExpiryAlert 
