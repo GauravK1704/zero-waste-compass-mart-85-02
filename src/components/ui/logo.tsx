@@ -174,7 +174,7 @@ export const Logo: React.FC<LogoProps> = ({
       {showText && (
         <motion.span 
           className={cn(
-            "font-bold font-heading bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 bg-clip-text text-transparent",
+            "font-bold font-heading text-black",
             textSizeClasses[size]
           )}
           initial={{ opacity: 0, y: 10 }}

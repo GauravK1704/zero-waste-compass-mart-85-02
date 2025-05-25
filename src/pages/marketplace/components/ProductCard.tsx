@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingCart, Heart, Eye } from 'lucide-react';
+import { ShoppingCart, Heart, Eye, Plus, Minus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/hooks/cart';
 import { toast } from 'sonner';
@@ -40,6 +40,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [showQuantityControls, setShowQuantityControls] = useState(false);
   
   const calculateDaysToExpiry = useCallback((expiryDate: string): number => {
     if (!expiryDate) return 999;
@@ -61,20 +63,31 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
   const handleAddToCart = useCallback(() => {
     try {
-      const cartItem = convertMarketplaceProductToCartItem(product);
-      addToCart(cartItem);
-      toast.success(`${product.name} added to cart`);
+      for (let i = 0; i < quantity; i++) {
+        const cartItem = convertMarketplaceProductToCartItem(product);
+        addToCart(cartItem);
+      }
+      toast.success(`${quantity} x ${product.name} added to cart`);
       onAddToCart(product);
+      setShowQuantityControls(true);
     } catch (error) {
       console.error('Error adding to cart:', error);
       toast.error('Failed to add item to cart');
     }
-  }, [product, addToCart, onAddToCart]);
+  }, [product, addToCart, onAddToCart, quantity]);
 
   const handleFavorite = useCallback(() => {
     setIsFavorited(!isFavorited);
     toast.success(isFavorited ? 'Removed from favorites' : 'Added to favorites');
   }, [isFavorited]);
+
+  const incrementQuantity = useCallback(() => {
+    setQuantity(prev => prev + 1);
+  }, []);
+
+  const decrementQuantity = useCallback(() => {
+    setQuantity(prev => Math.max(1, prev - 1));
+  }, []);
 
   // Enhanced animation variants with premium quality
   const cardVariants = {
@@ -232,23 +245,57 @@ const ProductCard: React.FC<ProductCardProps> = ({
           getAiExpiryAlert={getAiExpiryAlert}
         />
         
-        {/* Premium add to cart button */}
+        {/* Premium add to cart button with quantity controls */}
         <motion.div
           className="mt-6"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Button 
-            className="w-full h-12 flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-700 hover:via-blue-700 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 relative overflow-hidden group"
-            variant="default"
-            onClick={handleAddToCart}
-            disabled={product.inStock === false}
-          >
-            {/* Button shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
-          </Button>
+          {!showQuantityControls ? (
+            <Button 
+              className="w-full h-12 flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-700 hover:via-blue-700 hover:to-purple-800 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 relative overflow-hidden group"
+              variant="default"
+              onClick={handleAddToCart}
+              disabled={product.inStock === false}
+            >
+              {/* Button shimmer effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              {product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-gray-100 rounded-lg">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={decrementQuantity}
+                  className="h-10 w-10 p-0 hover:bg-gray-200"
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <span className="w-12 text-center font-semibold">{quantity}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={incrementQuantity}
+                  className="h-10 w-10 p-0 hover:bg-gray-200"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <Button 
+                className="flex-1 h-10 flex items-center justify-center transition-all duration-300 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-700 hover:from-purple-700 hover:via-blue-700 hover:to-purple-800 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl relative overflow-hidden group"
+                variant="default"
+                onClick={handleAddToCart}
+                disabled={product.inStock === false}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </div>
+          )}
         </motion.div>
       </motion.div>
     </motion.div>
