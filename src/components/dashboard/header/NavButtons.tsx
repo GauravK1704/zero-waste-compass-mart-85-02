@@ -26,20 +26,27 @@ const NavButtons: React.FC<NavButtonsProps> = ({ isSellerPortal }) => {
     <div className="flex gap-3">
       <motion.div
         whileHover={{
-          scale: 1.05,
-          boxShadow: "0 8px 25px rgba(0,0,0,0.15)",
+          scale: 1.08,
+          y: -4,
+          boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.1)",
         }}
         whileTap={{ scale: 0.95 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 400, 
+          damping: 25,
+          duration: 0.4 
+        }}
         className="h-full"
       >
         <Button
           variant="outline"
           size="sm"
           onClick={goToHome}
-          className="hidden md:flex items-center gap-2 transition-all duration-300 bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 hover:border-gray-300 hover:bg-white hover:text-gray-700 text-gray-600 font-medium shadow-md hover:shadow-lg group"
+          className="hidden md:flex items-center gap-2 home-button home-button-pulse home-button-sparkle home-button-ripple transition-all duration-400 bg-gradient-to-r from-gray-50 to-white border-2 border-gray-200 hover:border-blue-500 hover:bg-white hover:text-gray-700 text-gray-600 font-medium shadow-md hover:shadow-2xl group relative overflow-hidden"
         >
-          <Home className="h-4 w-4 group-hover:animate-pulse" />
-          <span className="relative">Home</span>
+          <Home className="h-4 w-4 home-button-icon group-hover:scale-125 group-hover:rotate-12 transition-all duration-400" />
+          <span className="relative z-10 font-semibold">Home</span>
         </Button>
       </motion.div>
 

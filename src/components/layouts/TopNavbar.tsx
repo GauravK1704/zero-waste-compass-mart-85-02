@@ -34,22 +34,46 @@ const TopNavbar = () => {
           </motion.div>
           
           <div className="hidden md:flex items-center space-x-6">
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div 
+              whileHover={{ 
+                scale: 1.08, 
+                y: -4,
+                boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.3)" 
+              }} 
+              whileTap={{ scale: 0.95 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 25 
+              }}
+            >
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/marketplace')}
-                className="font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300"
+                className="home-button home-button-pulse home-button-sparkle font-medium text-gray-700 hover:text-blue-600 hover:bg-gradient-to-r hover:from-white hover:to-blue-50 transition-all duration-400 relative overflow-hidden group"
               >
-                Marketplace
+                <span className="relative z-10">Marketplace</span>
               </Button>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <motion.div 
+              whileHover={{ 
+                scale: 1.08, 
+                y: -4,
+                boxShadow: "0 20px 25px -5px rgba(139, 92, 246, 0.3)" 
+              }} 
+              whileTap={{ scale: 0.95 }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 400, 
+                damping: 25 
+              }}
+            >
               <Button 
                 variant="ghost" 
                 onClick={() => navigate('/dashboard')}
-                className="font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 transition-all duration-300"
+                className="home-button home-button-pulse home-button-sparkle font-medium text-gray-700 hover:text-purple-600 hover:bg-gradient-to-r hover:from-white hover:to-purple-50 transition-all duration-400 relative overflow-hidden group"
               >
-                Dashboard
+                <span className="relative z-10">Dashboard</span>
               </Button>
             </motion.div>
           </div>
@@ -100,7 +124,7 @@ const TopNavbar = () => {
           <NotificationCenter />
           
           {/* AI-Powered Notifications for Sellers */}
-          {user?.role === 'seller' && <AINotificationCenter />}
+          {user && <AINotificationCenter />}
           
           {user ? (
             <UserMenu />
