@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -61,3 +62,5 @@ export interface VerifiedDocument {
   status: 'verified' | 'pending' | 'rejected';
   uploadedAt: Date;
 }
+
+export type MessageCategory = 'general' | 'product' | 'order' | 'account' | 'support';
