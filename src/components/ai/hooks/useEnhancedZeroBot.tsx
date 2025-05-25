@@ -1,7 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth';
-import { EnhancedZeroBot } from '@/services/ai/enhanced-zerobot';
+import { AdvancedZeroBot } from '@/services/ai/advanced-zerobot';
 import { Message, MessageCategory } from '@/types/chat';
 import { toast } from 'sonner';
 
@@ -13,21 +13,27 @@ export function useEnhancedZeroBot() {
   const [streamedResponse, setStreamedResponse] = useState('');
   const [currentContext, setCurrentContext] = useState<MessageCategory>('general');
   const [suggestions, setSuggestions] = useState<string[]>([
-    'How can I reduce waste?',
-    'Show me eco-friendly products',
-    'Track my order'
+    'How can I reduce my environmental impact?',
+    'Show me top-rated sustainable products',
+    'Analyze my order history for insights'
   ]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Initialize with welcome message
+  // Initialize with enhanced welcome message
   useEffect(() => {
     if (messages.length === 0) {
       const welcomeMessage: Message = {
         id: 'welcome-' + Date.now(),
-        content: `Hello${currentUser?.displayName ? ` ${currentUser.displayName}` : ''}! 👋 I'm your enhanced AI assistant for Zero Waste Mart. I can help you with products, orders, account management, and more. What would you like to know?`,
+        content: `Hello${currentUser?.displayName ? ` ${currentUser.displayName}` : ''}! 👋 I'm your advanced AI assistant for Zero Waste Mart. I'm equipped with comprehensive knowledge about products, sustainability, market trends, and can provide detailed analytics and personalized recommendations. What would you like to explore today?`,
         sender: 'bot',
         timestamp: new Date(),
-        category: 'general'
+        category: 'general',
+        confidence: 1.0,
+        metadata: {
+          processingTime: 0,
+          sources: ['Advanced AI System'],
+          isRealtime: true
+        }
       };
       setMessages([welcomeMessage]);
     }
@@ -71,8 +77,8 @@ export function useEnhancedZeroBot() {
     try {
       const userId = currentUser?.id || 'anonymous';
       
-      // Use streaming for better UX
-      await EnhancedZeroBot.streamResponse(
+      // Use advanced streaming for enhanced UX
+      await AdvancedZeroBot.streamAdvancedResponse(
         content,
         userId,
         // On chunk received
@@ -92,15 +98,18 @@ export function useEnhancedZeroBot() {
               confidence: response.confidence,
               processingTime: response.metadata.processingTime,
               sentiment: response.metadata.sentiment,
-              sources: response.metadata.sources
+              sources: response.metadata.sources,
+              complexity: response.metadata.complexity,
+              keywords: response.metadata.keywords,
+              relatedTopics: response.metadata.relatedTopics
             }
           );
           
           setSuggestions(response.suggestions);
           
-          // Save conversation periodically
-          if (Math.random() > 0.7) { // 30% chance to save
-            EnhancedZeroBot.saveConversation(userId);
+          // Save conversation with enhanced data
+          if (Math.random() > 0.5) { // 50% chance to save for better performance
+            AdvancedZeroBot.saveAdvancedConversation(userId);
           }
         }
       );
@@ -110,11 +119,11 @@ export function useEnhancedZeroBot() {
       setStreamedResponse('');
       
       addBotMessage(
-        "I apologize, but I'm experiencing technical difficulties. Please try again in a moment.",
+        "I apologize, but I'm experiencing technical difficulties with my advanced processing systems. Please try again in a moment, and I'll provide you with the detailed assistance you deserve.",
         'general'
       );
       
-      toast.error('AI assistant temporarily unavailable');
+      toast.error('Advanced AI assistant temporarily unavailable');
     }
   };
 
@@ -126,20 +135,21 @@ export function useEnhancedZeroBot() {
     setMessages([]);
     setCurrentContext('general');
     setSuggestions([
-      'How can I reduce waste?',
-      'Show me eco-friendly products',
-      'Track my order'
+      'How can I reduce my environmental impact?',
+      'Show me top-rated sustainable products', 
+      'Analyze my order history for insights'
     ]);
     setStreamedResponse('');
     
-    // Re-add welcome message
+    // Re-add enhanced welcome message
     setTimeout(() => {
       const welcomeMessage: Message = {
         id: 'welcome-' + Date.now(),
-        content: `Hello${currentUser?.displayName ? ` ${currentUser.displayName}` : ''}! 👋 I'm your enhanced AI assistant. How can I help you today?`,
+        content: `Hello${currentUser?.displayName ? ` ${currentUser.displayName}` : ''}! 👋 I'm your advanced AI assistant, ready to provide comprehensive insights and personalized recommendations. How can I assist you today?`,
         sender: 'bot',
         timestamp: new Date(),
-        category: 'general'
+        category: 'general',
+        confidence: 1.0
       };
       setMessages([welcomeMessage]);
     }, 100);

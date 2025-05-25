@@ -7,7 +7,9 @@ export type MessageCategory =
   | 'product' 
   | 'sustainability' 
   | 'climate' 
-  | 'personal';
+  | 'personal'
+  | 'support'
+  | 'account';
 
 export type MessageSender = 'user' | 'bot' | 'system';
 
