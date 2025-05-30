@@ -19,6 +19,18 @@ const paymentOptions: PaymentOption[] = [
     description: 'UPI, Cards, Net Banking & Wallets - All in one secure gateway'
   },
   {
+    id: 'phonepe',
+    name: 'PhonePe',
+    icon: <Smartphone className="h-6 w-6" />,
+    description: 'Pay using PhonePe wallet or UPI'
+  },
+  {
+    id: 'paytm',
+    name: 'Paytm',
+    icon: <Wallet className="h-6 w-6" />,
+    description: 'Pay using Paytm wallet or UPI'
+  },
+  {
     id: 'card',
     name: 'Credit/Debit Card',
     icon: <CreditCard className="h-6 w-6" />,

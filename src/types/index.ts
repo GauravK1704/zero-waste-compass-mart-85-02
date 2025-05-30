@@ -11,6 +11,7 @@ export interface User {
   language: string;
   gstin: string;
   businessAddress: string;
+  phone?: string;
   preferences: {
     notifications: {
       email: boolean;
@@ -118,4 +119,19 @@ export interface Variant {
   price: number;
   stock: number;
   options: Record<string, string>;
+}
+
+export interface AINotification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  timestamp: Date;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  read: boolean;
+  actions?: {
+    label: string;
+    action: string;
+  }[];
 }
