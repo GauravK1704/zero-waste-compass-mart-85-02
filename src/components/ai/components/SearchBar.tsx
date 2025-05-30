@@ -5,14 +5,14 @@ import { motion } from 'framer-motion';
 import { X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface SearchBarProps {
+interface AISearchBarProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   filteredMessages: any[];
   isSearching: boolean;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({
+const AISearchBar: React.FC<AISearchBarProps> = ({
   searchQuery,
   setSearchQuery,
   filteredMessages,
@@ -87,4 +87,4 @@ const SearchBar: React.FC<SearchBarProps> = ({
   );
 };
 
-export default SearchBar;
+export default AISearchBar;

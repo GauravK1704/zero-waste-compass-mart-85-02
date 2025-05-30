@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, ShoppingCart, User, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,7 +54,6 @@ const TopNavbar = () => {
     
     setIsLoading(true);
     
-    // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 200));
     
     const results: SearchResult[] = [];
@@ -65,8 +63,7 @@ const TopNavbar = () => {
     const productResults = mockProducts
       .filter(product => 
         product.name.toLowerCase().includes(lowercaseQuery) ||
-        product.category.toLowerCase().includes(lowercaseQuery) ||
-        product.description?.toLowerCase().includes(lowercaseQuery)
+        product.category.toLowerCase().includes(lowercaseQuery)
       )
       .slice(0, 5)
       .map(product => ({
@@ -104,7 +101,7 @@ const TopNavbar = () => {
     results.push(...productResults, ...navResults, ...settingResults);
     
     setIsLoading(false);
-    return results.slice(0, 8); // Limit to 8 results
+    return results.slice(0, 8);
   };
 
   // Search effect
@@ -354,10 +351,8 @@ const TopNavbar = () => {
             </Button>
           </motion.div>
           
-          {/* Regular Notifications */}
           <NotificationCenter />
           
-          {/* AI-Powered Notifications for Sellers */}
           {user && <AINotificationCenter />}
           
           {user ? (

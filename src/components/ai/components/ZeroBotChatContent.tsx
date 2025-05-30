@@ -2,7 +2,7 @@
 import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Message, MessageCategory } from '@/types/chat';
-import SearchBar from './SearchBar';
+import AISearchBar from './SearchBar';
 import SuggestionsList from './SuggestionsList';
 import ChatInput from './ChatInput';
 import ChatMessages from './chat/ChatMessages';
@@ -65,7 +65,7 @@ const ZeroBotChatContent: React.FC<ZeroBotChatContentProps> = ({
   return (
     <>
       <AnimatePresence>
-        <SearchBar 
+        <AISearchBar 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           filteredMessages={filteredMessages}
