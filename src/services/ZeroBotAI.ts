@@ -74,9 +74,12 @@ class ZeroBotAIService {
         metadata: {
           relatedTopics: enhancedResponse.suggestions,
           processingTime: 1200,
-          sentiment: enhancedResponse.sentiment,
+          sentiment: enhancedResponse.sentiment as 'positive' | 'neutral' | 'negative',
           language: enhancedResponse.language,
-          escalateToHuman: enhancedResponse.escalateToHuman
+          escalateToHuman: enhancedResponse.escalateToHuman,
+          sources: ['Enhanced AI System'],
+          complexity: 'medium',
+          keywords: [message.toLowerCase()]
         }
       });
 
@@ -87,7 +90,17 @@ class ZeroBotAIService {
         answer: "I'm sorry, I encountered an error while processing your request.",
         suggestions: ["Try asking again", "Contact support", "Check your connection"],
         context: 'general',
-        confidence: 0.1
+        confidence: 0.1,
+        metadata: {
+          processingTime: 100,
+          sentiment: 'neutral',
+          language: 'english',
+          escalateToHuman: false,
+          sources: [],
+          relatedTopics: [],
+          complexity: 'low',
+          keywords: []
+        }
       });
     }
   }
@@ -122,9 +135,12 @@ class ZeroBotAIService {
         metadata: {
           relatedTopics: enhancedResponse.suggestions,
           processingTime: 1200,
-          sentiment: enhancedResponse.sentiment,
+          sentiment: enhancedResponse.sentiment as 'positive' | 'neutral' | 'negative',
           language: enhancedResponse.language,
-          escalateToHuman: enhancedResponse.escalateToHuman
+          escalateToHuman: enhancedResponse.escalateToHuman,
+          sources: ['Enhanced AI System'],
+          complexity: 'medium',
+          keywords: [message.toLowerCase()]
         }
       };
     } catch (error) {
@@ -135,7 +151,17 @@ class ZeroBotAIService {
         answer: "I'm sorry, I encountered an error while processing your request. Please try again.",
         suggestions: ["Try a simpler question", "Contact support", "Reload the chat"],
         context: 'general',
-        confidence: 0.1
+        confidence: 0.1,
+        metadata: {
+          processingTime: 100,
+          sentiment: 'neutral',
+          language: 'english',
+          escalateToHuman: false,
+          sources: [],
+          relatedTopics: [],
+          complexity: 'low',
+          keywords: []
+        }
       };
     }
   }

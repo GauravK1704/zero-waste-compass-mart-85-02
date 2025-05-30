@@ -1,44 +1,58 @@
 
 import { MessageCategory } from '@/types/chat';
 import { supabase } from '@/integrations/supabase/client';
-import { contextDetector } from './contextDetector';
 
-/**
- * Handles logging user interactions and analytics
- */
 class LoggingService {
-  // Log user interactions for personalization
+  private static instance: LoggingService;
+
+  private constructor() {}
+
+  public static getInstance(): LoggingService {
+    if (!LoggingService.instance) {
+      LoggingService.instance = new LoggingService();
+    }
+    return LoggingService.instance;
+  }
+
   public async logUserInteraction(
     userId: string, 
-    query: string, 
+    message: string, 
     category?: MessageCategory
   ): Promise<void> {
     try {
-      const detectedCategory = category || contextDetector.detectMessageContext(query);
-      
-      // Log to console for development
-      console.log("User interaction logged:", {
-        user_id: userId,
-        query: query,
-        category: detectedCategory,
-        timestamp: new Date().toISOString()
-      });
-      
-      // In a production environment, you would uncomment this code
-      // after creating the ai_interactions table in Supabase
-      /*
-      await supabase.from('ai_interactions').insert({
-        user_id: userId,
-        query: query,
-        category: detectedCategory,
-        timestamp: new Date().toISOString()
-      });
-      */
+      if (supabase) {
+        await supabase.from('ai_interactions').insert({
+          user_id: userId,
+          message,
+          category: category || 'general',
+          timestamp: new Date().toISOString()
+        });
+      }
     } catch (error) {
-      console.error("Failed to log user interaction:", error);
-      // Non-critical error, don't throw
+      console.error('Failed to log user interaction:', error);
+    }
+  }
+
+  public async logFeedback(
+    userId: string,
+    messageId: string,
+    feedback: 'positive' | 'negative',
+    comment?: string
+  ): Promise<void> {
+    try {
+      if (supabase) {
+        await supabase.from('ai_feedback').insert({
+          user_id: userId,
+          message_id: messageId,
+          feedback,
+          comment,
+          timestamp: new Date().toISOString()
+        });
+      }
+    } catch (error) {
+      console.error('Failed to log feedback:', error);
     }
   }
 }
 
-export const loggingService = new LoggingService();
+export const loggingService = LoggingService.getInstance();

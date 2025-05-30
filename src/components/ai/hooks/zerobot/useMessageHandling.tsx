@@ -105,7 +105,10 @@ export function useMessageHandling({
                 isRealtime: true,
                 sentiment: response.metadata?.sentiment,
                 language: response.metadata?.language,
-                escalateToHuman: response.metadata?.escalateToHuman
+                escalateToHuman: response.metadata?.escalateToHuman,
+                confidence: response.confidence,
+                complexity: response.metadata?.complexity,
+                keywords: response.metadata?.keywords
               }
             );
             
@@ -138,7 +141,10 @@ export function useMessageHandling({
             sources: response.metadata?.relatedTopics,
             sentiment: response.metadata?.sentiment,
             language: response.metadata?.language,
-            escalateToHuman: response.metadata?.escalateToHuman
+            escalateToHuman: response.metadata?.escalateToHuman,
+            confidence: response.confidence,
+            complexity: response.metadata?.complexity,
+            keywords: response.metadata?.keywords
           }
         );
         
@@ -184,8 +190,8 @@ export function useMessageHandling({
     
     toast.success(
       reaction === 'like' 
-        ? 'Thank you for your feedback! This helps me learn.' 
-        : 'Thanks for the feedback. I\'ll work on improving my responses.'
+        ? 'Thank you for your feedback! This helps me learn. 😊' 
+        : 'Thanks for the feedback. I\'ll work on improving my responses. 🤝'
     );
   };
   
@@ -194,7 +200,7 @@ export function useMessageHandling({
   };
   
   const handleGetStartedClick = () => {
-    handleSendMessage('Help me get started');
+    handleSendMessage('Help me get started with sustainable living');
   };
   
   return {

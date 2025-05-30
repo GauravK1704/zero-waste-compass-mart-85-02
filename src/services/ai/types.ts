@@ -10,6 +10,11 @@ export interface ZeroBotResponse {
     sources?: string[];
     processingTime?: number;
     relatedTopics?: string[];
+    sentiment?: 'positive' | 'neutral' | 'negative';
+    language?: string;
+    escalateToHuman?: boolean;
+    complexity?: 'low' | 'medium' | 'high';
+    keywords?: string[];
   }
 }
 
@@ -19,4 +24,5 @@ export interface ZeroBotRequestOptions {
   previousMessages?: Message[];
   realtime?: boolean;
   maxTokens?: number;
+  sellerMode?: boolean;
 }
