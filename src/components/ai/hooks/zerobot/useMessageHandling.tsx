@@ -15,6 +15,8 @@ interface MessageHandlingProps {
   realtimeActive: boolean;
   currentContext: MessageCategory;
   setSuggestions: React.Dispatch<React.SetStateAction<string[]>>;
+  inputValue: string;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function useMessageHandling({
@@ -27,6 +29,8 @@ export function useMessageHandling({
   realtimeActive,
   setSuggestions,
   setMessages,
+  inputValue,
+  setInputValue,
 }: MessageHandlingProps) {
   
   // Initialize with personalized greeting
@@ -43,18 +47,22 @@ export function useMessageHandling({
     }
   };
 
-  // Enhanced message handling with new features
-  const handleSendMessage = async (content: string = '') => {
-    if (!content.trim()) return;
+  // Enhanced message handling with input clearing
+  const handleSendMessage = async (content?: string) => {
+    const messageContent = content || inputValue.trim();
+    if (!messageContent) return;
+    
+    // Clear input immediately after sending
+    setInputValue('');
     
     // Add user message to chat
-    addUserMessage(content);
+    addUserMessage(messageContent);
     
     setIsProcessing(true);
     
     try {
       // Detect context of user message with enhanced NLP
-      const detectedContext = ZeroBotAI.detectMessageContext(content);
+      const detectedContext = ZeroBotAI.detectMessageContext(messageContent);
       setCurrentContext(detectedContext);
       
       // Set enhanced options for request
@@ -71,7 +79,7 @@ export function useMessageHandling({
         
         // Process with enhanced streaming
         await ZeroBotAI.processMessageRealtime(
-          content,
+          messageContent,
           options,
           // On chunk handler
           (chunk: string) => {
@@ -88,7 +96,6 @@ export function useMessageHandling({
                 action: {
                   label: "Contact Support",
                   onClick: () => {
-                    // Could integrate with support system
                     window.open('mailto:support@zerowastemart.com', '_blank');
                   }
                 }
@@ -118,7 +125,7 @@ export function useMessageHandling({
         );
       } else {
         // Process with enhanced features
-        const response = await ZeroBotAI.processMessage(content, options);
+        const response = await ZeroBotAI.processMessage(messageContent, options);
         
         // Handle escalation to human if needed
         if (response.metadata?.escalateToHuman) {
@@ -170,9 +177,7 @@ export function useMessageHandling({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      const target = e.target as HTMLTextAreaElement;
-      handleSendMessage(target.value);
-      target.value = '';
+      handleSendMessage();
     }
   };
   
@@ -183,7 +188,6 @@ export function useMessageHandling({
   const handleMessageReaction = (messageId: number | string, reaction: 'like' | 'dislike') => {
     // Enhanced feedback handling with sentiment tracking
     if (currentUser?.id) {
-      // Track user feedback for learning
       const feedbackData = { messageId, reaction, timestamp: new Date() };
       console.log('User feedback:', feedbackData);
     }

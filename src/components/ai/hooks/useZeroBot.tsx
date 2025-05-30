@@ -19,7 +19,7 @@ export function useZeroBot(initialPrompt?: string, sellerMode = false) {
   const voiceRecording = useVoiceRecording();
   const settings = useSettings({ addBotMessage: chatMessages.addBotMessage });
   
-  // Create combined message handling hook with all dependencies
+  // Create combined message handling hook with all dependencies including input value
   const messageHandling = useMessageHandling({
     setMessages: chatMessages.setMessages,
     addUserMessage: chatMessages.addUserMessage,
@@ -32,6 +32,8 @@ export function useZeroBot(initialPrompt?: string, sellerMode = false) {
     realtimeActive: settings.realtimeActive,
     currentContext: chatMessages.currentContext,
     setSuggestions: chatMessages.setSuggestions,
+    inputValue: uiState.inputValue,
+    setInputValue: uiState.setInputValue,
   });
   
   // Combine the clear chat function with seller mode
