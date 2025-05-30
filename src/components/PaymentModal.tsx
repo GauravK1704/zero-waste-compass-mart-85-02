@@ -54,7 +54,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
       toast.error(`Payment failed: ${error}`);
     },
     customerInfo: {
-      name: currentUser?.displayName || currentUser?.email || 'Customer',
+      name: currentUser?.firstName && currentUser?.lastName 
+        ? `${currentUser.firstName} ${currentUser.lastName}` 
+        : currentUser?.email || 'Customer',
       email: currentUser?.email || '',
       contact: currentUser?.phone || '',
     },

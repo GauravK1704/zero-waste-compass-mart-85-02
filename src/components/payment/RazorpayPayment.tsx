@@ -54,6 +54,7 @@ export const useRazorpayPayment = ({
       const isRazorpayLoaded = await initializeRazorpay();
       if (!isRazorpayLoaded) {
         toast.error('Failed to load payment gateway');
+        if (onPaymentError) onPaymentError('Failed to load payment gateway');
         return;
       }
 
@@ -70,8 +71,15 @@ export const useRazorpayPayment = ({
 
       if (error) {
         console.error('Error creating order:', error);
-        toast.error('Failed to create payment order');
-        if (onPaymentError) onPaymentError(error.message);
+        toast.error('Failed to create payment order. Please check your payment gateway configuration.');
+        if (onPaymentError) onPaymentError(error.message || 'Failed to create payment order');
+        return;
+      }
+
+      if (!data || !data.razorpayOrderId) {
+        console.error('Invalid response from payment service:', data);
+        toast.error('Invalid response from payment service');
+        if (onPaymentError) onPaymentError('Invalid response from payment service');
         return;
       }
 
@@ -117,7 +125,7 @@ export const useRazorpayPayment = ({
               return;
             }
 
-            if (verifyData.success) {
+            if (verifyData && verifyData.success) {
               toast.success('Payment successful!');
               onPaymentSuccess();
             } else {
@@ -143,7 +151,7 @@ export const useRazorpayPayment = ({
       razorpay.open();
     } catch (error) {
       console.error('Payment initialization error:', error);
-      toast.error('Failed to initialize payment');
+      toast.error('Failed to initialize payment. Please try again.');
       if (onPaymentError) onPaymentError('Payment initialization failed');
     }
   }, [amount, orderId, currentUser, customerInfo, onPaymentSuccess, onPaymentError]);
