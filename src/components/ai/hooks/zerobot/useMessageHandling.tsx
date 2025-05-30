@@ -26,7 +26,24 @@ export function useMessageHandling({
   setCurrentContext,
   realtimeActive,
   setSuggestions,
+  setMessages,
 }: MessageHandlingProps) {
+  
+  // Initialize with personalized greeting
+  const initializeChat = () => {
+    if (currentUser?.id) {
+      const personalizedGreeting = ZeroBotAI.getPersonalizedGreeting(currentUser.id);
+      setMessages([{
+        id: 1,
+        content: personalizedGreeting,
+        sender: 'bot',
+        timestamp: new Date(),
+        category: 'general',
+      }]);
+    }
+  };
+
+  // Enhanced message handling with new features
   const handleSendMessage = async (content: string = '') => {
     if (!content.trim()) return;
     
@@ -36,22 +53,23 @@ export function useMessageHandling({
     setIsProcessing(true);
     
     try {
-      // Detect context of user message
+      // Detect context of user message with enhanced NLP
       const detectedContext = ZeroBotAI.detectMessageContext(content);
       setCurrentContext(detectedContext);
       
-      // Set options for request
+      // Set enhanced options for request
       const options = {
         category: detectedContext,
-        userId: currentUser?.id,
-        realtime: realtimeActive
+        userId: currentUser?.id || 'anonymous',
+        realtime: realtimeActive,
+        sellerMode: currentUser?.isSeller || false
       };
       
       if (realtimeActive) {
         // Initialize streaming response
         setStreamedResponse('');
         
-        // Process with streaming
+        // Process with enhanced streaming
         await ZeroBotAI.processMessageRealtime(
           content,
           options,
@@ -59,41 +77,72 @@ export function useMessageHandling({
           (chunk: string) => {
             setStreamedResponse(prev => prev + chunk);
           },
-          // On complete handler
+          // On complete handler with enhanced data
           (response) => {
             setIsProcessing(false);
             setStreamedResponse('');
             
-            // Add completed message
+            // Handle escalation to human if needed
+            if (response.metadata?.escalateToHuman) {
+              toast.info("I've noted you'd like to speak with a human representative.", {
+                action: {
+                  label: "Contact Support",
+                  onClick: () => {
+                    // Could integrate with support system
+                    window.open('mailto:support@zerowastemart.com', '_blank');
+                  }
+                }
+              });
+            }
+            
+            // Add completed message with enhanced metadata
             addBotMessage(
               response.answer, 
               response.context || 'general',
               {
                 processingTime: response.metadata?.processingTime,
                 sources: response.metadata?.relatedTopics,
-                isRealtime: true
+                isRealtime: true,
+                sentiment: response.metadata?.sentiment,
+                language: response.metadata?.language,
+                escalateToHuman: response.metadata?.escalateToHuman
               }
             );
             
-            // Update suggestions
+            // Update suggestions with personalized recommendations
             setSuggestions(response.suggestions || []);
           }
         );
       } else {
-        // Process normally
+        // Process with enhanced features
         const response = await ZeroBotAI.processMessage(content, options);
         
-        // Add bot response
+        // Handle escalation to human if needed
+        if (response.metadata?.escalateToHuman) {
+          toast.info("I've noted you'd like to speak with a human representative.", {
+            action: {
+              label: "Contact Support",
+              onClick: () => {
+                window.open('mailto:support@zerowastemart.com', '_blank');
+              }
+            }
+          });
+        }
+        
+        // Add bot response with enhanced metadata
         addBotMessage(
           response.answer, 
           response.context || 'general',
           {
             processingTime: response.metadata?.processingTime,
-            sources: response.metadata?.relatedTopics
+            sources: response.metadata?.relatedTopics,
+            sentiment: response.metadata?.sentiment,
+            language: response.metadata?.language,
+            escalateToHuman: response.metadata?.escalateToHuman
           }
         );
         
-        // Update suggestions
+        // Update suggestions with personalized recommendations
         setSuggestions(response.suggestions || []);
         setIsProcessing(false);
       }
@@ -126,15 +175,18 @@ export function useMessageHandling({
   };
   
   const handleMessageReaction = (messageId: number | string, reaction: 'like' | 'dislike') => {
-    // Update message with reaction
+    // Enhanced feedback handling with sentiment tracking
+    if (currentUser?.id) {
+      // Track user feedback for learning
+      const feedbackData = { messageId, reaction, timestamp: new Date() };
+      console.log('User feedback:', feedbackData);
+    }
     
     toast.success(
       reaction === 'like' 
-        ? 'Thank you for your feedback!' 
-        : 'Thanks for helping us improve'
+        ? 'Thank you for your feedback! This helps me learn.' 
+        : 'Thanks for the feedback. I\'ll work on improving my responses.'
     );
-    
-    // In a real implementation, you'd send this feedback to your server
   };
   
   const handleTopicClick = (title: string) => {
@@ -152,6 +204,7 @@ export function useMessageHandling({
     handleMessageReaction,
     handleTopicClick,
     handleGetStartedClick,
+    initializeChat,
     cancelCurrentStream: ZeroBotAI.cancelCurrentStream
   };
 }

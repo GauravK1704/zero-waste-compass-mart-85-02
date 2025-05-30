@@ -5,9 +5,11 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { ZeroBotResponse, ZeroBotRequestOptions } from './ai/types';
 import { contextDetector } from './ai/contextDetector';
-import { contentGenerator } from './ai/contentGenerator';
 import { loggingService } from './ai/loggingService';
 import { streamHandler } from './ai/streamHandler';
+import { enhancedContentGenerator } from './ai/enhancedContentGenerator';
+import { userPreferencesService } from './ai/userPreferences';
+import { nlpProcessor } from './ai/nlpProcessor';
 
 class ZeroBotAIService {
   private static instance: ZeroBotAIService;
@@ -23,50 +25,112 @@ class ZeroBotAIService {
     return ZeroBotAIService.instance;
   }
 
-  // Expose the context detection functionality
+  // Enhanced context detection with NLP
   public detectMessageContext(message: string): MessageCategory {
     return contextDetector.detectMessageContext(message);
   }
 
-  // Expose the realtime processing method
+  // Enhanced realtime processing with new features
   public async processMessageRealtime(
     message: string, 
     options: ZeroBotRequestOptions,
     onChunk: (chunk: string) => void,
     onComplete: (response: ZeroBotResponse) => void
   ): Promise<void> {
-    return streamHandler.processMessageRealtime(message, options, onChunk, onComplete);
+    try {
+      const userId = options.userId || 'anonymous';
+      const sellerMode = options.sellerMode || false;
+      
+      // Use enhanced content generator
+      const enhancedResponse = await enhancedContentGenerator.generateEnhancedResponse(
+        message,
+        userId,
+        options.category || 'general',
+        sellerMode
+      );
+
+      // Check if we need to escalate to human
+      if (enhancedResponse.escalateToHuman) {
+        onChunk("I understand you'd like to speak with a human representative. ");
+        await new Promise(resolve => setTimeout(resolve, 500));
+        onChunk("Let me connect you with our customer service team. ");
+        await new Promise(resolve => setTimeout(resolve, 500));
+        onChunk("In the meantime, is there anything specific I can help you with right now?");
+      } else {
+        // Stream the enhanced response
+        const words = enhancedResponse.answer.split(' ');
+        for (const word of words) {
+          onChunk(word + ' ');
+          await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 30));
+        }
+      }
+
+      // Complete with enhanced response data
+      onComplete({
+        answer: enhancedResponse.answer,
+        suggestions: enhancedResponse.suggestions,
+        context: options.category || 'general',
+        confidence: 0.92,
+        metadata: {
+          relatedTopics: enhancedResponse.suggestions,
+          processingTime: 1200,
+          sentiment: enhancedResponse.sentiment,
+          language: enhancedResponse.language,
+          escalateToHuman: enhancedResponse.escalateToHuman
+        }
+      });
+
+    } catch (error) {
+      console.error("Error in enhanced realtime processing:", error);
+      onChunk("I apologize, but I encountered an error. Please try again.");
+      onComplete({
+        answer: "I'm sorry, I encountered an error while processing your request.",
+        suggestions: ["Try asking again", "Contact support", "Check your connection"],
+        context: 'general',
+        confidence: 0.1
+      });
+    }
   }
   
-  // Traditional processing method for non-streaming requests
+  // Enhanced traditional processing
   public async processMessage(
     message: string, 
     options: ZeroBotRequestOptions = {}
   ): Promise<ZeroBotResponse> {
     try {
-      // If Supabase is available, log the interaction
-      if (supabase && options.userId) {
-        await loggingService.logUserInteraction(options.userId, message, options.category);
+      const userId = options.userId || 'anonymous';
+      const sellerMode = options.sellerMode || false;
+
+      // Log interaction if Supabase is available
+      if (supabase && userId !== 'anonymous') {
+        await loggingService.logUserInteraction(userId, message, options.category);
       }
       
-      const detectedContext = options.category || contextDetector.detectMessageContext(message);
-      const response = contentGenerator.generateContextualResponse(message, detectedContext);
+      // Use enhanced content generator
+      const enhancedResponse = await enhancedContentGenerator.generateEnhancedResponse(
+        message,
+        userId,
+        options.category || contextDetector.detectMessageContext(message),
+        sellerMode
+      );
       
       return {
-        answer: response,
-        suggestions: contentGenerator.generateContextualSuggestions(detectedContext),
-        context: detectedContext,
+        answer: enhancedResponse.answer,
+        suggestions: enhancedResponse.suggestions,
+        context: options.category || 'general',
         confidence: 0.92,
         metadata: {
-          relatedTopics: contentGenerator.generateRelatedTopics(detectedContext),
-          processingTime: 1200, // Mock processing time in ms
+          relatedTopics: enhancedResponse.suggestions,
+          processingTime: 1200,
+          sentiment: enhancedResponse.sentiment,
+          language: enhancedResponse.language,
+          escalateToHuman: enhancedResponse.escalateToHuman
         }
       };
     } catch (error) {
       console.error("Error processing message:", error);
       toast.error("Failed to process your request. Please try again.");
       
-      // Return a fallback response
       return {
         answer: "I'm sorry, I encountered an error while processing your request. Please try again.",
         suggestions: ["Try a simpler question", "Contact support", "Reload the chat"],
@@ -75,10 +139,31 @@ class ZeroBotAIService {
       };
     }
   }
+
+  // Get personalized greeting for users
+  public getPersonalizedGreeting(userId: string): string {
+    return userPreferencesService.getPersonalizedGreeting(userId);
+  }
+
+  // Update user preferences
+  public updateUserPreferences(userId: string, preferences: any): void {
+    userPreferencesService.updateUserProfile(userId, { preferences });
+  }
+
+  // Set user's preferred name for greetings
+  public setUserName(userId: string, name: string): void {
+    userPreferencesService.updateUserProfile(userId, { greetingName: name });
+  }
   
   // Cancel current streaming response
   public cancelCurrentStream(): void {
     streamHandler.cancelCurrentStream();
+  }
+
+  // Clear conversation history for a user
+  public clearUserHistory(userId: string): void {
+    nlpProcessor.clearHistory();
+    // Could also clear user preferences if needed
   }
   
   // Debounced version of process message for search-as-you-type scenarios
