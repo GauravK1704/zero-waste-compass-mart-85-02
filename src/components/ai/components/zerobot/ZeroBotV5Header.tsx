@@ -10,12 +10,13 @@ interface ZeroBotV5HeaderProps {
   onSettings?: () => void;
   badgeVersion?: string;
 }
+
 const ZeroBotV5Header: React.FC<ZeroBotV5HeaderProps> = ({
   sellerMode = false,
   showSettings,
   onClose,
   onSettings,
-  badgeVersion = 'v5'
+  badgeVersion = 'v5.0'
 }) => (
   <div className={`px-4 py-3 flex justify-between items-center rounded-t-2xl
     ${sellerMode
@@ -35,7 +36,7 @@ const ZeroBotV5Header: React.FC<ZeroBotV5HeaderProps> = ({
       </div>
     </div>
     <div className="flex items-center space-x-1">
-      {!showSettings && (
+      {!showSettings && onSettings && (
         <Button
           variant="ghost"
           className="h-7 w-7 text-white/80 hover:text-white/90 hover:bg-white/10 rounded-full"

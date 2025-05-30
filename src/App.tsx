@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
@@ -30,7 +29,8 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/auth'; 
 import { ZeroBotProvider } from '@/contexts/ZeroBotContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
-import ZeroBot4 from '@/components/ai/ZeroBot4';
+import ZeroBot5 from '@/components/ai/ZeroBot5';
+import './styles/mobile-optimized.css';
 
 function App() {
   return (
@@ -75,7 +75,15 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
               
-              <ZeroBot4 />
+              {/* Enhanced ZeroBot AI v5.0 with mobile optimization */}
+              <ZeroBot5
+                enableVoice={true}
+                enableRealtime={true}
+                showAnalytics={true}
+                sellerMode={currentUser?.isSeller || false}
+                enableAI={true}
+                isMobile={window.innerWidth < 768}
+              />
               <Toaster richColors />
             </div>
           </BrowserRouter>

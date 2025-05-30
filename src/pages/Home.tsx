@@ -1,10 +1,11 @@
 
 import React from 'react';
 import TopNavbar from '@/components/layouts/TopNavbar';
-import Hero from '@/components/sections/Hero';
-import Features from '@/components/sections/Features';
-import HowItWorks from '@/components/sections/HowItWorks';
-import Testimonials from '@/components/sections/Testimonials';
+import HeroSection from '@/components/landing/HeroSection';
+import FeaturesTabs from '@/components/landing/FeaturesTabs';
+import StatsSection from '@/components/landing/StatsSection';
+import CTASection from '@/components/landing/CTASection';
+import Footer from '@/components/landing/Footer';
 import ZeroBotHome from '@/components/ai/ZeroBotHome';
 
 const Home: React.FC = () => {
@@ -12,13 +13,14 @@ const Home: React.FC = () => {
     <div className="min-h-screen bg-gray-50">
       <TopNavbar />
       <main>
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <Testimonials />
+        <HeroSection />
+        <FeaturesTabs />
+        <StatsSection />
+        <CTASection />
       </main>
+      <Footer />
       
-      {/* Enhanced ZeroBot AI v5 for home page */}
+      {/* Enhanced ZeroBot AI v5.0 for home page */}
       <ZeroBotHome
         enableVoice={true}
         enableRealtime={true}

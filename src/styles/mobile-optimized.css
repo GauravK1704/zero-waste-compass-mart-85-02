@@ -1,0 +1,139 @@
+
+/* Mobile Performance Optimizations */
+
+/* Hardware acceleration for better performance */
+.hardware-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Reduce animations on mobile */
+@media (max-width: 768px) {
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Optimize scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+  }
+  
+  /* Optimize touch interactions */
+  .mobile-touch {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  
+  /* Reduce blur effects on mobile */
+  .mobile-blur {
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+  
+  /* Optimize gradients */
+  .mobile-gradient {
+    background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%) !important;
+  }
+  
+  /* Reduce shadows */
+  .mobile-shadow {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  /* Optimize font rendering */
+  .mobile-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+  }
+  
+  /* Optimize images */
+  .mobile-image {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Specific mobile chat optimizations */
+@media (max-width: 768px) {
+  .zerobot-mobile {
+    height: 100vh;
+    height: -webkit-fill-available;
+    max-height: -webkit-fill-available;
+    border-radius: 0;
+    overflow: hidden;
+  }
+  
+  .zerobot-mobile .chat-content {
+    padding: 0.75rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .zerobot-mobile .chat-input {
+    padding: 0.75rem;
+    padding-bottom: env(safe-area-inset-bottom, 0.75rem);
+  }
+  
+  .zerobot-mobile .suggestions-bar {
+    padding: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Fix for iOS viewport units */
+@supports (-webkit-touch-callout: none) {
+  .mobile-full-height {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Prevent zoom on input focus */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Optimize button interactions */
+@media (max-width: 768px) {
+  button, .button {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Reduce complex animations on mobile */
+@media (max-width: 768px) {
+  .animate-bounce {
+    animation: none;
+  }
+  
+  .animate-pulse {
+    animation-duration: 1s;
+  }
+}
+
+/* Optimize chat message rendering */
+@media (max-width: 768px) {
+  .chat-message {
+    margin-bottom: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+  
+  .chat-message img {
+    max-width: 100%;
+    height: auto;
+  }
+}

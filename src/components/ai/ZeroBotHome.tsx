@@ -74,7 +74,7 @@ const ZeroBotHome: React.FC<ZeroBotHomeProps> = ({
   };
 
   const botWindowClasses = isMobile
-    ? "fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-gradient-to-br from-purple-50/95 via-white/95 to-emerald-50/85 rounded-t-3xl h-[85vh] shadow-2xl border-t border-gray-200"
+    ? "fixed bottom-0 left-0 right-0 z-50 flex flex-col bg-gradient-to-br from-purple-50/95 via-white/95 to-emerald-50/85 rounded-t-3xl h-[90vh] shadow-2xl border-t border-gray-200"
     : "fixed bottom-6 right-6 w-full sm:w-96 h-[600px] z-50 flex flex-col bg-gradient-to-br from-purple-50/95 via-white/95 to-emerald-50/85 rounded-2xl shadow-2xl border border-gray-200 overflow-hidden";
 
   return (
@@ -97,10 +97,10 @@ const ZeroBotHome: React.FC<ZeroBotHomeProps> = ({
         {bot.isOpen && (
           <motion.div
             className={botWindowClasses}
-            initial={isMobile ? { opacity: 0, y: 70, scale: 0.96 } : { opacity: 0, scale: 0.95, y: 28 }}
+            initial={isMobile ? { opacity: 0, y: 100, scale: 0.95 } : { opacity: 0, scale: 0.9, y: 40 }}
             animate={isMobile ? { opacity: 1, y: 0, scale: 1 } : { opacity: 1, scale: 1, y: 0 }}
-            exit={isMobile ? { opacity: 0, y: 80, scale: 0.96 } : { opacity: 0, scale: 0.9, y: 28 }}
-            transition={{ type: 'spring', damping: 26, stiffness: 240, mass: 0.8 }}
+            exit={isMobile ? { opacity: 0, y: 100, scale: 0.95 } : { opacity: 0, scale: 0.85, y: 40 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200, mass: 0.8 }}
           >
             {/* Header */}
             <Suspense fallback={<div className="h-14 bg-gradient-to-r from-purple-400 to-indigo-500 animate-pulse rounded-t-2xl"></div>}>
@@ -109,7 +109,7 @@ const ZeroBotHome: React.FC<ZeroBotHomeProps> = ({
                 showSettings={bot.showSettings}
                 onClose={() => bot.setIsOpen(false)}
                 onSettings={() => bot.setShowSettings(true)}
-                badgeVersion="v5"
+                badgeVersion="v5.0"
               />
             </Suspense>
 
@@ -117,7 +117,7 @@ const ZeroBotHome: React.FC<ZeroBotHomeProps> = ({
             <Suspense fallback={<div className="h-10 bg-white border-b animate-pulse"></div>}>
               <ZeroBotTabs
                 activeTab={bot.activeTab}
-                setActiveTab={bot.setActiveTab}
+                setActiveTab={(tab: 'chat' | 'help' | 'analytics') => bot.setActiveTab(tab)}
                 showAnalytics={showAnalytics}
               />
             </Suspense>

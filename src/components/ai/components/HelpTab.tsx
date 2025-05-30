@@ -43,7 +43,7 @@ const HelpTab: React.FC<HelpTabProps> = ({
           variant="outline"
           size="sm"
           className="h-auto p-3 flex flex-col items-center gap-1 hover:bg-purple-50"
-          onClick={() => onTopicClick("help me get started")}
+          onClick={onGetStartedClick}
         >
           <MessageCircle className="w-4 h-4 text-purple-600" />
           <span className="text-xs">Get Started</span>
