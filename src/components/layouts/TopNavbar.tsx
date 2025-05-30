@@ -79,17 +79,22 @@ const TopNavbar = () => {
           </div>
         </div>
 
-        <div className="flex-1 max-w-lg mx-8">
+        <div className="flex-1 max-w-lg mx-12">
           <motion.div 
             className="relative"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", damping: 20 }}
           >
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-lg opacity-0"
+              whileHover={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
             <Input
               type="text"
-              placeholder="Search products..."
-              className="pl-10 bg-white border-2 border-gray-200 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all duration-300 shadow-sm"
+              placeholder="Search products, categories..."
+              className="pl-10 bg-white/80 backdrop-blur-sm border-2 border-gray-200/60 focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all duration-300 shadow-sm hover:bg-white/90 hover:shadow-md"
             />
           </motion.div>
         </div>

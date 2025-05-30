@@ -1,20 +1,238 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Search, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/auth/use-auth';
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: 'product' | 'order' | 'user' | 'category';
+  description?: string;
+  url: string;
+}
 
 const SearchBar: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  // Mock search function - replace with real API call
+  const searchItems = async (searchQuery: string): Promise<SearchResult[]> => {
+    if (!searchQuery.trim()) return [];
+    
+    setIsLoading(true);
+    
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    // Mock results based on user type
+    const mockResults: SearchResult[] = currentUser?.isSeller ? [
+      {
+        id: '1',
+        title: 'Organic Apples',
+        type: 'product',
+        description: 'Fresh organic apples',
+        url: '/seller/products'
+      },
+      {
+        id: '2',
+        title: 'Order #12345',
+        type: 'order',
+        description: 'Recent order from buyer',
+        url: '/seller/orders'
+      },
+      {
+        id: '3',
+        title: 'Analytics Dashboard',
+        type: 'category',
+        description: 'View sales analytics',
+        url: '/seller/analytics'
+      }
+    ] : [
+      {
+        id: '1',
+        title: 'Sustainable Products',
+        type: 'category',
+        description: 'Browse eco-friendly items',
+        url: '/marketplace'
+      },
+      {
+        id: '2',
+        title: 'My Orders',
+        type: 'order',
+        description: 'Track your orders',
+        url: '/orders'
+      },
+      {
+        id: '3',
+        title: 'Organic Food',
+        type: 'product',
+        description: 'Fresh organic produce',
+        url: '/marketplace?category=food'
+      }
+    ];
+    
+    setIsLoading(false);
+    return mockResults.filter(item => 
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
+
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      if (query.trim()) {
+        searchItems(query).then(setResults);
+      } else {
+        setResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(delayedSearch);
+  }, [query]);
+
+  const handleResultClick = (result: SearchResult) => {
+    navigate(result.url);
+    setQuery('');
+    setResults([]);
+    setIsOpen(false);
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setResults([]);
+    setIsOpen(false);
+  };
+
+  const getResultIcon = (type: string) => {
+    switch (type) {
+      case 'product': return '📦';
+      case 'order': return '🛒';
+      case 'user': return '👤';
+      case 'category': return '📁';
+      default: return '🔍';
+    }
+  };
+
   return (
-    <div className="flex-1 max-w-md navbar-item">
-      <div className="relative w-full search-bar-focus rounded-md overflow-hidden">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground search-icon-animated" />
+    <div className="flex-1 max-w-md ml-8 navbar-item relative">
+      <motion.div 
+        className="relative w-full search-bar-focus rounded-lg overflow-hidden"
+        whileHover={{ scale: 1.02 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg opacity-0"
+          animate={{ opacity: isOpen ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+        />
+        
+        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground search-icon-animated z-10" />
+        
         <Input 
           type="search" 
-          placeholder="Search..." 
-          className="pl-10 w-full bg-gray-50 border-gray-100 transition-all duration-300 focus:ring-2 focus:ring-offset-0 focus:ring-blue-400 focus:border-blue-400" 
+          placeholder={currentUser?.isSeller ? "Search products, orders..." : "Search products, categories..."}
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setIsOpen(true);
+          }}
+          onFocus={() => setIsOpen(true)}
+          className="pl-10 pr-10 w-full bg-gray-50/80 backdrop-blur-sm border-gray-200/60 transition-all duration-300 focus:ring-2 focus:ring-offset-0 focus:ring-blue-400/50 focus:border-blue-400/60 focus:bg-white/90 hover:bg-white/60" 
         />
-      </div>
+        
+        <AnimatePresence>
+          {(query || isOpen) && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              onClick={clearSearch}
+              className="absolute right-3 top-2.5 h-4 w-4 text-gray-400 hover:text-gray-600 transition-colors z-10"
+            >
+              <X size={16} />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </motion.div>
+
+      <AnimatePresence>
+        {isOpen && (query || results.length > 0) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-xl shadow-lg z-50 max-h-80 overflow-hidden"
+            onMouseLeave={() => setTimeout(() => setIsOpen(false), 150)}
+          >
+            {isLoading ? (
+              <div className="p-4 text-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="inline-block"
+                >
+                  <Search className="h-5 w-5 text-blue-500" />
+                </motion.div>
+                <p className="text-sm text-gray-500 mt-2">Searching...</p>
+              </div>
+            ) : results.length > 0 ? (
+              <div className="py-2">
+                {results.map((result, index) => (
+                  <motion.div
+                    key={result.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => handleResultClick(result)}
+                    className="px-4 py-3 hover:bg-gray-50/80 cursor-pointer border-b border-gray-100/50 last:border-b-0 transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <motion.span 
+                        className="text-lg"
+                        whileHover={{ scale: 1.2 }}
+                        transition={{ type: "spring", stiffness: 400 }}
+                      >
+                        {getResultIcon(result.type)}
+                      </motion.span>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                          {result.title}
+                        </p>
+                        {result.description && (
+                          <p className="text-sm text-gray-500 truncate">
+                            {result.description}
+                          </p>
+                        )}
+                      </div>
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors"
+                      >
+                        {result.type}
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : query ? (
+              <div className="p-4 text-center text-gray-500">
+                <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                <p className="text-sm">No results found for "{query}"</p>
+                <p className="text-xs text-gray-400 mt-1">Try searching for products, orders, or categories</p>
+              </div>
+            ) : null}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

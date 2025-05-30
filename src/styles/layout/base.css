@@ -94,6 +94,39 @@ body {
   padding: 1.5rem;
 }
 
+/* Enhanced search bar animations */
+.search-bar-focus {
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-bar-focus:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.search-bar-focus:focus-within {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.search-icon-animated {
+  transition: all 0.3s ease;
+}
+
+.search-bar-focus:focus-within .search-icon-animated {
+  color: #3b82f6;
+  transform: scale(1.1);
+}
+
+/* Glassmorphism effect for search dropdown */
+.search-dropdown {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
