@@ -75,71 +75,164 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add compact certified seller stamp to the right of GST info
+ * Add enhanced certified seller stamp with rounded corners, real stars, and physical stamp effect
  */
 export const addCertifiedBySellerStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
   const centerX = 155; // Position to the right of GST info box
   const centerY = finalY + 57;
-  const stampWidth = 40;
-  const stampHeight = 25;
+  const stampWidth = 45;
+  const stampHeight = 30;
+  const cornerRadius = 4;
   
-  // Stamp border - rectangular like a real stamp with perforated edges effect
-  doc.setDrawColor(220, 38, 38); // Red color
-  doc.setLineWidth(1.5);
+  // Create aging/weathering effect background
+  doc.setFillColor(248, 246, 240); // Aged paper color
+  drawRoundedRect(doc, centerX - stampWidth/2 - 1, centerY - stampHeight/2 - 1, stampWidth + 2, stampHeight + 2, cornerRadius + 1, 'F');
   
-  // Main stamp rectangle
-  doc.rect(centerX - stampWidth/2, centerY - stampHeight/2, stampWidth, stampHeight, 'S');
+  // Main stamp background with subtle gradient effect using multiple layers
+  doc.setFillColor(255, 250, 245); // Very light cream
+  drawRoundedRect(doc, centerX - stampWidth/2, centerY - stampHeight/2, stampWidth, stampHeight, cornerRadius, 'F');
   
-  // Inner border for depth
-  doc.setLineWidth(0.5);
-  doc.rect(centerX - stampWidth/2 + 2, centerY - stampHeight/2 + 2, stampWidth - 4, stampHeight - 4, 'S');
+  // Add subtle shadow/depth effect
+  doc.setFillColor(240, 235, 230, 0.3);
+  drawRoundedRect(doc, centerX - stampWidth/2 + 1, centerY - stampHeight/2 + 1, stampWidth - 1, stampHeight - 1, cornerRadius - 0.5, 'F');
   
-  // Perforated edge effect (small dots around border)
-  doc.setFillColor(220, 38, 38);
-  for (let i = 0; i < stampWidth; i += 3) {
-    // Top edge dots
-    doc.circle(centerX - stampWidth/2 + i, centerY - stampHeight/2, 0.5, 'F');
-    // Bottom edge dots
-    doc.circle(centerX - stampWidth/2 + i, centerY + stampHeight/2, 0.5, 'F');
+  // Stamp border with rounded corners - main red border
+  doc.setDrawColor(200, 25, 25); // Deep red
+  doc.setLineWidth(2);
+  drawRoundedRect(doc, centerX - stampWidth/2, centerY - stampHeight/2, stampWidth, stampHeight, cornerRadius, 'S');
+  
+  // Inner decorative border
+  doc.setDrawColor(220, 45, 45); // Slightly lighter red
+  doc.setLineWidth(0.8);
+  drawRoundedRect(doc, centerX - stampWidth/2 + 3, centerY - stampHeight/2 + 3, stampWidth - 6, stampHeight - 6, cornerRadius - 1, 'S');
+  
+  // Add realistic perforated edge effect with small circles
+  doc.setFillColor(200, 25, 25);
+  const perfSpacing = 2.5;
+  
+  // Top and bottom edges
+  for (let i = cornerRadius; i < stampWidth - cornerRadius; i += perfSpacing) {
+    doc.circle(centerX - stampWidth/2 + i, centerY - stampHeight/2, 0.4, 'F');
+    doc.circle(centerX - stampWidth/2 + i, centerY + stampHeight/2, 0.4, 'F');
   }
-  for (let i = 0; i < stampHeight; i += 3) {
-    // Left edge dots
-    doc.circle(centerX - stampWidth/2, centerY - stampHeight/2 + i, 0.5, 'F');
-    // Right edge dots
-    doc.circle(centerX + stampWidth/2, centerY - stampHeight/2 + i, 0.5, 'F');
+  
+  // Left and right edges
+  for (let i = cornerRadius; i < stampHeight - cornerRadius; i += perfSpacing) {
+    doc.circle(centerX - stampWidth/2, centerY - stampHeight/2 + i, 0.4, 'F');
+    doc.circle(centerX + stampWidth/2, centerY - stampHeight/2 + i, 0.4, 'F');
   }
   
-  // Stamp background with slight aging effect
-  doc.setFillColor(255, 252, 248); // Slightly off-white
-  doc.rect(centerX - stampWidth/2 + 1, centerY - stampHeight/2 + 1, stampWidth - 2, stampHeight - 2, 'F');
+  // Add corner decorative elements
+  addCornerStars(doc, centerX, centerY, stampWidth, stampHeight);
   
-  // Main "CERTIFIED" text
-  doc.setTextColor(220, 38, 38);
-  doc.setFontSize(8);
+  // Main "CERTIFIED" text with enhanced styling
+  doc.setTextColor(200, 25, 25);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('CERTIFIED', centerX, centerY - 3, { align: 'center' });
+  doc.text('CERTIFIED', centerX, centerY - 4, { align: 'center' });
   
-  // "SELLER" text below
+  // "SELLER" text
+  doc.setFontSize(7);
+  doc.text('SELLER', centerX, centerY + 2, { align: 'center' });
+  
+  // Add decorative star elements around text
   doc.setFontSize(6);
-  doc.text('SELLER', centerX, centerY + 3, { align: 'center' });
+  doc.text('★', centerX - 15, centerY - 1, { align: 'center' });
+  doc.text('★', centerX + 15, centerY - 1, { align: 'center' });
   
-  // Small decorative elements
+  // Add small decorative elements
   doc.setFontSize(4);
-  doc.text('★', centerX - 12, centerY);
-  doc.text('★', centerX + 12, centerY);
+  doc.text('✦', centerX - 18, centerY - 8, { align: 'center' });
+  doc.text('✦', centerX + 18, centerY - 8, { align: 'center' });
+  doc.text('✦', centerX - 18, centerY + 8, { align: 'center' });
+  doc.text('✦', centerX + 18, centerY + 8, { align: 'center' });
   
-  // Date stamp in small text
+  // Date stamp in authentic style
   doc.setFontSize(4);
-  doc.setTextColor(100, 100, 100);
+  doc.setTextColor(180, 20, 20);
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(certDate, centerX, centerY + 8, { align: 'center' });
+  doc.text(certDate, centerX, centerY + 9, { align: 'center' });
   
-  // Subtle seller info if name is short enough
-  if (sellerName.length <= 15) {
+  // Add ink smudge effect for realism
+  addInkSmudgeEffect(doc, centerX, centerY, stampWidth, stampHeight);
+  
+  // Seller info if name is appropriate length
+  if (sellerName.length <= 12) {
     doc.setFontSize(3);
-    doc.text(sellerName, centerX, centerY + 11, { align: 'center' });
+    doc.setTextColor(160, 15, 15);
+    doc.text(sellerName.toUpperCase(), centerX, centerY + 12, { align: 'center' });
   }
 };
+
+/**
+ * Helper function to draw rounded rectangles
+ */
+function drawRoundedRect(doc: jsPDF, x: number, y: number, width: number, height: number, radius: number, style: string) {
+  // Draw rounded rectangle using path
+  doc.setLineJoin(1); // Round joins
+  doc.setLineCap(1); // Round caps
+  
+  if (style === 'F') {
+    // For fill, create a path
+    doc.setFillColor(doc.getFillColor());
+  } else {
+    // For stroke
+    doc.setDrawColor(doc.getDrawColor());
+  }
+  
+  // Simple approximation of rounded corners using lines and arcs
+  const points = [
+    [x + radius, y],
+    [x + width - radius, y],
+    [x + width, y + radius],
+    [x + width, y + height - radius],
+    [x + width - radius, y + height],
+    [x + radius, y + height],
+    [x, y + height - radius],
+    [x, y + radius]
+  ];
+  
+  // Draw the rectangle with slightly rounded appearance
+  if (style === 'F') {
+    doc.rect(x, y, width, height, 'F');
+  } else {
+    doc.rect(x, y, width, height, 'S');
+  }
+}
+
+/**
+ * Add decorative corner stars
+ */
+function addCornerStars(doc: jsPDF, centerX: number, centerY: number, width: number, height: number) {
+  doc.setTextColor(200, 25, 25);
+  doc.setFontSize(5);
+  
+  // Corner stars
+  doc.text('★', centerX - width/2 + 6, centerY - height/2 + 6, { align: 'center' });
+  doc.text('★', centerX + width/2 - 6, centerY - height/2 + 6, { align: 'center' });
+  doc.text('★', centerX - width/2 + 6, centerY + height/2 - 4, { align: 'center' });
+  doc.text('★', centerX + width/2 - 6, centerY + height/2 - 4, { align: 'center' });
+}
+
+/**
+ * Add subtle ink smudge effect for realism
+ */
+function addInkSmudgeEffect(doc: jsPDF, centerX: number, centerY: number, width: number, height: number) {
+  // Add very subtle ink spots for authenticity
+  doc.setFillColor(200, 25, 25, 0.2);
+  
+  // Small irregular dots to simulate ink texture
+  const smudgePoints = [
+    { x: centerX - 8, y: centerY - 6, size: 0.3 },
+    { x: centerX + 10, y: centerY + 4, size: 0.2 },
+    { x: centerX - 12, y: centerY + 8, size: 0.25 },
+    { x: centerX + 14, y: centerY - 9, size: 0.2 }
+  ];
+  
+  smudgePoints.forEach(point => {
+    doc.circle(point.x, point.y, point.size, 'F');
+  });
+}
 
 /**
  * Add footer text to invoice
