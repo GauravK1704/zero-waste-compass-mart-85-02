@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
@@ -25,6 +26,12 @@ const Cart: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [orderId] = useState(uuidv4());
 
+  // Calculate delivery fee and total consistently
+  const subtotal = getCartTotal();
+  const deliveryFee = 40;
+  const actualDeliveryFee = subtotal >= 500 ? 0 : deliveryFee;
+  const totalAmount = subtotal + actualDeliveryFee;
+
   const removeItem = (id: string) => {
     removeFromCart(id);
     toast({
@@ -41,6 +48,14 @@ const Cart: React.FC = () => {
   };
 
   const checkoutHandler = () => {
+    if (cartItems.length === 0) {
+      toast({
+        title: "Cart is empty",
+        description: "Please add items to your cart before checkout",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsPaymentModalOpen(true);
   };
   
@@ -81,8 +96,8 @@ const Cart: React.FC = () => {
 
           <div className="lg:col-span-1">
             <OrderSummary 
-              subtotal={getCartTotal()}
-              deliveryFee={40}
+              subtotal={subtotal}
+              deliveryFee={deliveryFee}
               onCheckout={checkoutHandler}
               isDisabled={cartItems.length === 0}
             />
@@ -92,7 +107,7 @@ const Cart: React.FC = () => {
         <PaymentModal 
           open={isPaymentModalOpen}
           onOpenChange={setIsPaymentModalOpen}
-          amount={getCartTotal()}
+          amount={totalAmount}
           orderId={orderId}
           onPaymentComplete={handlePaymentComplete}
         />

@@ -9,7 +9,7 @@ import { usePayment, PaymentDetails } from '@/hooks/usePayment';
 import { toast } from 'sonner';
 import { Loader2, CreditCard, Smartphone, Building2, Wallet } from 'lucide-react';
 import PaymentOptionsScroller from '@/components/PaymentOptionsScroller';
-import RazorpayPayment from '@/components/payment/RazorpayPayment';
+import { useRazorpayPayment } from '@/components/payment/RazorpayPayment';
 import { useAuth } from '@/contexts/auth';
 
 interface PaymentModalProps {
@@ -40,7 +40,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     bankName: ''
   });
 
-  const razorpayPayment = RazorpayPayment({
+  const razorpayPayment = useRazorpayPayment({
     amount,
     orderId,
     onPaymentSuccess: () => {
@@ -61,6 +61,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   });
 
   const handleRazorpayPayment = async () => {
+    console.log('Starting Razorpay payment for amount:', amount);
     setIsProcessingRazorpay(true);
     await razorpayPayment.handlePayment();
   };
@@ -115,6 +116,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
           </p>
           <div className="text-sm text-gray-500">
             Supports UPI, Cards, Net Banking, and Wallets
+          </div>
+          <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-700">
+            Amount to be paid: ₹{amount.toFixed(2)}
           </div>
         </div>
       );

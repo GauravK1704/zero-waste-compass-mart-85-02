@@ -1,5 +1,5 @@
 
-import React from 'react';
+import { useCallback } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/auth';
@@ -22,13 +22,13 @@ interface RazorpayPaymentProps {
   };
 }
 
-const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
+export const useRazorpayPayment = ({
   amount,
   orderId,
   onPaymentSuccess,
   onPaymentError,
   customerInfo,
-}) => {
+}: RazorpayPaymentProps) => {
   const { currentUser } = useAuth();
 
   const initializeRazorpay = () => {
@@ -41,13 +41,15 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
     });
   };
 
-  const handlePayment = async () => {
+  const handlePayment = useCallback(async () => {
     if (!currentUser) {
       toast.error('Please login to continue with payment');
       return;
     }
 
     try {
+      console.log('Initiating payment for amount:', amount);
+      
       // Load Razorpay script
       const isRazorpayLoaded = await initializeRazorpay();
       if (!isRazorpayLoaded) {
@@ -58,11 +60,11 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       // Create Razorpay order
       const { data, error } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
-          amount,
+          amount: amount,
           currency: 'INR',
-          orderId,
+          orderId: orderId,
           userId: currentUser.id,
-          customerInfo,
+          customerInfo: customerInfo,
         },
       });
 
@@ -72,6 +74,8 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
         if (onPaymentError) onPaymentError(error.message);
         return;
       }
+
+      console.log('Razorpay order created:', data);
 
       // Configure Razorpay options
       const options = {
@@ -101,7 +105,7 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  orderId,
+                  orderId: orderId,
                 },
               }
             );
@@ -142,9 +146,9 @@ const RazorpayPayment: React.FC<RazorpayPaymentProps> = ({
       toast.error('Failed to initialize payment');
       if (onPaymentError) onPaymentError('Payment initialization failed');
     }
-  };
+  }, [amount, orderId, currentUser, customerInfo, onPaymentSuccess, onPaymentError]);
 
   return { handlePayment };
 };
 
-export default RazorpayPayment;
+export default useRazorpayPayment;

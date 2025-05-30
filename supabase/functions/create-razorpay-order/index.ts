@@ -40,6 +40,14 @@ serve(async (req: Request) => {
       );
     }
 
+    // Validate amount
+    if (amount <= 0) {
+      return new Response(
+        JSON.stringify({ error: "Invalid amount" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     // Get Razorpay credentials from environment
     const razorpayKeyId = Deno.env.get("RAZORPAY_KEY_ID");
     const razorpayKeySecret = Deno.env.get("RAZORPAY_KEY_SECRET");
@@ -52,19 +60,23 @@ serve(async (req: Request) => {
       );
     }
 
-    // Create Razorpay order
+    // Create Razorpay order with the exact amount received (already includes delivery fee)
+    const amountInPaise = Math.round(amount * 100); // Convert to paise
     const razorpayOrder = {
-      amount: Math.round(amount * 100), // Convert to paise
+      amount: amountInPaise,
       currency: currency,
       receipt: orderId,
       payment_capture: 1,
       notes: {
         order_id: orderId,
         user_id: userId,
+        customer_name: customerInfo.name,
+        customer_email: customerInfo.email,
       }
     };
 
-    console.log("Creating Razorpay order:", razorpayOrder);
+    console.log("Creating Razorpay order with amount:", amountInPaise, "paise (₹", amount, ")");
+    console.log("Order details:", razorpayOrder);
 
     const razorpayResponse = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
@@ -85,13 +97,13 @@ serve(async (req: Request) => {
     }
 
     const razorpayOrderData = await razorpayResponse.json();
-    console.log("Razorpay order created:", razorpayOrderData);
+    console.log("Razorpay order created successfully:", razorpayOrderData);
 
     // Store payment record in database
     const { data: paymentRecord, error } = await supabaseClient
       .from("payments")
       .insert({
-        amount,
+        amount: amount, // Store the original amount in rupees
         currency,
         order_id: orderId,
         user_id: userId,
@@ -104,6 +116,8 @@ serve(async (req: Request) => {
 
     if (error) {
       console.error("Error recording payment:", error);
+    } else {
+      console.log("Payment record created:", paymentRecord);
     }
 
     return new Response(
