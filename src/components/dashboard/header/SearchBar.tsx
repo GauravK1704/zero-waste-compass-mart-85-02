@@ -1,17 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/auth/use-auth';
+import { mockProducts } from '@/pages/marketplace/data/mockProducts';
 
 interface SearchResult {
   id: string;
   title: string;
-  type: 'product' | 'order' | 'user' | 'category';
+  type: 'product' | 'order' | 'user' | 'category' | 'page' | 'setting';
   description?: string;
   url: string;
+  price?: number;
 }
 
 const SearchBar: React.FC = () => {
@@ -21,8 +23,9 @@ const SearchBar: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const searchRef = useRef<HTMLDivElement>(null);
 
-  // Mock search function - replace with real API call
+  // Enhanced search function that includes marketplace products
   const searchItems = async (searchQuery: string): Promise<SearchResult[]> => {
     if (!searchQuery.trim()) return [];
     
@@ -31,58 +34,83 @@ const SearchBar: React.FC = () => {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 300));
     
+    const results: SearchResult[] = [];
+    const lowercaseQuery = searchQuery.toLowerCase();
+    
+    // Search marketplace products
+    const productResults = mockProducts
+      .filter(product => 
+        product.name.toLowerCase().includes(lowercaseQuery) ||
+        product.category.toLowerCase().includes(lowercaseQuery) ||
+        product.description?.toLowerCase().includes(lowercaseQuery)
+      )
+      .slice(0, 4)
+      .map(product => ({
+        id: product.id,
+        title: product.name,
+        type: 'product' as const,
+        description: `₹${product.price} - ${product.category}`,
+        url: '/marketplace',
+        price: product.price
+      }));
+
     // Mock results based on user type
-    const mockResults: SearchResult[] = currentUser?.isSeller ? [
+    const contextResults: SearchResult[] = currentUser?.isSeller ? [
       {
         id: '1',
-        title: 'Organic Apples',
-        type: 'product',
-        description: 'Fresh organic apples',
-        url: '/seller/products'
+        title: 'Seller Analytics',
+        type: 'page',
+        description: 'View sales analytics',
+        url: '/seller/analytics'
       },
       {
         id: '2',
-        title: 'Order #12345',
-        type: 'order',
-        description: 'Recent order from buyer',
+        title: 'Order Management',
+        type: 'page',
+        description: 'Manage your orders',
         url: '/seller/orders'
       },
       {
         id: '3',
-        title: 'Analytics Dashboard',
-        type: 'category',
-        description: 'View sales analytics',
-        url: '/seller/analytics'
+        title: 'Product Management',
+        type: 'page',
+        description: 'Manage your products',
+        url: '/seller/products'
       }
     ] : [
       {
         id: '1',
-        title: 'Sustainable Products',
-        type: 'category',
-        description: 'Browse eco-friendly items',
-        url: '/marketplace'
-      },
-      {
-        id: '2',
         title: 'My Orders',
-        type: 'order',
+        type: 'page',
         description: 'Track your orders',
         url: '/orders'
       },
       {
+        id: '2',
+        title: 'Profile Settings',
+        type: 'setting',
+        description: 'Update your profile',
+        url: '/profile'
+      },
+      {
         id: '3',
-        title: 'Organic Food',
-        type: 'product',
-        description: 'Fresh organic produce',
-        url: '/marketplace?category=food'
+        title: 'Account Settings',
+        type: 'setting',
+        description: 'Manage account settings',
+        url: '/settings'
       }
     ];
     
-    setIsLoading(false);
-    return mockResults.filter(item => 
-      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    // Filter context results based on search query
+    const filteredContextResults = contextResults.filter(item => 
+      item.title.toLowerCase().includes(lowercaseQuery) ||
+      item.description?.toLowerCase().includes(lowercaseQuery)
     );
+    
+    results.push(...productResults, ...filteredContextResults);
+    
+    setIsLoading(false);
+    return results.slice(0, 6);
   };
 
   useEffect(() => {
@@ -96,6 +124,18 @@ const SearchBar: React.FC = () => {
 
     return () => clearTimeout(delayedSearch);
   }, [query]);
+
+  // Click outside to close
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleResultClick = (result: SearchResult) => {
     navigate(result.url);
@@ -112,16 +152,18 @@ const SearchBar: React.FC = () => {
 
   const getResultIcon = (type: string) => {
     switch (type) {
-      case 'product': return '📦';
+      case 'product': return '🛍️';
       case 'order': return '🛒';
       case 'user': return '👤';
       case 'category': return '📁';
+      case 'page': return '📄';
+      case 'setting': return '⚙️';
       default: return '🔍';
     }
   };
 
   return (
-    <div className="flex-1 max-w-md ml-8 navbar-item relative">
+    <div className="flex-1 max-w-md ml-8 navbar-item relative" ref={searchRef}>
       <motion.div 
         className="relative w-full search-bar-focus rounded-lg overflow-hidden"
         whileHover={{ scale: 1.02 }}
@@ -137,7 +179,7 @@ const SearchBar: React.FC = () => {
         
         <Input 
           type="search" 
-          placeholder={currentUser?.isSeller ? "Search products, orders..." : "Search products, categories..."}
+          placeholder="Search products, orders, pages..."
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
@@ -169,8 +211,7 @@ const SearchBar: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-xl shadow-lg z-50 max-h-80 overflow-hidden"
-            onMouseLeave={() => setTimeout(() => setIsOpen(false), 150)}
+            className="absolute top-full left-0 right-0 mt-2 bg-white/95 backdrop-blur-md border border-gray-200/60 rounded-xl shadow-lg z-50 max-h-80 overflow-hidden search-dropdown"
           >
             {isLoading ? (
               <div className="p-4 text-center">
@@ -227,7 +268,7 @@ const SearchBar: React.FC = () => {
               <div className="p-4 text-center text-gray-500">
                 <Search className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No results found for "{query}"</p>
-                <p className="text-xs text-gray-400 mt-1">Try searching for products, orders, or categories</p>
+                <p className="text-xs text-gray-400 mt-1">Try searching for products, pages, or settings</p>
               </div>
             ) : null}
           </motion.div>
