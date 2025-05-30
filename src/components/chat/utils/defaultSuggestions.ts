@@ -3,28 +3,28 @@ import { MessageCategory } from '@/types/chat';
 
 export const defaultSuggestions: Record<MessageCategory, string[]> = {
   general: [
-    "How does Zero Waste Mart work?", 
-    "Where are nearby drop-offs?", 
-    "What impact have we made?", 
-    "How to donate items?"
+    "How does Zero Waste Mart work?",
+    "What impact have we made so far?",
+    "Tips for sustainable living?",
+    "How can I track my environmental impact?"
   ],
   sustainability: [
-    "Tips for sustainable living?",
-    "How to start composting?",
-    "Zero waste kitchen ideas?",
-    "Eco-friendly alternatives?"
+    "How can I reduce my plastic usage?",
+    "What are the best composting methods?",
+    "How to start a zero-waste lifestyle?",
+    "Which products have the lowest environmental impact?"
   ],
   climate: [
-    "How does reusing help climate?",
-    "Carbon footprint of recycling?",
-    "Climate impact of food waste?",
-    "Individual vs corporate impact?"
+    "How does my shopping affect climate change?",
+    "What's my carbon footprint?",
+    "Climate-friendly product alternatives?",
+    "How to offset my environmental impact?"
   ],
   personal: [
-    "Track my waste reduction?",
-    "Start my zero waste journey?",
-    "Find local sustainability groups?",
-    "Create sustainable habits?"
+    "Show me my order history",
+    "Update my preferences",
+    "What's my sustainability score?",
+    "Personalized recommendations"
   ],
   tracking: [
     "When will my package arrive?",
@@ -39,15 +39,27 @@ export const defaultSuggestions: Record<MessageCategory, string[]> = {
     "Is there a warranty on this item?"
   ],
   order: [
-    "How do I change my order?",
-    "Can I cancel my recent purchase?",
-    "When will my order ship?",
-    "How do I return an item?"
+    "Check my recent orders",
+    "Cancel my order",
+    "Modify my order",
+    "Reorder previous items"
   ],
   invoice: [
-    "How do I get a receipt?",
-    "Can I get a tax invoice?",
-    "Where do I find past invoices?",
-    "How do I report a billing issue?"
+    "Download my invoice",
+    "Payment details",
+    "Billing information",
+    "Receipt for tax purposes"
+  ],
+  support: [
+    "I need help with a problem",
+    "Speak to a human agent",
+    "Report an issue",
+    "Get technical support"
+  ],
+  account: [
+    "Update my profile",
+    "Change password",
+    "Privacy settings",
+    "Delete my account"
   ]
 };

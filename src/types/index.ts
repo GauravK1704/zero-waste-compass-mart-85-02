@@ -1,66 +1,120 @@
-
 export interface User {
   id: string;
   email: string;
-  displayName?: string;
-  photoURL?: string;
-  role?: 'buyer' | 'seller' | 'admin';
-  language?: string;
-  gstin?: string;
-  businessAddress?: string;
+  firstName: string;
+  lastName: string;
+  avatar: string;
+  isSeller: boolean;
+  isAdmin: boolean;
+  role: 'user' | 'seller' | 'admin';
+  language: string;
+  gstin: string;
+  businessAddress: string;
+  preferences: {
+    notifications: {
+      email: boolean;
+      push: boolean;
+      sms: boolean;
+      marketingEmails: boolean;
+    };
+    language: string;
+    theme: string;
+  };
 }
 
-export interface AINotification {
+export interface Message {
+  id: number | string;
+  content: string;
+  sender: 'user' | 'bot';
+  timestamp: Date;
+  category: MessageCategory;
+  metadata?: any;
+}
+
+export type MessageCategory = 
+  | 'general' 
+  | 'product' 
+  | 'order' 
+  | 'tracking' 
+  | 'sustainability' 
+  | 'climate' 
+  | 'personal' 
+  | 'invoice'
+  | 'support'
+  | 'account';
+
+export type TabType = 'chat' | 'help' | 'analytics';
+
+export interface ZeroBotResponse {
+  answer: string;
+  context: MessageCategory;
+  confidence: number;
+  suggestions: string[];
+  metadata: {
+    processingTime: number;
+    sentiment: 'positive' | 'negative' | 'neutral';
+    language: string;
+    escalateToHuman?: boolean;
+    complexity: 'simple' | 'medium' | 'complex';
+    keywords: string[];
+    relatedTopics: string[];
+    emotion?: 'frustrated' | 'happy' | 'confused' | 'angry' | 'neutral';
+    requiresFollowUp?: boolean;
+  };
+}
+
+export interface ConversationContext {
+  userId: string;
+  sessionId: string;
+  history: Message[];
+  currentIntent: string;
+  userProfile?: {
+    name?: string;
+    preferences?: any;
+    mood?: string;
+    previousQueries?: string[];
+  };
+  formData?: Record<string, any>;
+  stepInProgress?: string;
+}
+
+export interface KnowledgeBaseEntry {
   id: string;
   title: string;
-  message: string;
-  type: 'info' | 'warning' | 'success' | 'error';
-  timestamp: Date;
-  read: boolean;
-  actionUrl?: string;
+  content: string;
+  category: MessageCategory;
+  keywords: string[];
+  language: string;
 }
 
-export interface Task {
+export interface OrderTracking {
+  orderId: string;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  location?: string;
+  estimatedDelivery?: string;
+  trackingNumber?: string;
+  lastUpdate: Date;
+}
+
+export interface Item {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  imageUrl: string;
+  category: string;
+  tags: string[];
+  variants: Variant[];
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+}
+
+export interface Variant {
   id: string;
   name: string;
-  task_type: string;
-  schedule: string;
-  enabled: boolean;
-  parameters: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-  last_run: string;
-  next_run: string;
+  sku: string;
+  price: number;
+  stock: number;
+  options: Record<string, string>;
 }
-
-export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
-
-export type OrderStatus = 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
-
-export type ItemCategory = 
-  | 'food' 
-  | 'electronics' 
-  | 'clothing' 
-  | 'books' 
-  | 'furniture' 
-  | 'sports' 
-  | 'beauty' 
-  | 'toys' 
-  | 'automotive' 
-  | 'home' 
-  | 'garden' 
-  | 'health' 
-  | 'pets' 
-  | 'office' 
-  | 'craft' 
-  | 'music' 
-  | 'fitness' 
-  | 'stationery';
-
-export interface VerifiedDocument {
-  type: string;
-  status: 'verified' | 'pending' | 'rejected';
-  uploadedAt: Date;
-}
-
-export type MessageCategory = 'general' | 'product' | 'order' | 'account' | 'support';

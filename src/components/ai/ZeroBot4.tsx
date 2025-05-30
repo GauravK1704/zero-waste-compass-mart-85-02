@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -10,6 +9,7 @@ import ZeroBotChatContent from './components/ZeroBotChatContent';
 import HelpTab from './components/HelpTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import SettingsPanel from './components/SettingsPanel';
+import { TabType } from '@/types';
 
 interface ZeroBot4Props {
   initialPrompt?: string;
@@ -91,7 +91,7 @@ const ZeroBot4: React.FC<ZeroBot4Props> = ({
             {/* Tabs */}
             <ZeroBotTabs
               activeTab={bot.activeTab}
-              setActiveTab={bot.setActiveTab}
+              setActiveTab={(tab: TabType) => bot.setActiveTab(tab)}
               showAnalytics={showAnalytics}
             />
             

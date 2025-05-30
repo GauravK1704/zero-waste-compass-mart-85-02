@@ -1,6 +1,6 @@
 
 import { toast } from 'sonner';
-import { ZeroBotAI } from '@/services/ZeroBotAI';
+import { enhancedZeroBotAI } from '@/services/ai/EnhancedZeroBotAI';
 import { Message, MessageCategory } from '@/types/chat';
 
 interface MessageHandlingProps {
@@ -26,20 +26,20 @@ export function useMessageHandling({
   setIsProcessing,
   setStreamedResponse,
   setCurrentContext,
-  realtimeActive,
   setSuggestions,
   setMessages,
   inputValue,
   setInputValue,
 }: MessageHandlingProps) {
   
-  // Initialize with personalized greeting
+  // Initialize with enhanced personalized greeting
   const initializeChat = () => {
     if (currentUser?.id) {
-      const personalizedGreeting = ZeroBotAI.getPersonalizedGreeting(currentUser.id);
+      const greeting = `Hello${currentUser.displayName ? ` ${currentUser.displayName}` : ''}! 👋 I'm your enhanced AI assistant for Zero Waste Mart. I can help you with:\n\n🛍️ Smart product recommendations\n📦 Real-time order tracking\n🌱 Sustainability guidance\n💬 Natural conversation in multiple languages\n🤝 Escalation to human support when needed\n\nWhat would you like to explore today? 😊`;
+      
       setMessages([{
         id: 1,
-        content: personalizedGreeting,
+        content: greeting,
         sender: 'bot',
         timestamp: new Date(),
         category: 'general',
@@ -47,7 +47,7 @@ export function useMessageHandling({
     }
   };
 
-  // Enhanced message handling with proper input clearing
+  // Enhanced message handling with comprehensive AI capabilities
   const handleSendMessage = async (content?: string) => {
     const messageContent = content || inputValue.trim();
     if (!messageContent) return;
@@ -61,116 +61,84 @@ export function useMessageHandling({
     setIsProcessing(true);
     
     try {
-      // Enhanced context detection
-      const detectedContext = ZeroBotAI.detectMessageContext(messageContent);
-      setCurrentContext(detectedContext);
-      
-      // Enhanced options for request
-      const options = {
-        category: detectedContext,
-        userId: currentUser?.id || 'anonymous',
-        realtime: realtimeActive,
-        sellerMode: currentUser?.isSeller || false
-      };
-      
-      if (realtimeActive) {
-        // Initialize streaming response
-        setStreamedResponse('');
-        
-        // Process with enhanced streaming
-        await ZeroBotAI.processMessageRealtime(
-          messageContent,
-          options,
-          // On chunk handler
-          (chunk: string) => {
-            setStreamedResponse(prev => prev + chunk);
-          },
-          // On complete handler with enhanced data
-          (response) => {
-            setIsProcessing(false);
-            setStreamedResponse('');
-            
-            // Handle escalation to human if needed
-            if (response.metadata?.escalateToHuman) {
-              toast.info("I've noted you'd like to speak with a human representative.", {
-                action: {
-                  label: "Contact Support",
-                  onClick: () => {
-                    window.open('mailto:support@zerowastemart.com', '_blank');
-                  }
-                }
-              });
-            }
-            
-            // Add completed message with enhanced metadata
-            addBotMessage(
-              response.answer, 
-              response.context || 'general',
-              {
-                processingTime: response.metadata?.processingTime,
-                sources: response.metadata?.relatedTopics,
-                isRealtime: true,
-                sentiment: response.metadata?.sentiment,
-                language: response.metadata?.language,
-                escalateToHuman: response.metadata?.escalateToHuman,
-                confidence: response.confidence,
-                complexity: response.metadata?.complexity,
-                keywords: response.metadata?.keywords
-              }
-            );
-            
-            // Update suggestions with personalized recommendations
-            setSuggestions(response.suggestions || []);
+      // Use enhanced AI processing
+      const response = await enhancedZeroBotAI.processEnhancedMessage(
+        messageContent,
+        currentUser?.id || 'anonymous',
+        {
+          language: currentUser?.language || 'english',
+          sessionId: `session_${currentUser?.id || 'anonymous'}`,
+          userProfile: {
+            name: currentUser?.displayName,
+            preferences: currentUser?.preferences,
+            isSeller: currentUser?.isSeller
           }
-        );
-      } else {
-        // Process with enhanced features
-        const response = await ZeroBotAI.processMessage(messageContent, options);
-        
-        // Handle escalation to human if needed
-        if (response.metadata?.escalateToHuman) {
-          toast.info("I've noted you'd like to speak with a human representative.", {
+        }
+      );
+      
+      // Update context based on AI response
+      setCurrentContext(response.context);
+      
+      // Handle escalation to human if needed
+      if (response.metadata.escalateToHuman) {
+        toast.info("I'm connecting you with a human representative! 👥", {
+          action: {
+            label: "Contact Support",
+            onClick: () => {
+              window.open('mailto:support@zerowastemart.com', '_blank');
+            }
+          }
+        });
+      }
+      
+      // Handle feedback collection
+      if (response.metadata.requiresFollowUp) {
+        setTimeout(() => {
+          toast.info("How am I doing? Rate my response! ⭐", {
             action: {
-              label: "Contact Support",
+              label: "Give Feedback",
               onClick: () => {
-                window.open('mailto:support@zerowastemart.com', '_blank');
+                // Could open a feedback modal here
+                console.log('Feedback requested');
               }
             }
           });
-        }
-        
-        // Add bot response with enhanced metadata
-        addBotMessage(
-          response.answer, 
-          response.context || 'general',
-          {
-            processingTime: response.metadata?.processingTime,
-            sources: response.metadata?.relatedTopics,
-            sentiment: response.metadata?.sentiment,
-            language: response.metadata?.language,
-            escalateToHuman: response.metadata?.escalateToHuman,
-            confidence: response.confidence,
-            complexity: response.metadata?.complexity,
-            keywords: response.metadata?.keywords
-          }
-        );
-        
-        // Update suggestions with personalized recommendations
-        setSuggestions(response.suggestions || []);
-        setIsProcessing(false);
+        }, 3000);
       }
+      
+      // Add bot response with enhanced metadata
+      addBotMessage(
+        response.answer,
+        response.context,
+        {
+          processingTime: response.metadata.processingTime,
+          sentiment: response.metadata.sentiment,
+          language: response.metadata.language,
+          escalateToHuman: response.metadata.escalateToHuman,
+          confidence: response.confidence,
+          complexity: response.metadata.complexity,
+          keywords: response.metadata.keywords,
+          emotion: response.metadata.emotion,
+          requiresFollowUp: response.metadata.requiresFollowUp
+        }
+      );
+      
+      // Update suggestions with AI recommendations
+      setSuggestions(response.suggestions);
+      setIsProcessing(false);
+      
     } catch (error) {
-      console.error("Error processing message:", error);
+      console.error("Enhanced AI error:", error);
       setIsProcessing(false);
       setStreamedResponse('');
       
-      // Add error message
+      // Add friendly error message with escalation option
       addBotMessage(
-        "I apologize, but I encountered an error processing your request. Please try again.",
-        'general'
+        "I apologize, but I'm experiencing some technical difficulties! 😅 Let me connect you with a human agent who can help you right away. 🤝",
+        'support'
       );
       
-      toast.error("Something went wrong. Please try again.");
+      toast.error("AI assistant temporarily unavailable - connecting to human support");
     }
   };
   
@@ -186,17 +154,30 @@ export function useMessageHandling({
   };
   
   const handleMessageReaction = (messageId: number | string, reaction: 'like' | 'dislike') => {
-    // Enhanced feedback handling with sentiment tracking
+    // Enhanced feedback collection with sentiment tracking
     if (currentUser?.id) {
-      const feedbackData = { messageId, reaction, timestamp: new Date() };
-      console.log('User feedback:', feedbackData);
+      const feedbackData = { 
+        messageId, 
+        reaction, 
+        timestamp: new Date(),
+        userId: currentUser.id 
+      };
+      
+      // Collect feedback for AI improvement
+      enhancedZeroBotAI.collectFeedback(
+        `session_${currentUser.id}`,
+        reaction === 'like' ? 5 : 2,
+        `User ${reaction}d message ${messageId}`
+      );
+      
+      console.log('Enhanced feedback collected:', feedbackData);
     }
     
-    toast.success(
-      reaction === 'like' 
-        ? 'Thank you for your feedback! This helps me learn. 😊' 
-        : 'Thanks for the feedback. I\'ll work on improving my responses. 🤝'
-    );
+    const responseMessage = reaction === 'like' 
+      ? 'Thank you for the positive feedback! This helps me learn and improve. 😊✨' 
+      : 'Thanks for letting me know! I\'ll work on providing better responses. Your feedback helps me grow! 🤝📈';
+    
+    toast.success(responseMessage);
   };
   
   const handleTopicClick = (title: string) => {
@@ -204,7 +185,14 @@ export function useMessageHandling({
   };
   
   const handleGetStartedClick = () => {
-    handleSendMessage('Help me get started with sustainable living');
+    handleSendMessage('Help me get started with sustainable living and explore your features');
+  };
+  
+  const cancelCurrentStream = () => {
+    // Enhanced stream cancellation
+    setIsProcessing(false);
+    setStreamedResponse('');
+    toast.info("Response cancelled. How else can I help you? 😊");
   };
   
   return {
@@ -215,6 +203,6 @@ export function useMessageHandling({
     handleTopicClick,
     handleGetStartedClick,
     initializeChat,
-    cancelCurrentStream: ZeroBotAI.cancelCurrentStream
+    cancelCurrentStream
   };
 }

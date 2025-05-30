@@ -126,7 +126,7 @@ const ZeroBot5: React.FC<ZeroBot5Props> = ({
             <Suspense fallback={<div className="h-10 bg-white border-b animate-pulse"></div>}>
               <ZeroBotTabs
                 activeTab={bot.activeTab}
-                setActiveTab={(tab: 'chat' | 'help' | 'analytics') => bot.setActiveTab(tab)}
+                setActiveTab={(tab: TabType) => bot.setActiveTab(tab)}
                 showAnalytics={showAnalytics}
               />
             </Suspense>
