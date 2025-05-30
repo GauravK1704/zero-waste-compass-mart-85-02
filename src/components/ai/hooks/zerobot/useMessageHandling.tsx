@@ -47,12 +47,12 @@ export function useMessageHandling({
     }
   };
 
-  // Enhanced message handling with input clearing
+  // Enhanced message handling with proper input clearing
   const handleSendMessage = async (content?: string) => {
     const messageContent = content || inputValue.trim();
     if (!messageContent) return;
     
-    // Clear input immediately after sending
+    // Clear input IMMEDIATELY before processing
     setInputValue('');
     
     // Add user message to chat
@@ -61,11 +61,11 @@ export function useMessageHandling({
     setIsProcessing(true);
     
     try {
-      // Detect context of user message with enhanced NLP
+      // Enhanced context detection
       const detectedContext = ZeroBotAI.detectMessageContext(messageContent);
       setCurrentContext(detectedContext);
       
-      // Set enhanced options for request
+      // Enhanced options for request
       const options = {
         category: detectedContext,
         userId: currentUser?.id || 'anonymous',
