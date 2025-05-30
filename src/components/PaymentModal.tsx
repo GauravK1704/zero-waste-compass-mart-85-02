@@ -108,6 +108,21 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
+  const handleCashOnDeliveryPayment = async () => {
+    setIsProcessingRazorpay(true);
+    try {
+      // Process COD order
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Order placed successfully! You will pay on delivery.');
+      onPaymentComplete();
+      onOpenChange(false);
+    } catch (error) {
+      toast.error('Failed to place COD order. Please try again.');
+    } finally {
+      setIsProcessingRazorpay(false);
+    }
+  };
+
   const handlePayment = async () => {
     if (selectedPaymentMethod === 'razorpay') {
       await handleRazorpayPayment();
@@ -121,6 +136,11 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
 
     if (selectedPaymentMethod === 'paytm') {
       await handlePaytmPayment();
+      return;
+    }
+
+    if (selectedPaymentMethod === 'cod') {
+      await handleCashOnDeliveryPayment();
       return;
     }
 

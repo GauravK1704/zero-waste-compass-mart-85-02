@@ -60,15 +60,19 @@ const Cart: React.FC = () => {
   };
   
   const handlePaymentComplete = () => {
-    // Clear the cart after successful payment
+    // Clear the cart immediately after successful payment
+    clearCart();
+    
+    // Show success message
+    toast({
+      title: "Order placed successfully!",
+      description: `Your order #${orderId.substring(0, 8)} has been placed and will be processed shortly.`,
+    });
+    
+    // Navigate to dashboard after a short delay
     setTimeout(() => {
-      clearCart();
-      toast({
-        title: "Order placed successfully",
-        description: "Your order has been placed and will be processed shortly.",
-      });
       navigate('/dashboard');
-    }, 2000);
+    }, 1000);
   };
 
   if (isLoading) {
