@@ -13,6 +13,12 @@ interface PaymentOption {
 
 const paymentOptions: PaymentOption[] = [
   {
+    id: 'razorpay',
+    name: 'Razorpay Gateway',
+    icon: <CreditCard className="h-6 w-6" />,
+    description: 'UPI, Cards, Net Banking & Wallets - All in one secure gateway'
+  },
+  {
     id: 'card',
     name: 'Credit/Debit Card',
     icon: <CreditCard className="h-6 w-6" />,
@@ -41,12 +47,6 @@ const paymentOptions: PaymentOption[] = [
     name: 'Cash on Delivery',
     icon: <Wallet className="h-6 w-6" />,
     description: 'Pay when your order arrives'
-  },
-  {
-    id: 'emi',
-    name: 'EMI Options',
-    icon: <CreditCard className="h-6 w-6" />,
-    description: 'Pay in easy monthly installments'
   }
 ];
 

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,8 @@ import { usePayment, PaymentDetails } from '@/hooks/usePayment';
 import { toast } from 'sonner';
 import { Loader2, CreditCard, Smartphone, Building2, Wallet } from 'lucide-react';
 import PaymentOptionsScroller from '@/components/PaymentOptionsScroller';
+import RazorpayPayment from '@/components/payment/RazorpayPayment';
+import { useAuth } from '@/contexts/auth';
 
 interface PaymentModalProps {
   open: boolean;
@@ -27,7 +28,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   onPaymentComplete
 }) => {
   const { createPayment, isLoading } = usePayment();
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
+  const { currentUser } = useAuth();
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('razorpay');
+  const [isProcessingRazorpay, setIsProcessingRazorpay] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: '',
     cardHolder: '',
@@ -37,7 +40,37 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     bankName: ''
   });
 
+  const razorpayPayment = RazorpayPayment({
+    amount,
+    orderId,
+    onPaymentSuccess: () => {
+      setIsProcessingRazorpay(false);
+      toast.success('Payment successful!');
+      onPaymentComplete();
+      onOpenChange(false);
+    },
+    onPaymentError: (error: string) => {
+      setIsProcessingRazorpay(false);
+      toast.error(`Payment failed: ${error}`);
+    },
+    customerInfo: {
+      name: currentUser?.displayName || currentUser?.email || 'Customer',
+      email: currentUser?.email || '',
+      contact: currentUser?.phone || '',
+    },
+  });
+
+  const handleRazorpayPayment = async () => {
+    setIsProcessingRazorpay(true);
+    await razorpayPayment.handlePayment();
+  };
+
   const handlePayment = async () => {
+    if (selectedPaymentMethod === 'razorpay') {
+      await handleRazorpayPayment();
+      return;
+    }
+
     try {
       const details: PaymentDetails = {
         method: selectedPaymentMethod as any,
@@ -67,6 +100,26 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
   };
 
   const renderPaymentForm = () => {
+    if (selectedPaymentMethod === 'razorpay') {
+      return (
+        <div className="text-center py-6 space-y-4">
+          <div className="flex items-center justify-center space-x-3">
+            <img 
+              src="https://razorpay.com/assets/razorpay-logo.svg" 
+              alt="Razorpay" 
+              className="h-8"
+            />
+          </div>
+          <p className="text-gray-600">
+            You will be redirected to Razorpay's secure payment gateway
+          </p>
+          <div className="text-sm text-gray-500">
+            Supports UPI, Cards, Net Banking, and Wallets
+          </div>
+        </div>
+      );
+    }
+
     switch (selectedPaymentMethod) {
       case 'card':
         return (
@@ -157,6 +210,51 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
     }
   };
 
+  const extendedPaymentOptions = [
+    {
+      id: 'razorpay',
+      name: 'Razorpay Gateway',
+      icon: <CreditCard className="h-6 w-6" />,
+      description: 'UPI, Cards, Net Banking & Wallets'
+    },
+    {
+      id: 'card',
+      name: 'Credit/Debit Card',
+      icon: <CreditCard className="h-6 w-6" />,
+      description: 'Pay securely with your card'
+    },
+    {
+      id: 'upi',
+      name: 'UPI',
+      icon: <Smartphone className="h-6 w-6" />,
+      description: 'Pay using UPI apps like PhonePe, Google Pay'
+    },
+    {
+      id: 'wallet',
+      name: 'Digital Wallet',
+      icon: <Wallet className="h-6 w-6" />,
+      description: 'Use your digital wallet like Paytm, Amazon Pay'
+    },
+    {
+      id: 'netbanking',
+      name: 'Net Banking',
+      icon: <Building2 className="h-6 w-6" />,
+      description: 'Pay through internet banking'
+    },
+    {
+      id: 'cod',
+      name: 'Cash on Delivery',
+      icon: <Wallet className="h-6 w-6" />,
+      description: 'Pay when your order arrives'
+    },
+    {
+      id: 'emi',
+      name: 'EMI Options',
+      icon: <CreditCard className="h-6 w-6" />,
+      description: 'Pay in easy monthly installments'
+    }
+  ];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto">
@@ -165,7 +263,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
         </DialogHeader>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Payment Options Scroller */}
+          {/* Payment Options */}
           <div className="space-y-4">
             <PaymentOptionsScroller
               selectedOption={selectedPaymentMethod}
@@ -195,9 +293,9 @@ const PaymentModal: React.FC<PaymentModalProps> = ({
                 <Button 
                   onClick={handlePayment} 
                   className="w-full" 
-                  disabled={isLoading}
+                  disabled={isLoading || isProcessingRazorpay}
                 >
-                  {isLoading ? (
+                  {(isLoading || isProcessingRazorpay) ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Processing...
