@@ -75,73 +75,70 @@ export const addGSTInfoBox = (doc: jsPDF, gstInfo: { gstin: string, hsn: string,
 };
 
 /**
- * Add red circular "CERTIFIED" stamp matching the uploaded image
+ * Add compact certified seller stamp to the right of GST info
  */
 export const addCertifiedBySellerStamp = (doc: jsPDF, finalY: number, pageWidth: number, sellerName: string = 'Seller') => {
-  const centerX = 140;
+  const centerX = 155; // Position to the right of GST info box
   const centerY = finalY + 57;
-  const outerRadius = 30;
+  const stampWidth = 40;
+  const stampHeight = 25;
   
-  // Outer red border ring (thick)
+  // Stamp border - rectangular like a real stamp with perforated edges effect
   doc.setDrawColor(220, 38, 38); // Red color
-  doc.setLineWidth(3);
-  doc.circle(centerX, centerY, outerRadius, 'S');
-  
-  // Inner red border ring
   doc.setLineWidth(1.5);
-  doc.circle(centerX, centerY, outerRadius - 4, 'S');
   
-  // White background fill
-  doc.setFillColor(255, 255, 255);
-  doc.circle(centerX, centerY, outerRadius - 5, 'F');
+  // Main stamp rectangle
+  doc.rect(centerX - stampWidth/2, centerY - stampHeight/2, stampWidth, stampHeight, 'S');
   
-  // Top "CERTIFIED" text
-  doc.setTextColor(220, 38, 38); // Red color
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'bold');
-  const topText = 'CERTIFIED';
-  doc.text(topText, centerX, centerY - 12, { align: 'center' });
+  // Inner border for depth
+  doc.setLineWidth(0.5);
+  doc.rect(centerX - stampWidth/2 + 2, centerY - stampHeight/2 + 2, stampWidth - 4, stampHeight - 4, 'S');
   
-  // Center large "CERTIFIED" text
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
+  // Perforated edge effect (small dots around border)
+  doc.setFillColor(220, 38, 38);
+  for (let i = 0; i < stampWidth; i += 3) {
+    // Top edge dots
+    doc.circle(centerX - stampWidth/2 + i, centerY - stampHeight/2, 0.5, 'F');
+    // Bottom edge dots
+    doc.circle(centerX - stampWidth/2 + i, centerY + stampHeight/2, 0.5, 'F');
+  }
+  for (let i = 0; i < stampHeight; i += 3) {
+    // Left edge dots
+    doc.circle(centerX - stampWidth/2, centerY - stampHeight/2 + i, 0.5, 'F');
+    // Right edge dots
+    doc.circle(centerX + stampWidth/2, centerY - stampHeight/2 + i, 0.5, 'F');
+  }
+  
+  // Stamp background with slight aging effect
+  doc.setFillColor(255, 252, 248); // Slightly off-white
+  doc.rect(centerX - stampWidth/2 + 1, centerY - stampHeight/2 + 1, stampWidth - 2, stampHeight - 2, 'F');
+  
+  // Main "CERTIFIED" text
   doc.setTextColor(220, 38, 38);
-  doc.text('CERTIFIED', centerX, centerY, { align: 'center' });
-  
-  // Bottom "CERTIFIED" text
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
-  doc.text('CERTIFIED', centerX, centerY + 12, { align: 'center' });
+  doc.text('CERTIFIED', centerX, centerY - 3, { align: 'center' });
   
-  // Stars decoration around the text
+  // "SELLER" text below
   doc.setFontSize(6);
-  doc.setTextColor(220, 38, 38);
+  doc.text('SELLER', centerX, centerY + 3, { align: 'center' });
   
-  // Top stars arranged in a curve
-  doc.text('★', centerX - 18, centerY - 8);
-  doc.text('★', centerX - 8, centerY - 18);
-  doc.text('★', centerX + 8, centerY - 18);
-  doc.text('★', centerX + 18, centerY - 8);
+  // Small decorative elements
+  doc.setFontSize(4);
+  doc.text('★', centerX - 12, centerY);
+  doc.text('★', centerX + 12, centerY);
   
-  // Bottom stars arranged in a curve
-  doc.text('★', centerX - 18, centerY + 8);
-  doc.text('★', centerX - 8, centerY + 18);
-  doc.text('★', centerX + 8, centerY + 18);
-  doc.text('★', centerX + 18, centerY + 8);
-  
-  // Left and right stars
-  doc.text('★', centerX - 22, centerY);
-  doc.text('★', centerX + 22, centerY);
-  
-  // Small seller info at bottom
-  doc.setFontSize(5);
+  // Date stamp in small text
+  doc.setFontSize(4);
   doc.setTextColor(100, 100, 100);
-  const sellerDisplayName = sellerName.length > 25 ? sellerName.substring(0, 25) + '...' : sellerName;
-  doc.text(sellerDisplayName, centerX, centerY + 20, { align: 'center' });
-  
-  // Date stamp
   const certDate = new Date().toLocaleDateString('en-IN');
-  doc.text(`Date: ${certDate}`, centerX, centerY + 24, { align: 'center' });
+  doc.text(certDate, centerX, centerY + 8, { align: 'center' });
+  
+  // Subtle seller info if name is short enough
+  if (sellerName.length <= 15) {
+    doc.setFontSize(3);
+    doc.text(sellerName, centerX, centerY + 11, { align: 'center' });
+  }
 };
 
 /**

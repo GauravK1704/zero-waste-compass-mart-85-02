@@ -99,7 +99,7 @@ export const generateInvoice = (order: Order): boolean => {
       state: 'Karnataka'
     }, finalY);
     
-    // Certified by Seller stamp
+    // New compact certified seller stamp (positioned to the right of GST info)
     const sellerName = order.items[0]?.name || 'Verified Seller';
     addCertifiedBySellerStamp(doc, finalY, pageWidth, sellerName);
     

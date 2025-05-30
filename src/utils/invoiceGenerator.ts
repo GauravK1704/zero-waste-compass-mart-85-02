@@ -134,7 +134,7 @@ export const generateInvoicePdf = (order: Order) => {
     state: companyInfo.state
   }, finalY);
   
-  // Add Certified by Seller stamp
+  // Add new compact certified seller stamp (positioned to the right of GST info)
   addCertifiedBySellerStamp(doc, finalY, pageWidth);
   
   // Add footer text
